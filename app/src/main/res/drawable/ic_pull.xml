@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Pull Icon - nach unten ziehen -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,22 L12,14 M8,16 L12,22 L16,16"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6,12 L18,12 L18,4 L6,4 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,4 L12,2 M10,2 L14,2"/>
+</vector>
+
