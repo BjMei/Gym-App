@@ -3,7 +3,8 @@ package com.example.gym_app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -11,24 +12,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);                             // verbindet Java mit deiner XML
+        setContentView(R.layout.activity_main);
 
-        Button startWorkoutBtn = findViewById(R.id.btnStartWorkout);
-        Button statsBtn = findViewById(R.id.btnStats);                      // holt Buttons aus dem Layout
+        ImageButton startWorkoutBtn = findViewById(R.id.btnStartWorkout);
+        ImageButton statsBtn = findViewById(R.id.btnStats);
+        LinearLayout workoutCard = findViewById(R.id.workoutCard);
 
-        startWorkoutBtn.setOnClickListener(new View.OnClickListener() {     // reagiert auf Klicks
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
+        // Workout-Button und Card
+        View.OnClickListener workoutClickListener = v -> {
+            startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
+        };
+        
+        startWorkoutBtn.setOnClickListener(workoutClickListener);
+        workoutCard.setOnClickListener(workoutClickListener);
 
-            }
-        });
-
-        statsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // später: StatsActivity starten
-            }
+        // Statistik-Button
+        statsBtn.setOnClickListener(v -> {
+            // später: StatsActivity starten
         });
     }
 }

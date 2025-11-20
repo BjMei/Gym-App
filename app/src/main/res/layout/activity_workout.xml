@@ -1,55 +1,272 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    android:background="@android:color/black">
+    android:orientation="vertical"
+    android:background="@color/primary_dark"
+    android:paddingTop="48dp">
 
-    <TextView
-        android:id="@+id/titleWorkout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Workout auswählen"
-        android:textSize="28sp"
-        android:textColor="@android:color/white"
-        android:textStyle="bold"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="32dp"/>
-
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/titleWorkout"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/gradient_header"
+        android:padding="32dp"
+        android:gravity="center"
+        android:elevation="8dp">
 
-        <Button
-            android:id="@+id/btnPush"
-            android:layout_width="match_parent"
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_dumbbell"
+            android:tint="@color/text_primary"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Push"
-            android:layout_marginBottom="16dp" />
+            android:text="WORKOUT AUSWÄHLEN"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.05"
+            android:layout_marginBottom="8dp"/>
 
-        <Button
-            android:id="@+id/btnPull"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pull"
-            android:layout_marginBottom="16dp" />
-
-        <Button
-            android:id="@+id/btnLegs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Leg" />
-
+            android:text="Wähle dein Training"
+            android:textSize="18sp"
+            android:textColor="@color/text_primary"
+            android:alpha="0.9"
+            android:fontFamily="sans-serif-medium"/>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btnBack"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:text="Zurück"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"/>
+    <!-- ScrollView für Workout-Cards -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:padding="24dp">
 
-</RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <!-- Push Card -->
+            <LinearLayout
+                android:id="@+id/pushCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/card_push"
+                android:padding="28dp"
+                android:gravity="center_vertical"
+                android:minHeight="140dp"
+                android:layout_marginBottom="24dp"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:src="@drawable/ic_push"
+                    android:tint="@color/text_primary"
+                    android:layout_marginEnd="24dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PUSH DAY"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="0.05"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Brust, Schultern, Trizeps"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:alpha="0.9"
+                        android:fontFamily="sans-serif-medium"/>
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnPush"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/rounded_input"
+                    android:src="@android:drawable/ic_menu_more"
+                    android:contentDescription="Push starten"
+                    android:scaleType="centerInside"
+                    android:padding="12dp"
+                    android:tint="@color/text_primary"
+                    android:rotation="90"/>
+            </LinearLayout>
+
+            <!-- Pull Card -->
+            <LinearLayout
+                android:id="@+id/pullCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/card_pull"
+                android:padding="28dp"
+                android:gravity="center_vertical"
+                android:minHeight="140dp"
+                android:layout_marginBottom="24dp"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:src="@drawable/ic_pull"
+                    android:tint="@color/text_primary"
+                    android:layout_marginEnd="24dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PULL DAY"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="0.05"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Rücken, Bizeps"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:alpha="0.9"
+                        android:fontFamily="sans-serif-medium"/>
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnPull"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/rounded_input"
+                    android:src="@android:drawable/ic_menu_more"
+                    android:contentDescription="Pull starten"
+                    android:scaleType="centerInside"
+                    android:padding="12dp"
+                    android:tint="@color/text_primary"
+                    android:rotation="90"/>
+            </LinearLayout>
+
+            <!-- Leg Card -->
+            <LinearLayout
+                android:id="@+id/legCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/card_leg"
+                android:padding="28dp"
+                android:gravity="center_vertical"
+                android:minHeight="140dp"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:src="@drawable/ic_leg"
+                    android:tint="@color/text_primary"
+                    android:layout_marginEnd="24dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="LEG DAY"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="0.05"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Beine, Waden"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:alpha="0.9"
+                        android:fontFamily="sans-serif-medium"/>
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnLegs"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/rounded_input"
+                    android:src="@android:drawable/ic_menu_more"
+                    android:contentDescription="Leg starten"
+                    android:scaleType="centerInside"
+                    android:padding="12dp"
+                    android:tint="@color/text_primary"
+                    android:rotation="90"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Zurück Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="24dp"
+        android:gravity="start">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/rounded_button"
+            android:src="@android:drawable/ic_menu_revert"
+            android:contentDescription="Zurück"
+            android:scaleType="centerInside"
+            android:padding="12dp"
+            android:tint="@color/text_primary"
+            android:elevation="8dp"/>
+    </LinearLayout>
+
+</LinearLayout>

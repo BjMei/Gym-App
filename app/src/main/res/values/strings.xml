@@ -14,4 +14,20 @@
         <item>Fahrrad</item>
         <item>Seil springen</item>
     </string-array>
+    
+    <string-array name="pull_exercises">
+        <item>Latzug eng</item>
+        <item>Latzug breit</item>
+        <item>Rudern</item>
+        <item>Unterer Rücken</item>
+        <item>Bizeps</item>
+    </string-array>
+    
+    <string-array name="leg_exercises">
+        <item>Beinbeuger</item>
+        <item>Beine innen</item>
+        <item>Waden sitzend</item>
+        <item>Beinstrecker</item>
+        <item>Beinpresse</item>
+    </string-array>
 </resources>

@@ -23,10 +23,10 @@ public class PushActivity extends AppCompatActivity {
     private ImageButton btnExerciseSettings;
     private EditText[] etWeights;
     private EditText[] etReps;
-    private Button btnSave;
+    private ImageButton btnSave;
     private Spinner spinnerCardio;
     private EditText etCardioMinutes;
-    private Button btnSaveCardio;
+    private ImageButton btnSaveCardio;
     private LinearLayout llEntries;
     private List<WorkoutEntry> workoutEntries;
     private List<CardioEntry> cardioEntries;
@@ -109,7 +109,7 @@ public class PushActivity extends AppCompatActivity {
 
         EditText etSeatPositions = dialog.findViewById(R.id.etSeatPositions);
         Button btnCancel = dialog.findViewById(R.id.btnCancel);
-        Button btnSaveSettings = dialog.findViewById(R.id.btnSaveSettings);
+        ImageButton btnSaveSettings = dialog.findViewById(R.id.btnSaveSettings);
 
         // Gespeicherte Einstellungen laden
         String savedPositions = sharedPreferences.getString(selectedExercise, "");

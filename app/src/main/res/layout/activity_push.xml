@@ -18,12 +18,12 @@
         android:background="@drawable/gradient_header"
         android:elevation="12dp">
         
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
             android:text="PUSH DAY"
             android:textSize="38sp"
-            android:textStyle="bold"
+        android:textStyle="bold"
             android:textColor="@color/text_primary"
             android:layout_gravity="start"
             android:letterSpacing="0.1"
@@ -32,7 +32,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Wenn du nicht schwitzt, war's Aufwärmen"
+            android:text="Wenn du noch laufen kannst, war's Cardio"
             android:textSize="16sp"
             android:textColor="@color/text_secondary"
             android:layout_gravity="start"
@@ -293,17 +293,24 @@
                 </LinearLayout>
 
                 <!-- Button zum Speichern -->
-                <Button
-                    android:id="@+id/btnSave"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="SPEICHERN"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                    android:background="@drawable/rounded_button"
-                    android:elevation="8dp"
-                    android:letterSpacing="0.1"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btnSave"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/rounded_button"
+                        android:src="@android:drawable/ic_menu_save"
+                        android:contentDescription="Speichern"
+                        android:scaleType="centerInside"
+                        android:padding="12dp"
+                        android:tint="@color/text_primary"
+                        android:elevation="8dp"/>
+                </LinearLayout>
             </LinearLayout>
 
             <!-- Cardio-Bereich -->
@@ -371,17 +378,24 @@
                     android:layout_marginBottom="16dp"
                     android:inputType="number"/>
 
-                <Button
-                    android:id="@+id/btnSaveCardio"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="SPEICHERN"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                    android:background="@drawable/rounded_button"
-                    android:elevation="8dp"
-                    android:letterSpacing="0.1"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btnSaveCardio"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/rounded_button"
+                        android:src="@android:drawable/ic_menu_save"
+                        android:contentDescription="Speichern"
+                        android:scaleType="centerInside"
+                        android:padding="12dp"
+                        android:tint="@color/text_primary"
+                        android:elevation="8dp"/>
+                </LinearLayout>
             </LinearLayout>
 
             <!-- Liste der gespeicherten Übungen -->

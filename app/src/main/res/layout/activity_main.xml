@@ -3,31 +3,189 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center"
-    android:background="@android:color/black">
+    android:background="@color/primary_dark"
+    android:paddingTop="48dp">
 
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Gym App"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:layout_marginBottom="40dp"/>
-
-    <Button
-        android:id="@+id/btnStartWorkout"
+    <!-- Header mit Gradient -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Workout starten"
-        android:layout_marginBottom="16dp"/>
+        android:orientation="vertical"
+        android:paddingTop="40dp"
+        android:paddingBottom="50dp"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        android:background="@drawable/gradient_header"
+        android:elevation="12dp">
 
-    <Button
-        android:id="@+id/btnStats"
+        <!-- Logo/Icon -->
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_dumbbell"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:tint="@color/text_primary"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GYM APP"
+            android:textSize="42sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_gravity="center_horizontal"
+            android:letterSpacing="0.15"
+            android:fontFamily="sans-serif-black"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dein persönlicher Trainingsbegleiter"
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-medium"/>
+    </LinearLayout>
+
+    <!-- ScrollView für Buttons -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Statistik"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:padding="24dp">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <!-- Workout Card -->
+            <LinearLayout
+                android:id="@+id/workoutCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/card_workout"
+                android:padding="28dp"
+                android:gravity="center_vertical"
+                android:minHeight="140dp"
+                android:layout_marginBottom="24dp"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:src="@drawable/ic_dumbbell"
+                    android:tint="@color/text_primary"
+                    android:layout_marginEnd="24dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="WORKOUT STARTEN"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="0.05"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Wähle dein Training"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:alpha="0.9"
+                        android:fontFamily="sans-serif-medium"/>
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnStartWorkout"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/rounded_input"
+                    android:src="@android:drawable/ic_menu_more"
+                    android:contentDescription="Workout starten"
+                    android:scaleType="centerInside"
+                    android:padding="12dp"
+                    android:tint="@color/text_primary"
+                    android:rotation="90"/>
+            </LinearLayout>
+
+            <!-- Statistik Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/card_stats"
+                android:padding="28dp"
+                android:gravity="center_vertical"
+                android:minHeight="140dp"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:src="@drawable/ic_stats"
+                    android:tint="@color/gradient_accent_start"
+                    android:layout_marginEnd="24dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="STATISTIK"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="0.05"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Deine Trainingsdaten"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_secondary"
+                        android:fontFamily="sans-serif-medium"/>
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnStats"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/rounded_input"
+                    android:src="@android:drawable/ic_menu_more"
+                    android:contentDescription="Statistik"
+                    android:scaleType="centerInside"
+                    android:padding="12dp"
+                    android:tint="@color/gradient_accent_start"
+                    android:rotation="90"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
