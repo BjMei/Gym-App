@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Gym-App</string>
+    
+    <string-array name="push_exercises">
+        <item>Flys</item>
+        <item>Brustpresse</item>
+        <item>Schrägbank</item>
+        <item>Frontheben</item>
+        <item>Seitheben</item>
+        <item>Trieceps</item>
+    </string-array>
+    
+    <string-array name="cardio_exercises">
+        <item>Fahrrad</item>
+        <item>Seil springen</item>
+    </string-array>
 </resources>

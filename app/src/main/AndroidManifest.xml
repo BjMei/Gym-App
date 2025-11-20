@@ -12,7 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GymApp">
         <activity
-            android:name=".PushAktivity"
+            android:name=".Test"
+            android:exported="false" />
+        <activity
+            android:name=".LegActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PullActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PushActivity"
             android:exported="false" />
         <activity
             android:name=".WorkoutActivity"
