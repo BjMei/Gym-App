@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GymApp">
         <activity
+            android:name=".PushAktivity"
+            android:exported="false" />
+        <activity
+            android:name=".WorkoutActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

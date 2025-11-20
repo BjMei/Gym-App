@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@android:color/black">
+
+    <TextView
+        android:id="@+id/titleWorkout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Workout auswählen"
+        android:textSize="28sp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="32dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titleWorkout"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnPush"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Push"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btnPull"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pull"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btnLegs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Leg" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Zurück"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"/>
+
+</RelativeLayout>
