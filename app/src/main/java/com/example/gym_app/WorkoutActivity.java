@@ -15,34 +15,24 @@ public class WorkoutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout);
 
-        ImageButton btnPush = findViewById(R.id.btnPush);
-        ImageButton btnPull = findViewById(R.id.btnPull);
-        ImageButton btnLegs = findViewById(R.id.btnLegs);
-        ImageButton btnBack = findViewById(R.id.btnBack);
-        
         LinearLayout pushCard = findViewById(R.id.pushCard);
         LinearLayout pullCard = findViewById(R.id.pullCard);
         LinearLayout legCard = findViewById(R.id.legCard);
+        ImageButton btnBack = findViewById(R.id.btnBack);
 
         // Push - Button und Card
-        View.OnClickListener pushClickListener = v -> {
-            startActivity(new Intent(WorkoutActivity.this, PushActivity.class));
-        };
-        btnPush.setOnClickListener(pushClickListener);
+        View.OnClickListener pushClickListener = v ->
+                startActivity(new Intent(WorkoutActivity.this, PushActivity.class));
         pushCard.setOnClickListener(pushClickListener);
 
         // Pull - Button und Card
-        View.OnClickListener pullClickListener = v -> {
-            startActivity(new Intent(WorkoutActivity.this, PullActivity.class));
-        };
-        btnPull.setOnClickListener(pullClickListener);
+        View.OnClickListener pullClickListener = v ->
+                startActivity(new Intent(WorkoutActivity.this, PullActivity.class));
         pullCard.setOnClickListener(pullClickListener);
 
         // Leg - Button und Card
-        View.OnClickListener legClickListener = v -> {
-            startActivity(new Intent(WorkoutActivity.this, LegActivity.class));
-        };
-        btnLegs.setOnClickListener(legClickListener);
+        View.OnClickListener legClickListener = v ->
+                startActivity(new Intent(WorkoutActivity.this, LegActivity.class));
         legCard.setOnClickListener(legClickListener);
 
         // Zurück

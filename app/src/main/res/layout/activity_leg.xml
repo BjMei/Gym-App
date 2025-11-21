@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/primary_dark"
-    android:paddingTop="48dp">
+    android:paddingTop="48dp"
+    android:paddingBottom="32dp">
 
     <!-- Header mit Gradient -->
     <LinearLayout

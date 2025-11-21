@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/primary_dark"
-    android:paddingTop="48dp">
+    android:paddingTop="48dp"
+    android:paddingBottom="32dp">
 
     <!-- Header mit Gradient -->
     <LinearLayout
@@ -32,7 +33,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Wenn du noch laufen kannst, war's Cardio"
+            android:text="Wenn der Rücken nicht explodiert, war’s ein Dehnkurs"
             android:textSize="16sp"
             android:textColor="@color/text_secondary"
             android:layout_gravity="start"

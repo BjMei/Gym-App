@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/primary_dark"
-    android:paddingTop="48dp">
+    android:paddingTop="48dp"
+    android:paddingBottom="32dp">
 
     <!-- Header -->
     <LinearLayout
@@ -16,32 +17,15 @@
         android:gravity="center"
         android:elevation="8dp">
 
-        <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:src="@drawable/ic_dumbbell"
-            android:tint="@color/text_primary"
-            android:layout_marginBottom="16dp"/>
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="WORKOUT AUSWÄHLEN"
-            android:textSize="32sp"
+            android:textSize="36sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Wähle dein Training"
-            android:textSize="18sp"
-            android:textColor="@color/text_primary"
-            android:alpha="0.9"
-            android:fontFamily="sans-serif-medium"/>
+            android:letterSpacing="0.05" />
     </LinearLayout>
 
     <!-- ScrollView für Workout-Cards -->
@@ -95,30 +79,8 @@
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
                         android:fontFamily="sans-serif-black"
-                        android:letterSpacing="0.05"
-                        android:layout_marginBottom="10dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Brust, Schultern, Trizeps"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
-                        android:alpha="0.9"
-                        android:fontFamily="sans-serif-medium"/>
+                        android:letterSpacing="0.05"/>
                 </LinearLayout>
-
-                <ImageButton
-                    android:id="@+id/btnPush"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:background="@drawable/rounded_input"
-                    android:src="@android:drawable/ic_menu_more"
-                    android:contentDescription="Push starten"
-                    android:scaleType="centerInside"
-                    android:padding="12dp"
-                    android:tint="@color/text_primary"
-                    android:rotation="90"/>
             </LinearLayout>
 
             <!-- Pull Card -->
@@ -158,30 +120,8 @@
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
                         android:fontFamily="sans-serif-black"
-                        android:letterSpacing="0.05"
-                        android:layout_marginBottom="10dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Rücken, Bizeps"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
-                        android:alpha="0.9"
-                        android:fontFamily="sans-serif-medium"/>
+                        android:letterSpacing="0.05"/>
                 </LinearLayout>
-
-                <ImageButton
-                    android:id="@+id/btnPull"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:background="@drawable/rounded_input"
-                    android:src="@android:drawable/ic_menu_more"
-                    android:contentDescription="Pull starten"
-                    android:scaleType="centerInside"
-                    android:padding="12dp"
-                    android:tint="@color/text_primary"
-                    android:rotation="90"/>
             </LinearLayout>
 
             <!-- Leg Card -->
@@ -220,30 +160,8 @@
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
                         android:fontFamily="sans-serif-black"
-                        android:letterSpacing="0.05"
-                        android:layout_marginBottom="10dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Beine, Waden"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
-                        android:alpha="0.9"
-                        android:fontFamily="sans-serif-medium"/>
+                        android:letterSpacing="0.05"/>
                 </LinearLayout>
-
-                <ImageButton
-                    android:id="@+id/btnLegs"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:background="@drawable/rounded_input"
-                    android:src="@android:drawable/ic_menu_more"
-                    android:contentDescription="Leg starten"
-                    android:scaleType="centerInside"
-                    android:padding="12dp"
-                    android:tint="@color/text_primary"
-                    android:rotation="90"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

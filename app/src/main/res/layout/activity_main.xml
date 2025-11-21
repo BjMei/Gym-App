@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/primary_dark"
-    android:paddingTop="48dp">
+    android:paddingTop="48dp"
+    android:paddingBottom="32dp">
 
     <!-- Header mit Gradient -->
     <LinearLayout
@@ -101,34 +102,13 @@
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
                         android:fontFamily="sans-serif-black"
-                        android:letterSpacing="0.05"
-                        android:layout_marginBottom="10dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Wähle dein Training"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
-                        android:alpha="0.9"
-                        android:fontFamily="sans-serif-medium"/>
+                        android:letterSpacing="0.05"/>
                 </LinearLayout>
-
-                <ImageButton
-                    android:id="@+id/btnStartWorkout"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:background="@drawable/rounded_input"
-                    android:src="@android:drawable/ic_menu_more"
-                    android:contentDescription="Workout starten"
-                    android:scaleType="centerInside"
-                    android:padding="12dp"
-                    android:tint="@color/text_primary"
-                    android:rotation="90"/>
             </LinearLayout>
 
             <!-- Statistik Card -->
             <LinearLayout
+                android:id="@+id/statsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -162,29 +142,152 @@
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
                         android:fontFamily="sans-serif-black"
-                        android:letterSpacing="0.05"
-                        android:layout_marginBottom="10dp"/>
+                        android:letterSpacing="0.05"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Gespeicherte Trainings -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DEINE TRAININGS"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.05"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Push Trainings -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/card_workout"
+                android:padding="24dp"
+                android:gravity="center_vertical"
+                android:minHeight="120dp"
+                android:layout_marginBottom="16dp"
+                android:elevation="6dp">
+
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/ic_push"
+                    android:tint="@color/text_primary"
+                    android:layout_marginEnd="20dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Deine Trainingsdaten"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_secondary"
-                        android:fontFamily="sans-serif-medium"/>
-                </LinearLayout>
+                        android:text="PUSH"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="0.05"
+                        android:layout_marginBottom="12dp"/>
 
-                <ImageButton
-                    android:id="@+id/btnStats"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:background="@drawable/rounded_input"
-                    android:src="@android:drawable/ic_menu_more"
-                    android:contentDescription="Statistik"
-                    android:scaleType="centerInside"
-                    android:padding="12dp"
-                    android:tint="@color/gradient_accent_start"
-                    android:rotation="90"/>
+                    <LinearLayout
+                        android:id="@+id/pushStatsList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Pull Trainings -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/card_workout"
+                android:padding="24dp"
+                android:gravity="center_vertical"
+                android:minHeight="120dp"
+                android:layout_marginBottom="16dp"
+                android:elevation="6dp">
+
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/ic_pull"
+                    android:tint="@color/text_primary"
+                    android:layout_marginEnd="20dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PULL"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="0.05"
+                        android:layout_marginBottom="12dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/pullStatsList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Leg Trainings -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/card_workout"
+                android:padding="24dp"
+                android:gravity="center_vertical"
+                android:minHeight="120dp"
+                android:elevation="6dp">
+
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/ic_leg"
+                    android:tint="@color/text_primary"
+                    android:layout_marginEnd="20dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="LEG"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="0.05"
+                        android:layout_marginBottom="12dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/legStatsList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

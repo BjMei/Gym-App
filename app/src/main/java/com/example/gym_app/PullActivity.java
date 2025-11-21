@@ -14,8 +14,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class PullActivity extends AppCompatActivity {
 
@@ -175,12 +178,28 @@ public class PullActivity extends AppCompatActivity {
 
         // Eintrag in der UI anzeigen
         addEntryToView(entry);
+        saveWorkoutSummary(exercise, sets);
 
         // Eingabefelder zurücksetzen
         clearInputFields();
 
         Toast.makeText(this, String.format("Übung '%s' gespeichert (%d Sätze)", 
             exercise, sets.size()), Toast.LENGTH_SHORT).show();
+    }
+
+    private void saveWorkoutSummary(String exercise, List<Set> sets) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(exercise).append(": ");
+        for (int i = 0; i < sets.size(); i++) {
+            Set set = sets.get(i);
+            builder.append(String.format(Locale.getDefault(), "%.1f kg × %d", set.getWeight(), set.getReps()));
+            if (i < sets.size() - 1) {
+                builder.append(" | ");
+            }
+        }
+        String timestamp = new SimpleDateFormat("dd.MM. HH:mm", Locale.getDefault()).format(new Date());
+        builder.append(" • ").append(timestamp);
+        WorkoutStorage.addWorkout(this, WorkoutStorage.TYPE_PULL, builder.toString());
     }
 
     private void clearInputFields() {
