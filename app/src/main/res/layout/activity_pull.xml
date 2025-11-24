@@ -25,7 +25,7 @@
             android:text="PULL DAY"
             android:textSize="38sp"
         android:textStyle="bold"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/gold_primary"
             android:layout_gravity="start"
             android:letterSpacing="0.1"
             android:fontFamily="sans-serif-black"/>
@@ -101,7 +101,40 @@
                         android:contentDescription="Einstellungen"
                         android:scaleType="centerInside"
                         android:padding="12dp"
-                        android:tint="@color/gradient_accent_start"/>
+                        android:tint="@color/gold_primary"/>
+                </LinearLayout>
+
+                <!-- Letztes Training Anzeige -->
+                <LinearLayout
+                    android:id="@+id/llLastWorkout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/rounded_card"
+                    android:padding="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvLastWorkoutTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Letztes Training"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="sans-serif-medium"/>
+
+                    <TextView
+                        android:id="@+id/tvLastWorkoutData"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif"/>
                 </LinearLayout>
 
                 <!-- Satz 1 -->
@@ -397,6 +430,28 @@
                         android:tint="@color/text_primary"
                         android:elevation="8dp"/>
                 </LinearLayout>
+            </LinearLayout>
+
+            <!-- Button für gespeicherte Trainings -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="16dp">
+
+                <ImageButton
+                    android:id="@+id/btnViewHistory"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/button_gradient_header"
+                    android:src="@android:drawable/ic_menu_view"
+                    android:contentDescription="Gespeicherte Trainings anzeigen"
+                    android:scaleType="centerInside"
+                    android:padding="12dp"
+                    android:tint="@color/text_primary"
+                    android:elevation="8dp"/>
             </LinearLayout>
 
             <!-- Liste der gespeicherten Übungen -->
