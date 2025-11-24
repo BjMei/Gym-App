@@ -3,7 +3,6 @@ package com.example.gym_app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +17,6 @@ public class WorkoutActivity extends AppCompatActivity {
         LinearLayout pushCard = findViewById(R.id.pushCard);
         LinearLayout pullCard = findViewById(R.id.pullCard);
         LinearLayout legCard = findViewById(R.id.legCard);
-        ImageButton btnBack = findViewById(R.id.btnBack);
 
         // Push - Button und Card
         View.OnClickListener pushClickListener = v ->
@@ -34,9 +32,6 @@ public class WorkoutActivity extends AppCompatActivity {
         View.OnClickListener legClickListener = v ->
                 startActivity(new Intent(WorkoutActivity.this, LegActivity.class));
         legCard.setOnClickListener(legClickListener);
-
-        // Zurück
-        btnBack.setOnClickListener(v -> finish());
     }
 
     private void showMessage(String msg) {

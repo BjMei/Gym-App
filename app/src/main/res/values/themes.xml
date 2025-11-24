@@ -1,8 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme - Edles Schwarz-Gold Design -->
     <style name="Base.Theme.GymApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Primary Color - Gold -->
+        <item name="colorPrimary">@color/gold_primary</item>
+        <item name="colorPrimaryVariant">@color/gold_dark</item>
+        <item name="colorOnPrimary">@color/black</item>
+        
+        <!-- Background - Schwarz -->
+        <item name="android:colorBackground">@color/primary_dark</item>
+        <item name="colorSurface">@color/card_background</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        
+        <!-- Accent - Gold -->
+        <item name="colorSecondary">@color/gold_secondary</item>
+        <item name="colorOnSecondary">@color/black</item>
+        
+        <!-- Status Bar -->
+        <item name="android:statusBarColor">@color/primary_dark</item>
+        <item name="android:navigationBarColor">@color/primary_dark</item>
+        
+        <!-- Window Background -->
+        <item name="android:windowBackground">@color/primary_dark</item>
     </style>
 
     <style name="Theme.GymApp" parent="Base.Theme.GymApp" />

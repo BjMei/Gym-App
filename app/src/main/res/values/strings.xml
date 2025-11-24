@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Gym-App</string>
+    <string name="app_name">IRONX</string>
     
     <string-array name="push_exercises">
         <item>Flys</item>
@@ -7,7 +7,7 @@
         <item>Schrägbank</item>
         <item>Frontheben</item>
         <item>Seitheben</item>
-        <item>Trieceps</item>
+        <item>Triceps</item>
     </string-array>
     
     <string-array name="cardio_exercises">
@@ -21,6 +21,9 @@
         <item>Rudern</item>
         <item>Unterer Rücken</item>
         <item>Bizeps</item>
+        <item>Hammer Curls</item>
+        <item>Bauch</item>
+        <item>Butterfly Reverse</item>
     </string-array>
     
     <string-array name="leg_exercises">
@@ -29,5 +32,7 @@
         <item>Waden sitzend</item>
         <item>Beinstrecker</item>
         <item>Beinpresse</item>
+        <item>Hip Thrust</item>
+        <item>Hyperextension</item>
     </string-array>
 </resources>
