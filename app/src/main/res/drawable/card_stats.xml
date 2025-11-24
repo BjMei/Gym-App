@@ -5,6 +5,5 @@
     <corners android:radius="24dp" />
     <stroke
         android:width="2dp"
-        android:color="@color/gradient_accent_start" />
+        android:color="@color/gold_primary" />
 </shape>
-

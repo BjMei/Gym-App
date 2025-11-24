@@ -4,15 +4,23 @@
     android:height="120dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <!-- Pull Icon - nach unten ziehen -->
+    <!-- Pull Icon - nach unten ziehen - Gold -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#FFD700"
+        android:strokeWidth="2"
+        android:strokeColor="#FFD700"
         android:pathData="M12,22 L12,14 M8,16 L12,22 L16,16"/>
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#FFD700"
         android:pathData="M6,12 L18,12 L18,4 L6,4 Z"/>
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#FFD700"
+        android:strokeWidth="2"
+        android:strokeColor="#FFD700"
         android:pathData="M12,4 L12,2 M10,2 L14,2"/>
+    <!-- Highlight -->
+    <path
+        android:fillColor="#FFE87C"
+        android:fillAlpha="0.4"
+        android:pathData="M7,11 L17,11 L17,5 L7,5 Z"/>
 </vector>
-

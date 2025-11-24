@@ -3,8 +3,10 @@
     <gradient
         android:type="linear"
         android:angle="135"
-        android:startColor="@color/gradient_accent_start"
-        android:centerColor="@color/gradient_accent_mid"
-        android:endColor="@color/gradient_accent_end" />
+        android:startColor="#1A1A1A"
+        android:centerColor="#0A0A0A"
+        android:endColor="#000000" />
+    <stroke
+        android:width="2dp"
+        android:color="@color/gold_primary" />
 </shape>
-

@@ -3,31 +3,56 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     
-    <!-- Modern Finance App Style Colors -->
-    <color name="primary_dark">#0F0F1E</color>
-    <color name="primary">#1A1A2E</color>
-    <color name="primary_light">#252540</color>
-    <color name="accent">#6366F1</color>
-    <color name="accent_dark">#4F46E5</color>
-    <color name="accent_light">#818CF8</color>
-    <color name="accent_purple">#A855F7</color>
-    <color name="card_background">#1E1E3E</color>
-    <color name="card_background_light">#2A2A4A</color>
-    <color name="card_glass">#1E1E3E80</color>
-    <color name="input_background">#252540</color>
-    <color name="input_border">#3A3A5A</color>
+    <!-- Edles Schwarz-Gold Design -->
+    <color name="primary_dark">#000000</color>
+    <color name="primary">#0A0A0A</color>
+    <color name="primary_light">#141414</color>
+    
+    <!-- Gold Farben -->
+    <color name="gold_primary">#FFD700</color>
+    <color name="gold_secondary">#FFA500</color>
+    <color name="gold_dark">#C9A961</color>
+    <color name="gold_light">#FFE87C</color>
+    <color name="gold_accent">#F4D03F</color>
+    
+    <!-- Gradient Gold -->
+    <color name="gradient_gold_start">#FFD700</color>
+    <color name="gradient_gold_mid">#FFA500</color>
+    <color name="gradient_gold_end">#C9A961</color>
+    <color name="gradient_gold_dark_start">#C9A961</color>
+    <color name="gradient_gold_dark_end">#8B6914</color>
+    
+    <!-- Karten -->
+    <color name="card_background">#1A1A1A</color>
+    <color name="card_background_light">#242424</color>
+    <color name="card_border_gold">#FFD700</color>
+    <color name="card_border_gold_light">#FFE87C</color>
+    
+    <!-- Input Felder -->
+    <color name="input_background">#0F0F0F</color>
+    <color name="input_border">#FFD700</color>
+    <color name="input_border_focused">#FFE87C</color>
+    
+    <!-- Text -->
     <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#C4C4D4</color>
-    <color name="text_tertiary">#9CA3AF</color>
-    <color name="button_primary">#6366F1</color>
-    <color name="button_primary_pressed">#4F46E5</color>
-    <color name="divider">#2A2A4A</color>
+    <color name="text_secondary">#E0E0E0</color>
+    <color name="text_tertiary">#B0B0B0</color>
+    <color name="text_gold">#FFD700</color>
+    
+    <!-- Buttons -->
+    <color name="button_gold">#FFD700</color>
+    <color name="button_gold_pressed">#C9A961</color>
+    <color name="button_gold_dark">#8B6914</color>
+    
+    <!-- Divider -->
+    <color name="divider">#2A2A2A</color>
+    <color name="divider_gold">#FFD700</color>
+    
+    <!-- Status -->
     <color name="success">#10B981</color>
-    <color name="glow_blue">#6366F1</color>
-    <color name="gradient_start">#1A1A2E</color>
-    <color name="gradient_mid">#2A2A4A</color>
-    <color name="gradient_end">#1A1A2E</color>
-    <color name="gradient_accent_start">#6366F1</color>
-    <color name="gradient_accent_mid">#8B5CF6</color>
-    <color name="gradient_accent_end">#A855F7</color>
+    <color name="error">#EF4444</color>
+    
+    <!-- Glow Effekte -->
+    <color name="glow_gold">#FFD700</color>
+    <color name="glow_gold_light">#FFE87C</color>
 </resources>

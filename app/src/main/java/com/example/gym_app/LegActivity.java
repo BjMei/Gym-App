@@ -1,6 +1,7 @@
 package com.example.gym_app;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -31,6 +32,8 @@ public class LegActivity extends AppCompatActivity {
     private EditText etCardioMinutes;
     private ImageButton btnSaveCardio;
     private LinearLayout llEntries;
+    private LinearLayout llLastWorkout;
+    private TextView tvLastWorkoutData;
     private List<WorkoutEntry> workoutEntries;
     private List<CardioEntry> cardioEntries;
     private ArrayAdapter<CharSequence> adapter;
@@ -51,6 +54,8 @@ public class LegActivity extends AppCompatActivity {
         etCardioMinutes = findViewById(R.id.etCardioMinutes);
         btnSaveCardio = findViewById(R.id.btnSaveCardio);
         llEntries = findViewById(R.id.llEntries);
+        llLastWorkout = findViewById(R.id.llLastWorkout);
+        tvLastWorkoutData = findViewById(R.id.tvLastWorkoutData);
 
         // SharedPreferences initialisieren
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -90,6 +95,54 @@ public class LegActivity extends AppCompatActivity {
         btnSave.setOnClickListener(v -> saveEntry());
         btnSaveCardio.setOnClickListener(v -> saveCardioEntry());
         btnExerciseSettings.setOnClickListener(v -> showExerciseSettingsDialog());
+
+        // Button für gespeicherte Trainings
+        ImageButton btnViewHistory = findViewById(R.id.btnViewHistory);
+        btnViewHistory.setOnClickListener(v -> {
+            Intent intent = new Intent(LegActivity.this, TrainingHistoryActivity.class);
+            intent.putExtra(TrainingHistoryActivity.EXTRA_WORKOUT_TYPE, WorkoutStorage.TYPE_LEG);
+            intent.putExtra(TrainingHistoryActivity.EXTRA_WORKOUT_TITLE, "LEG DAY - Trainings");
+            startActivity(intent);
+        });
+
+        // Spinner-Listener für Anzeige der letzten Trainingsdaten
+        spinnerExercise.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                String selectedExercise = spinnerExercise.getSelectedItem().toString();
+                loadLastWorkout(selectedExercise);
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                llLastWorkout.setVisibility(View.GONE);
+            }
+        });
+
+        // Initial die erste Übung laden
+        if (spinnerExercise.getCount() > 0) {
+            loadLastWorkout(spinnerExercise.getItemAtPosition(0).toString());
+        }
+    }
+
+    private void loadLastWorkout(String exercise) {
+        WorkoutStorage.LastWorkout lastWorkout = WorkoutStorage.getLastWorkout(this, WorkoutStorage.TYPE_LEG, exercise);
+        if (lastWorkout != null && lastWorkout.sets != null && !lastWorkout.sets.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(lastWorkout.timestamp).append("\n");
+            for (int i = 0; i < lastWorkout.sets.size(); i++) {
+                WorkoutStorage.WorkoutSet set = lastWorkout.sets.get(i);
+                sb.append(String.format(Locale.getDefault(), "Satz %d: %.1f kg × %d", 
+                    i + 1, set.weight, set.reps));
+                if (i < lastWorkout.sets.size() - 1) {
+                    sb.append(" | ");
+                }
+            }
+            tvLastWorkoutData.setText(sb.toString());
+            llLastWorkout.setVisibility(View.VISIBLE);
+        } else {
+            llLastWorkout.setVisibility(View.GONE);
+        }
     }
 
     private void showExerciseSettingsDialog() {
@@ -180,8 +233,18 @@ public class LegActivity extends AppCompatActivity {
         addEntryToView(entry);
         saveWorkoutSummary(exercise, sets);
 
+        // Strukturierte Daten speichern
+        List<WorkoutStorage.WorkoutSet> storageSets = new ArrayList<>();
+        for (Set set : sets) {
+            storageSets.add(new WorkoutStorage.WorkoutSet(set.getWeight(), set.getReps()));
+        }
+        WorkoutStorage.saveDetailedWorkout(this, WorkoutStorage.TYPE_LEG, exercise, storageSets);
+
         // Eingabefelder zurücksetzen
         clearInputFields();
+
+        // Letztes Training aktualisieren
+        loadLastWorkout(exercise);
 
         Toast.makeText(this, String.format("Übung '%s' gespeichert (%d Sätze)", 
             exercise, sets.size()), Toast.LENGTH_SHORT).show();
@@ -294,9 +357,10 @@ public class LegActivity extends AppCompatActivity {
                 return;
             }
 
-            // Cardio-Eintrag erstellen und zur Liste hinzufügen
+            // Cardio-Eintrag erstellen, anzeigen und speichern
             CardioEntry entry = new CardioEntry(cardioExercise, minutes);
             cardioEntries.add(entry);
+            WorkoutStorage.saveCardioSession(this, WorkoutStorage.TYPE_LEG, cardioExercise, minutes);
 
             // Eintrag in der UI anzeigen
             addCardioEntryToView(entry);
