@@ -1,5 +1,6 @@
 package com.example.gym_app;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
