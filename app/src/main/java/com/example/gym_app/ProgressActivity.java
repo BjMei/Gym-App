@@ -70,6 +70,10 @@ public class ProgressActivity extends AppCompatActivity {
 
         Collections.sort(sessions, Comparator.comparingLong(s -> s.timestampMs));
 
+        addWeeklyVolumeChartCard(sessions);
+        addWeekdayChartCard(sessions);
+        addPplRatioChartCard(sessions);
+
         addMetricCard("Leistungssteigerung über Zeit (Diagramm)", buildProgressChart(sessions));
         addMetricCard("Vergleich Woche / Monat", buildWeekMonthComparison(sessions));
         addMetricCard("Plateaus", buildPlateauInfo(sessions));
@@ -126,6 +130,140 @@ public class ProgressActivity extends AppCompatActivity {
                     guessMuscleGroup(workout.exercise, type)
             ));
         }
+    }
+
+
+    private void addWeeklyVolumeChartCard(List<SessionRecord> sessions) {
+        Map<String, Double> weeklyVolume = new LinkedHashMap<>();
+        for (SessionRecord session : sessions) {
+            String key = buildWeekKey(session.timestampMs);
+            weeklyVolume.put(key, weeklyVolume.getOrDefault(key, 0.0) + session.volume);
+        }
+
+        List<Map.Entry<String, Double>> entries = new ArrayList<>(weeklyVolume.entrySet());
+        if (entries.size() > 8) {
+            entries = entries.subList(entries.size() - 8, entries.size());
+        }
+
+        double max = 0;
+        for (Map.Entry<String, Double> entry : entries) {
+            max = Math.max(max, entry.getValue());
+        }
+
+        LinearLayout card = createChartCard("Diagramm: Volumen pro Woche");
+        for (Map.Entry<String, Double> entry : entries) {
+            card.addView(createBarRow(entry.getKey(), entry.getValue(), max,
+                    ContextCompat.getColor(this, R.color.gold_primary)));
+        }
+        metricsContainer.addView(card);
+    }
+
+    private void addWeekdayChartCard(List<SessionRecord> sessions) {
+        String[] labels = {"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"};
+        double[] volume = new double[7];
+
+        for (SessionRecord s : sessions) {
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(s.timestampMs);
+            int day = c.get(Calendar.DAY_OF_WEEK) - 1;
+            volume[day] += s.volume;
+        }
+
+        double max = 0;
+        for (double v : volume) {
+            max = Math.max(max, v);
+        }
+
+        LinearLayout card = createChartCard("Diagramm: Stärke nach Wochentag");
+        for (int i = 0; i < labels.length; i++) {
+            card.addView(createBarRow(labels[i], volume[i], max,
+                    ContextCompat.getColor(this, R.color.text_primary)));
+        }
+        metricsContainer.addView(card);
+    }
+
+    private void addPplRatioChartCard(List<SessionRecord> sessions) {
+        int push = 0;
+        int pull = 0;
+        int legs = 0;
+
+        for (SessionRecord s : sessions) {
+            if (WorkoutStorage.TYPE_PUSH.equals(s.type)) {
+                push++;
+            } else if (WorkoutStorage.TYPE_PULL.equals(s.type)) {
+                pull++;
+            } else if (WorkoutStorage.TYPE_LEG.equals(s.type)) {
+                legs++;
+            }
+        }
+
+        int total = Math.max(1, push + pull + legs);
+
+        LinearLayout card = createChartCard("Skala: Push / Pull / Legs Verhältnis");
+        card.addView(createBarRow("Push", push, total,
+                ContextCompat.getColor(this, R.color.gold_primary)));
+        card.addView(createBarRow("Pull", pull, total,
+                ContextCompat.getColor(this, R.color.text_primary)));
+        card.addView(createBarRow("Legs", legs, total,
+                ContextCompat.getColor(this, R.color.text_secondary)));
+        metricsContainer.addView(card);
+    }
+
+    private LinearLayout createChartCard(String title) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setBackgroundResource(R.drawable.rounded_card);
+        card.setPadding(dpToPx(18), dpToPx(16), dpToPx(18), dpToPx(16));
+
+        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        cardParams.bottomMargin = dpToPx(14);
+        card.setLayoutParams(cardParams);
+
+        TextView tvTitle = new TextView(this);
+        tvTitle.setText(title.toUpperCase(Locale.getDefault()));
+        tvTitle.setTextColor(ContextCompat.getColor(this, R.color.gold_primary));
+        tvTitle.setTextSize(13);
+        tvTitle.setLetterSpacing(0.08f);
+        tvTitle.setTypeface(Typeface.create("sans-serif-black", Typeface.BOLD));
+        tvTitle.setPadding(0, 0, 0, dpToPx(10));
+        card.addView(tvTitle);
+
+        return card;
+    }
+
+    private View createBarRow(String label, double value, double max, int color) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        rowParams.bottomMargin = dpToPx(8);
+        row.setLayoutParams(rowParams);
+
+        TextView tvLabel = new TextView(this);
+        tvLabel.setText(String.format(Locale.getDefault(), "%s: %.0f", label, value));
+        tvLabel.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+        tvLabel.setTextSize(12);
+        tvLabel.setTypeface(Typeface.create("monospace", Typeface.NORMAL));
+        row.addView(tvLabel);
+
+        View bar = new View(this);
+        bar.setBackgroundColor(color);
+        int width = max <= 0 ? dpToPx(4) : Math.max(dpToPx(4), (int) ((value / max) * dpToPx(220)));
+        LinearLayout.LayoutParams barParams = new LinearLayout.LayoutParams(
+                width,
+                dpToPx(8)
+        );
+        barParams.topMargin = dpToPx(3);
+        bar.setLayoutParams(barParams);
+        row.addView(bar);
+
+        return row;
     }
 
     private String buildProgressChart(List<SessionRecord> sessions) {
