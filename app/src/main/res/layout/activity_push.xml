@@ -96,9 +96,21 @@
                         android:id="@+id/btnExerciseSettings"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
+                        android:layout_marginEnd="8dp"
                         android:background="@drawable/rounded_input"
                         android:src="@android:drawable/ic_menu_preferences"
                         android:contentDescription="Einstellungen"
+                        android:scaleType="centerInside"
+                        android:padding="12dp"
+                        android:tint="@color/gold_primary"/>
+
+                    <ImageButton
+                        android:id="@+id/btnManageExercises"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/rounded_input"
+                        android:src="@android:drawable/ic_input_add"
+                        android:contentDescription="Übungen verwalten"
                         android:scaleType="centerInside"
                         android:padding="12dp"
                         android:tint="@color/gold_primary"/>
