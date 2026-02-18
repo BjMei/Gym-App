@@ -78,7 +78,7 @@ public class PullActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         setupExerciseSpinner();
         setupSpinnerPicker(spinnerExercise, adapter, "Übung auswählen");
-        setupSpinnerPicker(spinnerExerciseSecond, adapter, "2. Übung auswählen (optional)");
+        setupSpinnerPicker(spinnerExerciseSecond, adapter, "2. Übung auswählen");
 
         setupCardioSpinner();
         setupSpinnerPicker(spinnerCardio, cardioAdapter, "Cardio-Übung auswählen");
@@ -180,6 +180,7 @@ public class PullActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<>(this, R.layout.spinner_item_white, exercises);
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
         spinnerExercise.setAdapter(adapter);
+        spinnerExerciseSecond.setAdapter(adapter);
     }
 
     private void refreshExerciseSpinner(String preferredExercise) {
