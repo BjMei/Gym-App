@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -71,8 +73,10 @@ public class PullActivity extends AppCompatActivity {
         // SharedPreferences initialisieren
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         setupExerciseSpinner();
+        setupSpinnerPicker(spinnerExercise, adapter, "Übung auswählen");
 
         setupCardioSpinner();
+        setupSpinnerPicker(spinnerCardio, cardioAdapter, "Cardio-Übung auswählen");
 
         // Arrays für die 4 Sätze initialisieren
         etWeights = new EditText[]{
@@ -213,6 +217,83 @@ public class PullActivity extends AppCompatActivity {
             }
         }
         spinnerCardio.setSelection(index);
+    }
+
+    private void setupSpinnerPicker(Spinner spinner, ArrayAdapter<String> spinnerAdapter, String title) {
+        spinner.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                showSelectionDialog(title, spinner, spinnerAdapter);
+            }
+            return true;
+        });
+
+        spinner.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_UP
+                    && (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER)) {
+                showSelectionDialog(title, spinner, spinnerAdapter);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void showSelectionDialog(String title, Spinner spinner, ArrayAdapter<String> spinnerAdapter) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_select_item);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            android.view.WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+            params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.92);
+            dialog.getWindow().setAttributes(params);
+        }
+
+        TextView tvTitle = dialog.findViewById(R.id.tvSelectTitle);
+        LinearLayout llItems = dialog.findViewById(R.id.llSelectItems);
+        Button btnClose = dialog.findViewById(R.id.btnCloseSelectDialog);
+
+        tvTitle.setText(title);
+        llItems.removeAllViews();
+
+        for (int i = 0; i < spinnerAdapter.getCount(); i++) {
+            String item = spinnerAdapter.getItem(i);
+            if (item == null) {
+                continue;
+            }
+            llItems.addView(createSelectionRow(item, i, spinner, dialog));
+        }
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+    }
+
+    private View createSelectionRow(String item, int index, Spinner spinner, Dialog dialog) {
+        float density = getResources().getDisplayMetrics().density;
+        int minHeight = Math.round(56 * density);
+        int marginBottom = Math.round(10 * density);
+
+        TextView tv = new TextView(this);
+        tv.setText(item);
+        tv.setTextColor(getResources().getColor(R.color.text_primary, null));
+        tv.setTextSize(16);
+        tv.setGravity(Gravity.CENTER);
+        tv.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        tv.setMinHeight(minHeight);
+        tv.setBackground(getResources().getDrawable(R.drawable.rounded_input, null));
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.bottomMargin = marginBottom;
+        tv.setLayoutParams(params);
+
+        tv.setOnClickListener(v -> {
+            spinner.setSelection(index);
+            dialog.dismiss();
+        });
+
+        return tv;
     }
 
     private void showManageExercisesDialog() {
