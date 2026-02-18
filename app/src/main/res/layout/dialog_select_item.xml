@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/rounded_card"
+    android:padding="22dp">
+
+    <TextView
+        android:id="@+id/tvSelectTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Auswählen"
+        android:textColor="@color/text_primary"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-black"
+        android:layout_marginBottom="14dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="320dp"
+        android:layout_marginBottom="14dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/llSelectItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnCloseSelectDialog"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="Schließen"
+        android:textAllCaps="false"
+        android:textColor="@color/primary_dark"
+        android:textStyle="bold"
+        android:background="@drawable/rounded_button" />
+
+</LinearLayout>
