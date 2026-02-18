@@ -90,7 +90,8 @@
                         android:background="@drawable/spinner_background"
                         android:paddingStart="16dp"
                         android:paddingEnd="16dp"
-                        android:textColor="@color/text_primary"/>
+                        android:textColor="@color/text_primary"
+                        android:dropDownHeight="300dp"/>
 
                     <ImageButton
                         android:id="@+id/btnExerciseSettings"
@@ -398,7 +399,8 @@
                     android:background="@drawable/spinner_background"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
-                    android:textColor="@color/text_primary"/>
+                    android:textColor="@color/text_primary"
+                    android:dropDownHeight="300dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -434,6 +436,7 @@
                         android:id="@+id/btnSaveCardio"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
+                        android:layout_marginEnd="12dp"
                         android:background="@drawable/rounded_button"
                         android:src="@android:drawable/ic_menu_save"
                         android:contentDescription="Speichern"
@@ -441,6 +444,17 @@
                         android:padding="12dp"
                         android:tint="@color/text_primary"
                         android:elevation="8dp"/>
+
+                    <ImageButton
+                        android:id="@+id/btnManageCardio"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/rounded_input"
+                        android:src="@android:drawable/ic_menu_edit"
+                        android:contentDescription="Cardio verwalten"
+                        android:scaleType="centerInside"
+                        android:padding="12dp"
+                        android:tint="@color/gold_primary"/>
                 </LinearLayout>
             </LinearLayout>
 

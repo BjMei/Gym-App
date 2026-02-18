@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,17 +34,20 @@ public class LegActivity extends AppCompatActivity {
     private Spinner spinnerCardio;
     private EditText etCardioMinutes;
     private ImageButton btnSaveCardio;
+    private ImageButton btnManageCardio;
     private LinearLayout llEntries;
     private LinearLayout llLastWorkout;
     private TextView tvLastWorkoutData;
     private List<WorkoutEntry> workoutEntries;
     private List<CardioEntry> cardioEntries;
     private ArrayAdapter<String> adapter;
-    private ArrayAdapter<CharSequence> cardioAdapter;
+    private ArrayAdapter<String> cardioAdapter;
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "ExerciseSettings";
     private static final int EXERCISE_ARRAY_RES = R.array.leg_exercises;
     private static final String WORKOUT_TYPE = WorkoutStorage.TYPE_LEG;
+    private static final int CARDIO_ARRAY_RES = R.array.cardio_exercises;
+    private static final String CARDIO_TYPE = WORKOUT_TYPE + "_cardio";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +62,7 @@ public class LegActivity extends AppCompatActivity {
         spinnerCardio = findViewById(R.id.spinnerCardio);
         etCardioMinutes = findViewById(R.id.etCardioMinutes);
         btnSaveCardio = findViewById(R.id.btnSaveCardio);
+        btnManageCardio = findViewById(R.id.btnManageCardio);
         llEntries = findViewById(R.id.llEntries);
         llLastWorkout = findViewById(R.id.llLastWorkout);
         tvLastWorkoutData = findViewById(R.id.tvLastWorkoutData);
@@ -66,11 +71,7 @@ public class LegActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         setupExerciseSpinner();
 
-        // Cardio-Spinner befüllen - mit weißer Schrift
-        cardioAdapter = ArrayAdapter.createFromResource(this,
-            R.array.cardio_exercises, R.layout.spinner_item_white);
-        cardioAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
-        spinnerCardio.setAdapter(cardioAdapter);
+        setupCardioSpinner();
 
         // Arrays für die 4 Sätze initialisieren
         etWeights = new EditText[]{
@@ -94,6 +95,7 @@ public class LegActivity extends AppCompatActivity {
         // Button-Click-Listener
         btnSave.setOnClickListener(v -> saveEntry());
         btnSaveCardio.setOnClickListener(v -> saveCardioEntry());
+        btnManageCardio.setOnClickListener(v -> showManageCardioDialog());
         btnExerciseSettings.setOnClickListener(v -> showExerciseSettingsDialog());
         btnManageExercises.setOnClickListener(v -> showManageExercisesDialog());
 
@@ -110,7 +112,12 @@ public class LegActivity extends AppCompatActivity {
         spinnerExercise.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
-                String selectedExercise = spinnerExercise.getSelectedItem().toString();
+                Object selectedExerciseObj = spinnerExercise.getSelectedItem();
+                if (selectedExerciseObj == null) {
+                    llLastWorkout.setVisibility(View.GONE);
+                    return;
+                }
+                String selectedExercise = selectedExerciseObj.toString();
                 loadLastWorkout(selectedExercise);
             }
 
@@ -177,107 +184,196 @@ public class LegActivity extends AppCompatActivity {
         spinnerExercise.setSelection(index);
     }
 
-    private void showManageExercisesDialog() {
-        LinearLayout container = new LinearLayout(this);
-        container.setOrientation(LinearLayout.VERTICAL);
-        int padding = (int) (16 * getResources().getDisplayMetrics().density);
-        container.setPadding(padding, padding, padding, 0);
-
-        EditText etNewExercise = new EditText(this);
-        etNewExercise.setHint("Neue Übung eingeben");
-        etNewExercise.setTextColor(getResources().getColor(R.color.text_primary, null));
-        etNewExercise.setHintTextColor(getResources().getColor(R.color.text_secondary, null));
-        etNewExercise.setBackground(getResources().getDrawable(R.drawable.rounded_input, null));
-        etNewExercise.setPadding(padding, padding / 2, padding, padding / 2);
-        container.addView(etNewExercise);
-
-        TextView tvInfo = new TextView(this);
-        tvInfo.setPadding(0, padding, 0, 0);
-        tvInfo.setTextColor(getResources().getColor(R.color.text_secondary, null));
-        updateCustomExerciseInfo(tvInfo);
-        container.addView(tvInfo);
-
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Übungen verwalten")
-                .setView(container)
-                .setPositiveButton("Hinzufügen", null)
-                .setNeutralButton("Ausgewählte löschen", null)
-                .setNegativeButton("Schließen", null)
-                .create();
-
-        dialog.setOnShowListener(d -> {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-                String newExercise = etNewExercise.getText().toString().trim();
-                if (newExercise.isEmpty()) {
-                    Toast.makeText(this, "Bitte Übungsnamen eingeben", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                List<String> current = ExerciseCatalog.getExercises(this, EXERCISE_ARRAY_RES, WORKOUT_TYPE);
-                if (ExerciseCatalog.containsIgnoreCase(current, newExercise)) {
-                    Toast.makeText(this, "Übung existiert bereits", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (ExerciseCatalog.addCustomExercise(this, WORKOUT_TYPE, newExercise)) {
-                    refreshExerciseSpinner(newExercise);
-                    loadLastWorkout(newExercise);
-                    etNewExercise.setText("");
-                    updateCustomExerciseInfo(tvInfo);
-                    Toast.makeText(this, "Übung hinzugefügt", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
-                Object selected = spinnerExercise.getSelectedItem();
-                if (selected == null) {
-                    Toast.makeText(this, "Keine Übung ausgewählt", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                String selectedExercise = selected.toString();
-                if (ExerciseCatalog.isDefaultExercise(this, EXERCISE_ARRAY_RES, selectedExercise)) {
-                    Toast.makeText(this, "Vorgegebene Übungen können nicht gelöscht werden", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (ExerciseCatalog.removeCustomExercise(this, WORKOUT_TYPE, selectedExercise)) {
-                    refreshExerciseSpinner(null);
-                    if (spinnerExercise.getSelectedItem() != null) {
-                        loadLastWorkout(spinnerExercise.getSelectedItem().toString());
-                    } else {
-                        llLastWorkout.setVisibility(View.GONE);
-                    }
-                    updateCustomExerciseInfo(tvInfo);
-                    Toast.makeText(this, "Übung gelöscht", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "Übung konnte nicht gelöscht werden", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
-
-        dialog.show();
+    private void setupCardioSpinner() {
+        List<String> cardioExercises = ExerciseCatalog.getExercises(this, CARDIO_ARRAY_RES, CARDIO_TYPE);
+        cardioAdapter = new ArrayAdapter<>(this, R.layout.spinner_item_white, cardioExercises);
+        cardioAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
+        spinnerCardio.setAdapter(cardioAdapter);
     }
 
-    private void updateCustomExerciseInfo(TextView tvInfo) {
-        List<String> customExercises = ExerciseCatalog.getCustomExercises(this, WORKOUT_TYPE);
-        if (customExercises.isEmpty()) {
-            tvInfo.setText("Eigene Übungen: keine");
+    private void refreshCardioSpinner(String preferredExercise) {
+        List<String> cardioExercises = ExerciseCatalog.getExercises(this, CARDIO_ARRAY_RES, CARDIO_TYPE);
+        cardioAdapter.clear();
+        cardioAdapter.addAll(cardioExercises);
+        cardioAdapter.notifyDataSetChanged();
+
+        if (cardioAdapter.isEmpty()) {
             return;
         }
 
-        StringBuilder sb = new StringBuilder("Eigene Übungen: ");
-        for (int i = 0; i < customExercises.size(); i++) {
-            if (i > 0) {
-                sb.append(", ");
+        int index = 0;
+        if (preferredExercise != null && !preferredExercise.trim().isEmpty()) {
+            for (int i = 0; i < cardioAdapter.getCount(); i++) {
+                String item = cardioAdapter.getItem(i);
+                if (item != null && item.equalsIgnoreCase(preferredExercise.trim())) {
+                    index = i;
+                    break;
+                }
             }
-            sb.append(customExercises.get(i));
         }
-        tvInfo.setText(sb.toString());
+        spinnerCardio.setSelection(index);
+    }
+
+    private void showManageExercisesDialog() {
+        showManageListDialog(
+                "Übungen verwalten",
+                EXERCISE_ARRAY_RES,
+                WORKOUT_TYPE,
+                () -> {
+                    Object selected = spinnerExercise.getSelectedItem();
+                    if (selected != null) {
+                        loadLastWorkout(selected.toString());
+                    } else {
+                        llLastWorkout.setVisibility(View.GONE);
+                    }
+                }
+        );
+    }
+
+    private void showManageCardioDialog() {
+        showManageListDialog(
+                "Cardio verwalten",
+                CARDIO_ARRAY_RES,
+                CARDIO_TYPE,
+                () -> {
+                }
+        );
+    }
+
+    private void showManageListDialog(String title,
+                                      int defaultArrayRes,
+                                      String listKey,
+                                      Runnable afterUpdate) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_manage_items);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            android.view.WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+            params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.92);
+            dialog.getWindow().setAttributes(params);
+        }
+
+        TextView tvTitle = dialog.findViewById(R.id.tvManageTitle);
+        EditText etNewItem = dialog.findViewById(R.id.etNewItem);
+        ImageButton btnAdd = dialog.findViewById(R.id.btnAddItem);
+        Button btnClose = dialog.findViewById(R.id.btnCloseManageDialog);
+        LinearLayout llItems = dialog.findViewById(R.id.llManageItems);
+        ScrollView svItems = dialog.findViewById(R.id.svManageItems);
+
+        tvTitle.setText(title);
+
+        Runnable renderList = () -> {
+            llItems.removeAllViews();
+            List<String> items = ExerciseCatalog.getExercises(this, defaultArrayRes, listKey);
+            for (String item : items) {
+                View row = createManageRow(dialog, item, defaultArrayRes, listKey, afterUpdate);
+                llItems.addView(row);
+            }
+            svItems.post(() -> svItems.scrollTo(0, 0));
+        };
+
+        btnAdd.setOnClickListener(v -> {
+            String newItem = etNewItem.getText().toString().trim();
+            if (newItem.isEmpty()) {
+                Toast.makeText(this, "Bitte Namen eingeben", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!ExerciseCatalog.addExercise(this, defaultArrayRes, listKey, newItem)) {
+                Toast.makeText(this, "Eintrag existiert bereits", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (listKey.equals(WORKOUT_TYPE)) {
+                refreshExerciseSpinner(newItem);
+            } else {
+                refreshCardioSpinner(newItem);
+            }
+            if (afterUpdate != null) {
+                afterUpdate.run();
+            }
+
+            etNewItem.setText("");
+            renderList.run();
+            Toast.makeText(this, "Hinzugefügt", Toast.LENGTH_SHORT).show();
+        });
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        renderList.run();
+        dialog.show();
+    }
+
+    private View createManageRow(Dialog parentDialog,
+                                 String item,
+                                 int defaultArrayRes,
+                                 String listKey,
+                                 Runnable afterUpdate) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setPadding(16, 12, 16, 12);
+        row.setBackground(getResources().getDrawable(R.drawable.rounded_input, null));
+
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        rowParams.bottomMargin = 10;
+        row.setLayoutParams(rowParams);
+
+        TextView tvName = new TextView(this);
+        tvName.setText(item);
+        tvName.setTextColor(getResources().getColor(R.color.text_primary, null));
+        tvName.setTextSize(16);
+        tvName.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        tvName.setLayoutParams(nameParams);
+        row.addView(tvName);
+
+        ImageButton btnDelete = new ImageButton(this);
+        btnDelete.setBackground(getResources().getDrawable(R.drawable.rounded_input, null));
+        btnDelete.setImageResource(android.R.drawable.ic_menu_delete);
+        btnDelete.setColorFilter(getResources().getColor(R.color.gold_primary, null));
+        btnDelete.setContentDescription("Löschen");
+        row.addView(btnDelete);
+
+        btnDelete.setOnClickListener(v -> new AlertDialog.Builder(this)
+                .setTitle("Löschen")
+                .setMessage("'" + item + "' wirklich löschen?")
+                .setPositiveButton("Ja", (d, which) -> {
+                    if (ExerciseCatalog.removeExercise(this, defaultArrayRes, listKey, item)) {
+                        if (listKey.equals(WORKOUT_TYPE)) {
+                            refreshExerciseSpinner(null);
+                        } else {
+                            refreshCardioSpinner(null);
+                        }
+                        if (afterUpdate != null) {
+                            afterUpdate.run();
+                        }
+
+                        // list rerender
+                        parentDialog.dismiss();
+                        if (listKey.equals(WORKOUT_TYPE)) {
+                            showManageExercisesDialog();
+                        } else {
+                            showManageCardioDialog();
+                        }
+                    }
+                })
+                .setNegativeButton("Nein", null)
+                .show());
+
+        return row;
     }
 
     private void showExerciseSettingsDialog() {
-        String selectedExercise = spinnerExercise.getSelectedItem().toString();
+        Object selectedExerciseObj = spinnerExercise.getSelectedItem();
+        if (selectedExerciseObj == null) {
+            Toast.makeText(this, "Keine Übung verfügbar", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String selectedExercise = selectedExerciseObj.toString();
         
         // Dialog erstellen
         Dialog dialog = new Dialog(this);
@@ -324,7 +420,8 @@ public class LegActivity extends AppCompatActivity {
 
     private void saveEntry() {
         // Übung aus Spinner auslesen
-        String exercise = spinnerExercise.getSelectedItem().toString();
+        Object selectedExerciseObj = spinnerExercise.getSelectedItem();
+        String exercise = selectedExerciseObj == null ? "" : selectedExerciseObj.toString();
 
         // Validierung: Übung muss ausgewählt sein (Spinner sollte immer einen Wert haben, aber zur Sicherheit)
         if (exercise == null || exercise.isEmpty()) {
@@ -467,7 +564,8 @@ public class LegActivity extends AppCompatActivity {
 
     private void saveCardioEntry() {
         // Cardio-Übung aus Spinner auslesen
-        String cardioExercise = spinnerCardio.getSelectedItem().toString();
+        Object selectedCardioObj = spinnerCardio.getSelectedItem();
+        String cardioExercise = selectedCardioObj == null ? "" : selectedCardioObj.toString();
         String minutesStr = etCardioMinutes.getText().toString().trim();
 
         // Validierung
