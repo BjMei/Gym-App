@@ -142,14 +142,12 @@ public class LegActivity extends AppCompatActivity {
         WorkoutStorage.LastWorkout lastWorkout = WorkoutStorage.getLastWorkout(this, WORKOUT_TYPE, exercise);
         if (lastWorkout != null && lastWorkout.sets != null && !lastWorkout.sets.isEmpty()) {
             StringBuilder sb = new StringBuilder();
-            sb.append(lastWorkout.timestamp).append("\n");
+            sb.append(lastWorkout.timestamp);
             for (int i = 0; i < lastWorkout.sets.size(); i++) {
                 WorkoutStorage.WorkoutSet set = lastWorkout.sets.get(i);
-                sb.append(String.format(Locale.getDefault(), "Satz %d: %.1f kg × %d", 
-                    i + 1, set.weight, set.reps));
-                if (i < lastWorkout.sets.size() - 1) {
-                    sb.append(" | ");
-                }
+                sb.append("\n")
+                        .append(String.format(Locale.getDefault(), "• Satz %d: %.1f kg × %d",
+                                i + 1, set.weight, set.reps));
             }
             tvLastWorkoutData.setText(sb.toString());
             llLastWorkout.setVisibility(View.VISIBLE);
