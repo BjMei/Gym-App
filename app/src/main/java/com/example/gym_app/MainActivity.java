@@ -24,8 +24,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
         workoutCard.setOnClickListener(workoutClickListener);
 
-        statsCard.setOnClickListener(v -> {
-            // später: StatsActivity starten
-        });
+        statsCard.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, StatsActivity.class)));
     }
 }
