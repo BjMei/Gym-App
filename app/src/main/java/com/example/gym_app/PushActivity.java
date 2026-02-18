@@ -30,6 +30,7 @@ public class PushActivity extends AppCompatActivity {
 
     private Spinner spinnerExercise;
     private Spinner spinnerExerciseSecond;
+    private ImageButton btnToggleSecondExercise;
     private ImageButton btnExerciseSettings;
     private ImageButton btnManageExercises;
     private EditText[] etWeights;
@@ -44,6 +45,9 @@ public class PushActivity extends AppCompatActivity {
     private LinearLayout llEntries;
     private LinearLayout llLastWorkout;
     private TextView tvLastWorkoutData;
+    private LinearLayout llSecondExerciseSection;
+    private LinearLayout llLastWorkoutSecond;
+    private TextView tvLastWorkoutDataSecond;
     private List<WorkoutEntry> workoutEntries;
     private List<CardioEntry> cardioEntries;
     private ArrayAdapter<String> adapter;
@@ -63,6 +67,7 @@ public class PushActivity extends AppCompatActivity {
         // Views initialisieren
         spinnerExercise = findViewById(R.id.spinnerExercise);
         spinnerExerciseSecond = findViewById(R.id.spinnerExerciseSecond);
+        btnToggleSecondExercise = findViewById(R.id.btnToggleSecondExercise);
         btnExerciseSettings = findViewById(R.id.btnExerciseSettings);
         btnManageExercises = findViewById(R.id.btnManageExercises);
         btnSave = findViewById(R.id.btnSave);
@@ -73,6 +78,9 @@ public class PushActivity extends AppCompatActivity {
         llEntries = findViewById(R.id.llEntries);
         llLastWorkout = findViewById(R.id.llLastWorkout);
         tvLastWorkoutData = findViewById(R.id.tvLastWorkoutData);
+        llSecondExerciseSection = findViewById(R.id.llSecondExerciseSection);
+        llLastWorkoutSecond = findViewById(R.id.llLastWorkoutSecond);
+        tvLastWorkoutDataSecond = findViewById(R.id.tvLastWorkoutDataSecond);
 
         // SharedPreferences initialisieren
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -118,6 +126,7 @@ public class PushActivity extends AppCompatActivity {
         cardioEntries = new ArrayList<>();
 
         // Button-Click-Listener
+        btnToggleSecondExercise.setOnClickListener(v -> toggleSecondExerciseSection());
         btnSave.setOnClickListener(v -> saveEntry());
         btnSaveCardio.setOnClickListener(v -> saveCardioEntry());
         btnManageCardio.setOnClickListener(v -> showManageCardioDialog());
@@ -152,9 +161,48 @@ public class PushActivity extends AppCompatActivity {
             }
         });
 
+        spinnerExerciseSecond.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                Object selectedExerciseObj = spinnerExerciseSecond.getSelectedItem();
+                if (selectedExerciseObj == null) {
+                    llLastWorkoutSecond.setVisibility(View.GONE);
+                    return;
+                }
+                loadLastWorkoutSecond(selectedExerciseObj.toString());
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                llLastWorkoutSecond.setVisibility(View.GONE);
+            }
+        });
+
+        llSecondExerciseSection.setVisibility(View.GONE);
+        llLastWorkoutSecond.setVisibility(View.GONE);
+        btnToggleSecondExercise.setImageResource(android.R.drawable.arrow_down_float);
+
         // Initial die erste Übung laden
         if (spinnerExercise.getCount() > 0) {
             loadLastWorkout(spinnerExercise.getItemAtPosition(0).toString());
+            if (spinnerExerciseSecond.getCount() > 0) {
+                loadLastWorkoutSecond(spinnerExerciseSecond.getItemAtPosition(0).toString());
+            }
+        }
+    }
+
+    private void toggleSecondExerciseSection() {
+        boolean isVisible = llSecondExerciseSection.getVisibility() == View.VISIBLE;
+        if (isVisible) {
+            llSecondExerciseSection.setVisibility(View.GONE);
+            btnToggleSecondExercise.setImageResource(android.R.drawable.arrow_down_float);
+        } else {
+            llSecondExerciseSection.setVisibility(View.VISIBLE);
+            btnToggleSecondExercise.setImageResource(android.R.drawable.arrow_up_float);
+            Object secondSelected = spinnerExerciseSecond.getSelectedItem();
+            if (secondSelected != null) {
+                loadLastWorkoutSecond(secondSelected.toString());
+            }
         }
     }
 
@@ -173,6 +221,24 @@ public class PushActivity extends AppCompatActivity {
             llLastWorkout.setVisibility(View.VISIBLE);
         } else {
             llLastWorkout.setVisibility(View.GONE);
+        }
+    }
+
+    private void loadLastWorkoutSecond(String exercise) {
+        WorkoutStorage.LastWorkout lastWorkout = WorkoutStorage.getLastWorkout(this, WORKOUT_TYPE, exercise);
+        if (lastWorkout != null && lastWorkout.sets != null && !lastWorkout.sets.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(lastWorkout.timestamp);
+            for (int i = 0; i < lastWorkout.sets.size(); i++) {
+                WorkoutStorage.WorkoutSet set = lastWorkout.sets.get(i);
+                sb.append("\n")
+                        .append(String.format(Locale.getDefault(), "• Satz %d: %.1f kg × %d",
+                                i + 1, set.weight, set.reps));
+            }
+            tvLastWorkoutDataSecond.setText(sb.toString());
+            llLastWorkoutSecond.setVisibility(View.VISIBLE);
+        } else {
+            llLastWorkoutSecond.setVisibility(View.GONE);
         }
     }
 
