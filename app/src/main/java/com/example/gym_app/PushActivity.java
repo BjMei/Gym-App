@@ -29,10 +29,13 @@ import java.util.Locale;
 public class PushActivity extends AppCompatActivity {
 
     private Spinner spinnerExercise;
+    private Spinner spinnerExerciseSecond;
     private ImageButton btnExerciseSettings;
     private ImageButton btnManageExercises;
     private EditText[] etWeights;
     private EditText[] etReps;
+    private EditText[] etSecondWeights;
+    private EditText[] etSecondReps;
     private ImageButton btnSave;
     private Spinner spinnerCardio;
     private EditText etCardioMinutes;
@@ -59,6 +62,7 @@ public class PushActivity extends AppCompatActivity {
 
         // Views initialisieren
         spinnerExercise = findViewById(R.id.spinnerExercise);
+        spinnerExerciseSecond = findViewById(R.id.spinnerExerciseSecond);
         btnExerciseSettings = findViewById(R.id.btnExerciseSettings);
         btnManageExercises = findViewById(R.id.btnManageExercises);
         btnSave = findViewById(R.id.btnSave);
@@ -75,6 +79,7 @@ public class PushActivity extends AppCompatActivity {
 
         setupExerciseSpinner();
         setupSpinnerPicker(spinnerExercise, adapter, "Übung auswählen");
+        setupSpinnerPicker(spinnerExerciseSecond, adapter, "2. Übung auswählen (optional)");
 
         setupCardioSpinner();
         setupSpinnerPicker(spinnerCardio, cardioAdapter, "Cardio-Übung auswählen");
@@ -92,6 +97,20 @@ public class PushActivity extends AppCompatActivity {
             findViewById(R.id.etReps2),
             findViewById(R.id.etReps3),
             findViewById(R.id.etReps4)
+        };
+
+        etSecondWeights = new EditText[]{
+            findViewById(R.id.etWeightSecond1),
+            findViewById(R.id.etWeightSecond2),
+            findViewById(R.id.etWeightSecond3),
+            findViewById(R.id.etWeightSecond4)
+        };
+
+        etSecondReps = new EditText[]{
+            findViewById(R.id.etRepsSecond1),
+            findViewById(R.id.etRepsSecond2),
+            findViewById(R.id.etRepsSecond3),
+            findViewById(R.id.etRepsSecond4)
         };
 
         // Listen für Einträge initialisieren
@@ -186,6 +205,9 @@ public class PushActivity extends AppCompatActivity {
             }
         }
         spinnerExercise.setSelection(index);
+        if (spinnerExerciseSecond.getCount() > index) {
+            spinnerExerciseSecond.setSelection(index);
+        }
     }
 
     private void setupCardioSpinner() {
@@ -537,63 +559,98 @@ public class PushActivity extends AppCompatActivity {
     }
 
     private void saveEntry() {
-        // Übung aus Spinner auslesen
         Object selectedExerciseObj = spinnerExercise.getSelectedItem();
         String exercise = selectedExerciseObj == null ? "" : selectedExerciseObj.toString();
 
-        // Validierung: Übung muss ausgewählt sein (Spinner sollte immer einen Wert haben, aber zur Sicherheit)
         if (exercise == null || exercise.isEmpty()) {
             Toast.makeText(this, "Bitte Übung auswählen", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Arrays für die 4 Sätze
-        List<Set> sets = new ArrayList<>();
+        List<Set> primarySets = parseSetsFromInputs(etWeights, etReps, "Hauptübung");
+        if (primarySets == null) {
+            return;
+        }
 
-        // Alle 4 Sätze durchgehen - alle müssen ausgefüllt sein
-        for (int i = 0; i < 4; i++) {
-            String weightStr = etWeights[i].getText().toString().trim();
-            String repsStr = etReps[i].getText().toString().trim();
+        Object secondExerciseObj = spinnerExerciseSecond.getSelectedItem();
+        String secondExercise = secondExerciseObj == null ? "" : secondExerciseObj.toString();
+        boolean secondHasInput = hasAnyInput(etSecondWeights, etSecondReps);
+        List<Set> secondSets = null;
 
-            // Alle 4 Sätze müssen ausgefüllt sein
-            if (weightStr.isEmpty() || repsStr.isEmpty()) {
-                Toast.makeText(this, String.format("Bitte Satz %d vollständig ausfüllen", i + 1), Toast.LENGTH_SHORT).show();
+        if (secondHasInput) {
+            if (secondExercise == null || secondExercise.isEmpty()) {
+                Toast.makeText(this, "Bitte 2. Übung auswählen", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (exercise.equalsIgnoreCase(secondExercise)) {
+                Toast.makeText(this, "Bitte eine andere 2. Übung wählen", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            try {
-                double weight = Double.parseDouble(weightStr);
-                int reps = Integer.parseInt(repsStr);
-                sets.add(new Set(weight, reps));
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, String.format("Ungültige Eingabe für Satz %d", i + 1), Toast.LENGTH_SHORT).show();
+            secondSets = parseSetsFromInputs(etSecondWeights, etSecondReps, "2. Übung");
+            if (secondSets == null) {
                 return;
             }
         }
 
-        // Eintrag erstellen und zur Liste hinzufügen
+        saveWorkoutExercise(exercise, primarySets);
+        if (secondHasInput && secondSets != null) {
+            saveWorkoutExercise(secondExercise, secondSets);
+        }
+
+        clearInputFields();
+        loadLastWorkout(exercise);
+
+        String message = secondHasInput
+                ? String.format("Übungen '%s' und '%s' gespeichert", exercise, secondExercise)
+                : String.format("Übung '%s' gespeichert", exercise);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private List<Set> parseSetsFromInputs(EditText[] weights, EditText[] reps, String label) {
+        List<Set> sets = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            String weightStr = weights[i].getText().toString().trim();
+            String repsStr = reps[i].getText().toString().trim();
+
+            if (weightStr.isEmpty() || repsStr.isEmpty()) {
+                Toast.makeText(this, String.format("%s: Bitte Satz %d vollständig ausfüllen", label, i + 1), Toast.LENGTH_SHORT).show();
+                return null;
+            }
+
+            try {
+                double weight = Double.parseDouble(weightStr);
+                int repsValue = Integer.parseInt(repsStr);
+                sets.add(new Set(weight, repsValue));
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, String.format("%s: Ungültige Eingabe in Satz %d", label, i + 1), Toast.LENGTH_SHORT).show();
+                return null;
+            }
+        }
+        return sets;
+    }
+
+    private boolean hasAnyInput(EditText[] weights, EditText[] reps) {
+        for (int i = 0; i < 4; i++) {
+            if (!weights[i].getText().toString().trim().isEmpty()
+                    || !reps[i].getText().toString().trim().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void saveWorkoutExercise(String exercise, List<Set> sets) {
         WorkoutEntry entry = new WorkoutEntry(exercise, sets);
         workoutEntries.add(entry);
-
-        // Eintrag in der UI anzeigen
         addEntryToView(entry);
         saveWorkoutSummary(exercise, sets);
 
-        // Strukturierte Daten speichern
         List<WorkoutStorage.WorkoutSet> storageSets = new ArrayList<>();
         for (Set set : sets) {
             storageSets.add(new WorkoutStorage.WorkoutSet(set.getWeight(), set.getReps()));
         }
         WorkoutStorage.saveDetailedWorkout(this, WORKOUT_TYPE, exercise, storageSets);
-
-        // Eingabefelder zurücksetzen
-        clearInputFields();
-
-        // Letztes Training aktualisieren
-        loadLastWorkout(exercise);
-
-        Toast.makeText(this, String.format("Übung '%s' gespeichert (%d Sätze)", 
-            exercise, sets.size()), Toast.LENGTH_SHORT).show();
     }
 
     private void saveWorkoutSummary(String exercise, List<Set> sets) {
@@ -618,7 +675,10 @@ public class PushActivity extends AppCompatActivity {
         for (int i = 0; i < 4; i++) {
             etWeights[i].setText("");
             etReps[i].setText("");
+            etSecondWeights[i].setText("");
+            etSecondReps[i].setText("");
         }
+        spinnerExerciseSecond.setSelection(spinnerExercise.getSelectedItemPosition());
     }
 
     private void addEntryToView(WorkoutEntry entry) {
