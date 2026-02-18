@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -309,22 +310,34 @@ public class PullActivity extends AppCompatActivity {
                                  int defaultArrayRes,
                                  String listKey,
                                  Runnable afterUpdate) {
+        float density = getResources().getDisplayMetrics().density;
+        int minHeight = Math.round(56 * density);
+        int padStart = Math.round(18 * density);
+        int padTopBottom = Math.round(12 * density);
+        int padEnd = Math.round(10 * density);
+        int marginBottom = Math.round(12 * density);
+        int deleteSize = Math.round(44 * density);
+        int deletePad = Math.round(10 * density);
+
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setPadding(16, 12, 16, 12);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setMinimumHeight(minHeight);
+        row.setPadding(padStart, padTopBottom, padEnd, padTopBottom);
         row.setBackground(getResources().getDrawable(R.drawable.rounded_input, null));
 
         LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        rowParams.bottomMargin = 10;
+        rowParams.bottomMargin = marginBottom;
         row.setLayoutParams(rowParams);
 
         TextView tvName = new TextView(this);
         tvName.setText(item);
         tvName.setTextColor(getResources().getColor(R.color.text_primary, null));
         tvName.setTextSize(16);
+        tvName.setGravity(Gravity.CENTER_VERTICAL);
         tvName.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
@@ -332,8 +345,12 @@ public class PullActivity extends AppCompatActivity {
         row.addView(tvName);
 
         ImageButton btnDelete = new ImageButton(this);
+        LinearLayout.LayoutParams deleteParams = new LinearLayout.LayoutParams(deleteSize, deleteSize);
+        btnDelete.setLayoutParams(deleteParams);
         btnDelete.setBackground(getResources().getDrawable(R.drawable.rounded_input, null));
         btnDelete.setImageResource(android.R.drawable.ic_menu_delete);
+        btnDelete.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
+        btnDelete.setPadding(deletePad, deletePad, deletePad, deletePad);
         btnDelete.setColorFilter(getResources().getColor(R.color.gold_primary, null));
         btnDelete.setContentDescription("Löschen");
         row.addView(btnDelete);
