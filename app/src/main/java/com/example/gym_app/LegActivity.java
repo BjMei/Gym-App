@@ -355,33 +355,54 @@ public class LegActivity extends AppCompatActivity {
         btnDelete.setContentDescription("Löschen");
         row.addView(btnDelete);
 
-        btnDelete.setOnClickListener(v -> new AlertDialog.Builder(this)
-                .setTitle("Löschen")
-                .setMessage("'" + item + "' wirklich löschen?")
-                .setPositiveButton("Ja", (d, which) -> {
-                    if (ExerciseCatalog.removeExercise(this, defaultArrayRes, listKey, item)) {
-                        if (listKey.equals(WORKOUT_TYPE)) {
-                            refreshExerciseSpinner(null);
-                        } else {
-                            refreshCardioSpinner(null);
-                        }
-                        if (afterUpdate != null) {
-                            afterUpdate.run();
-                        }
+        btnDelete.setOnClickListener(v -> showDeleteConfirmDialog(item, () -> {
+            if (ExerciseCatalog.removeExercise(this, defaultArrayRes, listKey, item)) {
+                if (listKey.equals(WORKOUT_TYPE)) {
+                    refreshExerciseSpinner(null);
+                } else {
+                    refreshCardioSpinner(null);
+                }
+                if (afterUpdate != null) {
+                    afterUpdate.run();
+                }
 
-                        // list rerender
-                        parentDialog.dismiss();
-                        if (listKey.equals(WORKOUT_TYPE)) {
-                            showManageExercisesDialog();
-                        } else {
-                            showManageCardioDialog();
-                        }
-                    }
-                })
-                .setNegativeButton("Nein", null)
-                .show());
+                parentDialog.dismiss();
+                if (listKey.equals(WORKOUT_TYPE)) {
+                    showManageExercisesDialog();
+                } else {
+                    showManageCardioDialog();
+                }
+            }
+        }));
 
         return row;
+    }
+
+    private void showDeleteConfirmDialog(String itemName, Runnable onConfirm) {
+        Dialog confirmDialog = new Dialog(this);
+        confirmDialog.setContentView(R.layout.dialog_confirm_delete);
+
+        if (confirmDialog.getWindow() != null) {
+            confirmDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            android.view.WindowManager.LayoutParams params = confirmDialog.getWindow().getAttributes();
+            params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.88);
+            confirmDialog.getWindow().setAttributes(params);
+        }
+
+        TextView tvMessage = confirmDialog.findViewById(R.id.tvDeleteMessage);
+        Button btnCancel = confirmDialog.findViewById(R.id.btnDeleteCancel);
+        Button btnConfirm = confirmDialog.findViewById(R.id.btnDeleteConfirm);
+
+        tvMessage.setText("'" + itemName + "' wirklich löschen?");
+        btnCancel.setOnClickListener(v -> confirmDialog.dismiss());
+        btnConfirm.setOnClickListener(v -> {
+            if (onConfirm != null) {
+                onConfirm.run();
+            }
+            confirmDialog.dismiss();
+        });
+
+        confirmDialog.show();
     }
 
     private void showExerciseSettingsDialog() {
