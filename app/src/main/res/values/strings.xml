@@ -35,4 +35,6 @@
         <item>Hip Thrust</item>
         <item>Hyperextension</item>
     </string-array>
+    <string name="home_stats_subtitle">Kennzahlen &amp; Auswertung</string>
+    <string name="home_progress_subtitle">Trends, PRs &amp; Balance</string>
 </resources>
