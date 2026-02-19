@@ -19,7 +19,6 @@ public class WorkoutStorage {
     public static final String TYPE_PUSH = "push";
     public static final String TYPE_PULL = "pull";
     public static final String TYPE_LEG = "leg";
-    private static final int MAX_ENTRIES = 10;
 
     // Strukturierte Trainingsdaten speichern
     public static void saveDetailedWorkout(Context context, String type, String exercise, List<WorkoutSet> sets) {
@@ -48,8 +47,8 @@ public class WorkoutStorage {
             
             newArray.put(workout);
             
-            // Alte Einträge hinzufügen (max. MAX_ENTRIES - 1)
-            for (int i = 0; i < storedArray.length() && i < MAX_ENTRIES - 1; i++) {
+            // Alle bisherigen Einträge beibehalten (Langzeitdaten)
+            for (int i = 0; i < storedArray.length(); i++) {
                 newArray.put(storedArray.getJSONObject(i));
             }
             
@@ -76,7 +75,8 @@ public class WorkoutStorage {
 
             newArray.put(session);
 
-            for (int i = 0; i < storedArray.length() && i < MAX_ENTRIES - 1; i++) {
+            // Alle bisherigen Einträge beibehalten (Langzeitdaten)
+            for (int i = 0; i < storedArray.length(); i++) {
                 newArray.put(storedArray.getJSONObject(i));
             }
 
@@ -216,7 +216,8 @@ public class WorkoutStorage {
         JSONArray newArray = new JSONArray();
         newArray.put(summary);
 
-        for (int i = 0; i < storedArray.length() && i < MAX_ENTRIES - 1; i++) {
+        // Alle bisherigen Einträge beibehalten (Langzeitdaten)
+        for (int i = 0; i < storedArray.length(); i++) {
             try {
                 newArray.put(storedArray.getString(i));
             } catch (JSONException ignored) {
