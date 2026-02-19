@@ -28,7 +28,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="PERFORMANCE ANALYTICS"
+            android:text="LEISTUNGSANALYSE"
             android:textColor="@color/text_tertiary"
             android:textSize="10sp"
             android:letterSpacing="0.05" />
