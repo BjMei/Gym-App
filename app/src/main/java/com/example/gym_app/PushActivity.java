@@ -51,8 +51,8 @@ public class PushActivity extends AppCompatActivity {
     private LinearLayout llSecondExerciseSection;
     private LinearLayout llLastWorkoutSecond;
     private TextView tvLastWorkoutDataSecond;
-    private ImageButton btnTimerStartPause;
-    private ImageButton btnTimerReset;
+    private Button btnTimerStartPause;
+    private Button btnTimerReset;
     private final Handler timerHandler = new Handler();
     private long timerBaseMs = 0L;
     private long elapsedWhenPausedMs = 0L;
@@ -219,17 +219,19 @@ public class PushActivity extends AppCompatActivity {
 
     private void setupStopwatch() {
         updateStopwatchText(0L);
+        btnTimerStartPause.setText("START");
+        btnTimerReset.setText("RESET");
 
         btnTimerStartPause.setOnClickListener(v -> {
             if (timerRunning) {
                 elapsedWhenPausedMs = SystemClock.elapsedRealtime() - timerBaseMs;
                 timerRunning = false;
                 timerHandler.removeCallbacks(timerRunnable);
-                btnTimerStartPause.setImageResource(android.R.drawable.ic_media_play);
+                btnTimerStartPause.setText("START");
             } else {
                 timerBaseMs = SystemClock.elapsedRealtime() - elapsedWhenPausedMs;
                 timerRunning = true;
-                btnTimerStartPause.setImageResource(android.R.drawable.ic_media_pause);
+                btnTimerStartPause.setText("PAUSE");
                 timerHandler.post(timerRunnable);
             }
         });
@@ -240,15 +242,14 @@ public class PushActivity extends AppCompatActivity {
             timerBaseMs = 0L;
             elapsedWhenPausedMs = 0L;
             updateStopwatchText(0L);
-            btnTimerStartPause.setImageResource(android.R.drawable.ic_media_play);
+            btnTimerStartPause.setText("START");
         });
     }
 
     private void updateStopwatchText(long elapsedMs) {
         long minutes = elapsedMs / 60000;
         long seconds = (elapsedMs % 60000) / 1000;
-        long centiseconds = (elapsedMs % 1000) / 10;
-        tvStopwatch.setText(String.format(Locale.getDefault(), "%02d:%02d.%02d", minutes, seconds, centiseconds));
+        tvStopwatch.setText(String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds));
     }
 
     private void toggleSecondExerciseSection() {
