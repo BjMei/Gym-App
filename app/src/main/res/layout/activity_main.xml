@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -29,8 +30,8 @@
                 android:layout_height="40dp"
                 android:background="@android:color/transparent"
                 android:src="@android:drawable/ic_menu_sort_by_size"
-                android:tint="@color/gold_primary"
-                android:contentDescription="Menü öffnen" />
+                app:tint="@color/gold_primary"
+                android:contentDescription="@string/drawer_open" />
         </LinearLayout>
 
         <!-- ScrollView für Buttons -->
@@ -51,13 +52,14 @@
                 android:src="@drawable/ic_dumbbell"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="12dp"
-                android:tint="@color/text_primary" />
+                app:tint="@color/text_primary"
+                android:contentDescription="@string/app_name" />
 
             <TextView
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="IRONX"
+                android:text="@string/app_name"
                 android:textSize="34sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
@@ -68,7 +70,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dein persönlicher Trainingsbegleiter"
+                android:text="@string/home_tagline"
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary"
                 android:layout_gravity="center_horizontal"
@@ -112,7 +114,8 @@
                         android:padding="16dp"
                         android:background="@drawable/icon_badge"
                         android:src="@drawable/ic_workout_home"
-                        android:tint="@color/gold_primary" />
+                        app:tint="@color/gold_primary"
+                        android:contentDescription="@string/nav_workout" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -123,7 +126,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="WORKOUT STARTEN"
+                            android:text="@string/home_workout_title"
                             android:textSize="26sp"
                             android:textStyle="bold"
                             android:textColor="@color/text_primary"
@@ -133,10 +136,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="Push • Pull • Legs"
+                            android:text="@string/home_workout_subtitle"
                             android:textSize="13sp"
                             android:textColor="@color/text_tertiary"
+                            android:layout_marginTop="6dp"
                             android:fontFamily="sans-serif-medium" />
                     </LinearLayout>
                 </LinearLayout>
@@ -163,7 +166,8 @@
                         android:padding="16dp"
                         android:background="@drawable/icon_badge"
                         android:src="@drawable/ic_stats_home"
-                        android:tint="@color/gold_primary" />
+                        app:tint="@color/gold_primary"
+                        android:contentDescription="@string/nav_stats" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -174,7 +178,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="STATISTIK"
+                            android:text="@string/nav_stats"
                             android:textSize="26sp"
                             android:textStyle="bold"
                             android:textColor="@color/text_primary"
@@ -184,10 +188,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
                             android:text="@string/home_stats_subtitle"
                             android:textSize="13sp"
                             android:textColor="@color/text_tertiary"
+                            android:layout_marginTop="6dp"
                             android:fontFamily="sans-serif-medium" />
                     </LinearLayout>
                 </LinearLayout>
@@ -215,7 +219,8 @@
                         android:padding="16dp"
                         android:background="@drawable/icon_badge"
                         android:src="@drawable/ic_progress_home"
-                        android:tint="@color/gold_primary" />
+                        app:tint="@color/gold_primary"
+                        android:contentDescription="@string/nav_progress" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -226,7 +231,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="FORTSCHRITT"
+                            android:text="@string/nav_progress"
                             android:textSize="26sp"
                             android:textStyle="bold"
                             android:textColor="@color/text_primary"
@@ -236,10 +241,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
                             android:text="@string/home_progress_subtitle"
                             android:textSize="13sp"
                             android:textColor="@color/text_tertiary"
+                            android:layout_marginTop="6dp"
                             android:fontFamily="sans-serif-medium" />
                     </LinearLayout>
                 </LinearLayout>
@@ -260,7 +265,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="MENÜ"
+            android:text="@string/nav_menu"
             android:textColor="@color/gold_primary"
             android:textStyle="bold"
             android:textSize="20sp"
@@ -276,7 +281,7 @@
             android:id="@+id/drawerWorkout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🏋️ Workout"
+            android:text="@string/nav_workout_emoji"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:paddingTop="18dp"
@@ -288,7 +293,7 @@
             android:id="@+id/drawerHistory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🗂 Trainingshistorie"
+            android:text="@string/nav_history_emoji"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:paddingTop="18dp"
@@ -300,7 +305,7 @@
             android:id="@+id/drawerStats"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📊 Statistik"
+            android:text="@string/nav_stats_emoji"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:paddingTop="18dp"
@@ -312,7 +317,7 @@
             android:id="@+id/drawerProgress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📈 Fortschritt"
+            android:text="@string/nav_progress_emoji"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:paddingTop="18dp"
@@ -324,7 +329,7 @@
             android:id="@+id/drawerReset"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🧹 Alle Daten zurücksetzen"
+            android:text="@string/nav_reset_emoji"
             android:textColor="@color/error"
             android:textSize="16sp"
             android:paddingTop="18dp"
@@ -336,7 +341,7 @@
             android:id="@+id/drawerSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="⚙️ Einstellungen"
+            android:text="@string/nav_settings_emoji"
             android:textColor="@color/text_tertiary"
             android:textSize="16sp"
             android:paddingTop="18dp"
