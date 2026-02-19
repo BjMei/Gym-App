@@ -13,7 +13,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -51,8 +50,8 @@ public class PullActivity extends AppCompatActivity {
     private LinearLayout llSecondExerciseSection;
     private LinearLayout llLastWorkoutSecond;
     private TextView tvLastWorkoutDataSecond;
-    private Button btnTimerStartPause;
-    private Button btnTimerReset;
+    private ImageButton btnTimerStartPause;
+    private ImageButton btnTimerReset;
     private final Handler timerHandler = new Handler();
     private long timerBaseMs = 0L;
     private long elapsedWhenPausedMs = 0L;
@@ -218,19 +217,16 @@ public class PullActivity extends AppCompatActivity {
 
     private void setupStopwatch() {
         updateStopwatchText(0L);
-        btnTimerStartPause.setText("START");
-        btnTimerReset.setText("RESET");
-
         btnTimerStartPause.setOnClickListener(v -> {
             if (timerRunning) {
                 elapsedWhenPausedMs = SystemClock.elapsedRealtime() - timerBaseMs;
                 timerRunning = false;
                 timerHandler.removeCallbacks(timerRunnable);
-                btnTimerStartPause.setText("START");
+                btnTimerStartPause.setImageResource(android.R.drawable.ic_media_play);
             } else {
                 timerBaseMs = SystemClock.elapsedRealtime() - elapsedWhenPausedMs;
                 timerRunning = true;
-                btnTimerStartPause.setText("PAUSE");
+                btnTimerStartPause.setImageResource(android.R.drawable.ic_media_pause);
                 timerHandler.post(timerRunnable);
             }
         });
@@ -241,14 +237,15 @@ public class PullActivity extends AppCompatActivity {
             timerBaseMs = 0L;
             elapsedWhenPausedMs = 0L;
             updateStopwatchText(0L);
-            btnTimerStartPause.setText("START");
+            btnTimerStartPause.setImageResource(android.R.drawable.ic_media_play);
         });
     }
 
     private void updateStopwatchText(long elapsedMs) {
         long minutes = elapsedMs / 60000;
         long seconds = (elapsedMs % 60000) / 1000;
-        tvStopwatch.setText(String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds));
+        long centiseconds = (elapsedMs % 1000) / 10;
+        tvStopwatch.setText(String.format(Locale.getDefault(), "%02d:%02d.%02d", minutes, seconds, centiseconds));
     }
 
     private void toggleSecondExerciseSection() {
