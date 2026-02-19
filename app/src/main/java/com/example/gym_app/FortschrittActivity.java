@@ -10,6 +10,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
@@ -103,10 +106,32 @@ public class FortschrittActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fortschritt);
+        applyWindowInsets();
         bindViews();
         setupTabs();
         setupExerciseSpinner();
         showSection("kraft");
+    }
+
+
+    private void applyWindowInsets() {
+        View rootLayout = findViewById(R.id.rootFortschrittLayout);
+        int basePaddingLeft = rootLayout.getPaddingLeft();
+        int basePaddingTop = rootLayout.getPaddingTop();
+        int basePaddingRight = rootLayout.getPaddingRight();
+        int basePaddingBottom = rootLayout.getPaddingBottom();
+
+        ViewCompat.setOnApplyWindowInsetsListener(rootLayout, (view, windowInsets) -> {
+            Insets systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            view.setPadding(
+                    basePaddingLeft + systemBars.left,
+                    basePaddingTop + systemBars.top,
+                    basePaddingRight + systemBars.right,
+                    basePaddingBottom + systemBars.bottom
+            );
+            return windowInsets;
+        });
+        ViewCompat.requestApplyInsets(rootLayout);
     }
 
     private void bindViews() {
