@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -45,9 +47,28 @@ public class PullActivity extends AppCompatActivity {
     private LinearLayout llEntries;
     private LinearLayout llLastWorkout;
     private TextView tvLastWorkoutData;
+    private TextView tvStopwatch;
     private LinearLayout llSecondExerciseSection;
     private LinearLayout llLastWorkoutSecond;
     private TextView tvLastWorkoutDataSecond;
+    private ImageButton btnTimerStartPause;
+    private ImageButton btnTimerReset;
+    private final Handler timerHandler = new Handler();
+    private long timerBaseMs = 0L;
+    private long elapsedWhenPausedMs = 0L;
+    private boolean timerRunning = false;
+    private final Runnable timerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!timerRunning) {
+                return;
+            }
+            long elapsed = SystemClock.elapsedRealtime() - timerBaseMs;
+            updateStopwatchText(elapsed);
+            timerHandler.postDelayed(this, 100);
+        }
+    };
+
     private List<WorkoutEntry> workoutEntries;
     private List<CardioEntry> cardioEntries;
     private ArrayAdapter<String> adapter;
@@ -78,12 +99,17 @@ public class PullActivity extends AppCompatActivity {
         llEntries = findViewById(R.id.llEntries);
         llLastWorkout = findViewById(R.id.llLastWorkout);
         tvLastWorkoutData = findViewById(R.id.tvLastWorkoutData);
+        tvStopwatch = findViewById(R.id.tvStopwatch);
+        btnTimerStartPause = findViewById(R.id.btnTimerStartPause);
+        btnTimerReset = findViewById(R.id.btnTimerReset);
         llSecondExerciseSection = findViewById(R.id.llSecondExerciseSection);
         llLastWorkoutSecond = findViewById(R.id.llLastWorkoutSecond);
         tvLastWorkoutDataSecond = findViewById(R.id.tvLastWorkoutDataSecond);
 
         // SharedPreferences initialisieren
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        setupStopwatch();
+
         setupExerciseSpinner();
         setupSpinnerPicker(spinnerExercise, adapter, "Übung auswählen");
         setupSpinnerPicker(spinnerExerciseSecond, adapter, "2. Übung auswählen");
@@ -188,6 +214,40 @@ public class PullActivity extends AppCompatActivity {
                 loadLastWorkoutSecond(spinnerExerciseSecond.getItemAtPosition(0).toString());
             }
         }
+    }
+
+    private void setupStopwatch() {
+        updateStopwatchText(0L);
+
+        btnTimerStartPause.setOnClickListener(v -> {
+            if (timerRunning) {
+                elapsedWhenPausedMs = SystemClock.elapsedRealtime() - timerBaseMs;
+                timerRunning = false;
+                timerHandler.removeCallbacks(timerRunnable);
+                btnTimerStartPause.setImageResource(android.R.drawable.ic_media_play);
+            } else {
+                timerBaseMs = SystemClock.elapsedRealtime() - elapsedWhenPausedMs;
+                timerRunning = true;
+                btnTimerStartPause.setImageResource(android.R.drawable.ic_media_pause);
+                timerHandler.post(timerRunnable);
+            }
+        });
+
+        btnTimerReset.setOnClickListener(v -> {
+            timerRunning = false;
+            timerHandler.removeCallbacks(timerRunnable);
+            timerBaseMs = 0L;
+            elapsedWhenPausedMs = 0L;
+            updateStopwatchText(0L);
+            btnTimerStartPause.setImageResource(android.R.drawable.ic_media_play);
+        });
+    }
+
+    private void updateStopwatchText(long elapsedMs) {
+        long minutes = elapsedMs / 60000;
+        long seconds = (elapsedMs % 60000) / 1000;
+        long centiseconds = (elapsedMs % 1000) / 10;
+        tvStopwatch.setText(String.format(Locale.getDefault(), "%02d:%02d.%02d", minutes, seconds, centiseconds));
     }
 
     private void toggleSecondExerciseSection() {
@@ -902,6 +962,26 @@ public class PullActivity extends AppCompatActivity {
 
         // Zur LinearLayout hinzufügen
         llEntries.addView(cardioContainer);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (timerRunning) {
+            timerHandler.post(timerRunnable);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        timerHandler.removeCallbacks(timerRunnable);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timerHandler.removeCallbacks(timerRunnable);
     }
 
     // Innere Klasse für einen Satz
