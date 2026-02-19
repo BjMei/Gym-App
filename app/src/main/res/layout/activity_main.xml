@@ -33,17 +33,6 @@
                 android:contentDescription="Menü öffnen" />
         </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dein persönlicher Trainingsbegleiter"
-                android:textSize="16sp"
-                android:textColor="@color/text_secondary"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="12dp"
-                android:fontFamily="sans-serif-medium" />
-        </LinearLayout>
-
         <!-- ScrollView für Buttons -->
         <ScrollView
             android:layout_width="match_parent"
@@ -152,6 +141,17 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Push • Pull • Legs"
+                            android:textSize="13sp"
+                            android:textColor="@color/text_tertiary"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+                </LinearLayout>
+
                 <!-- Statistik Card -->
                 <LinearLayout
                     android:id="@+id/statsCard"
@@ -191,6 +191,17 @@
                             android:textColor="@color/text_primary"
                             android:fontFamily="sans-serif-black"
                             android:letterSpacing="0.05" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Kennzahlen &amp; Auswertung"
+                            android:textSize="13sp"
+                            android:textColor="@color/text_tertiary"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+                </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
