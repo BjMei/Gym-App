@@ -33,7 +33,31 @@
                 android:contentDescription="Menü öffnen" />
         </LinearLayout>
 
-        <LinearLayout
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="IRONX"
+                android:textSize="42sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_gravity="center_horizontal"
+                android:letterSpacing="0.15"
+                android:fontFamily="sans-serif-black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dein persönlicher Trainingsbegleiter"
+                android:textSize="16sp"
+                android:textColor="@color/text_secondary"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans-serif-medium" />
+        </LinearLayout>
+
+        <!-- ScrollView für Buttons -->
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -88,6 +112,7 @@
                 android:orientation="vertical"
                 android:gravity="center_vertical">
 
+                <!-- Workout Card -->
                 <LinearLayout
                     android:id="@+id/workoutCard"
                     android:layout_width="match_parent"
@@ -139,6 +164,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Statistik Card -->
                 <LinearLayout
                     android:id="@+id/statsCard"
                     android:layout_width="match_parent"
@@ -189,6 +215,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Fortschritt Card -->
                 <LinearLayout
                     android:id="@+id/progressCard"
                     android:layout_width="match_parent"
@@ -239,6 +266,7 @@
                             android:fontFamily="sans-serif-medium" />
                     </LinearLayout>
                 </LinearLayout>
+
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
