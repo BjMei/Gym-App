@@ -33,7 +33,8 @@
                 android:contentDescription="Menü öffnen" />
         </LinearLayout>
 
-        <LinearLayout
+        <!-- ScrollView für Buttons -->
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -88,6 +89,7 @@
                 android:orientation="vertical"
                 android:gravity="center_vertical">
 
+                <!-- Workout Card -->
                 <LinearLayout
                     android:id="@+id/workoutCard"
                     android:layout_width="match_parent"
@@ -139,6 +141,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Statistik Card -->
                 <LinearLayout
                     android:id="@+id/statsCard"
                     android:layout_width="match_parent"
@@ -189,6 +192,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Fortschritt Card -->
                 <LinearLayout
                     android:id="@+id/progressCard"
                     android:layout_width="match_parent"
