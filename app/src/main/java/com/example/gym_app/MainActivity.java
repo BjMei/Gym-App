@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         TextView drawerSettings = findViewById(R.id.drawerSettings);
 
         workoutCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WorkoutActivity.class)));
-        statsCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, StatsActivity.class)));
+        statsCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, StatistikActivity.class)));
         progressCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, FortschrittActivity.class)));
 
         btnOpenDrawer.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         drawerStats.setOnClickListener(v -> {
             drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, StatsActivity.class));
+            startActivity(new Intent(MainActivity.this, StatistikActivity.class));
         });
 
         drawerProgress.setOnClickListener(v -> {

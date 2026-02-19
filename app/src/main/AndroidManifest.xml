@@ -33,6 +33,11 @@
             android:name=".StatsActivity"
             android:exported="false" />
         <activity
+            android:name=".StatistikActivity"
+            android:label="Statistik"
+            android:theme="@style/Theme.GymApp"
+            android:exported="false" />
+        <activity
             android:name=".ProgressActivity"
             android:exported="false" />
         <activity
