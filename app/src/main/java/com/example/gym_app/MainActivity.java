@@ -30,6 +30,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, StatsActivity.class)));
 
         progressCard.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, ProgressActivity.class)));
+                startActivity(new Intent(MainActivity.this, FortschrittActivity.class)));
     }
 }
