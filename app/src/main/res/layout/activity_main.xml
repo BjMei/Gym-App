@@ -34,18 +34,6 @@
         </LinearLayout>
 
             <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="IRONX"
-                android:textSize="42sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:layout_gravity="center_horizontal"
-                android:letterSpacing="0.15"
-                android:fontFamily="sans-serif-black" />
-
-            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Dein persönlicher Trainingsbegleiter"
@@ -208,7 +196,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:text="Kennzahlen & Auswertung"
+                            android:text="Kennzahlen &amp; Auswertung"
                             android:textSize="13sp"
                             android:textColor="@color/text_tertiary"
                             android:fontFamily="sans-serif-medium" />
@@ -260,7 +248,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:text="Trends, PRs & Balance"
+                            android:text="Trends, PRs &amp; Balance"
                             android:textSize="13sp"
                             android:textColor="@color/text_tertiary"
                             android:fontFamily="sans-serif-medium" />
