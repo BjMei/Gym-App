@@ -18,7 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="STATISTIK"
+            android:text="📊 STATISTIK"
             android:textColor="@color/gold_primary"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -95,7 +95,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="AKTIVSTE WOCHE"
+                        android:text="🏆 AKTIVSTE WOCHE"
                         android:textColor="@color/text_tertiary"
                         android:textSize="10sp"
                         android:letterSpacing="0.08"

@@ -244,16 +244,21 @@ public class FortschrittActivity extends AppCompatActivity {
         List<WorkoutStorage.DetailedWorkout> raw = WorkoutStorage.getDetailedWorkouts(this, type);
         Date cutoff = getDaysAgo(days);
 
-        Map<String, float[]> dayMap = new TreeMap<>();
-        SimpleDateFormat labelFormat = new SimpleDateFormat("dd.MM.", Locale.getDefault());
         SimpleDateFormat parseFull = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
+        SimpleDateFormat dayKeyFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat labelFormat = new SimpleDateFormat("dd.MM.", Locale.getDefault());
+
+        Map<String, float[]> dayMap = new TreeMap<>();
+        Map<String, String> dayLabels = new HashMap<>();
 
         for (WorkoutStorage.DetailedWorkout workout : raw) {
             if (!exercise.equals(workout.exercise) || workout.sets == null) continue;
             try {
                 Date date = parseFull.parse(workout.timestamp);
                 if (date == null || date.before(cutoff)) continue;
-                String key = labelFormat.format(date);
+
+                String key = dayKeyFormat.format(date);
+                dayLabels.put(key, labelFormat.format(date));
 
                 double maxWeight = 0;
                 double volume = 0;
@@ -281,15 +286,17 @@ public class FortschrittActivity extends AppCompatActivity {
             }
         }
 
-        List<String> labels = new ArrayList<>(dayMap.keySet());
+        List<String> keys = new ArrayList<>(dayMap.keySet());
+        List<String> labels = new ArrayList<>();
         List<Entry> e1RM = new ArrayList<>();
         List<Entry> eMax = new ArrayList<>();
         List<Entry> eVol = new ArrayList<>();
         List<Entry> eReps = new ArrayList<>();
 
         int i = 0;
-        for (String key : labels) {
+        for (String key : keys) {
             float[] v = dayMap.get(key);
+            labels.add(dayLabels.getOrDefault(key, key));
             e1RM.add(new Entry(i, v[0]));
             eMax.add(new Entry(i, v[1]));
             eVol.add(new Entry(i, v[2]));

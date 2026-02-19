@@ -3,48 +3,35 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:background="@color/primary_dark">
 
-    <!-- MAIN CONTENT -->
     <LinearLayout
+        android:id="@+id/mainContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="@color/primary_dark"
-        android:paddingTop="48dp"
-        android:paddingBottom="32dp">
+        android:paddingTop="12dp"
+        android:paddingBottom="20dp">
 
-        <!-- Header mit Gradient -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="40dp"
-            android:paddingBottom="50dp"
-            android:paddingStart="28dp"
-            android:paddingEnd="28dp"
-            android:background="@drawable/gradient_header"
-            android:elevation="12dp">
+            android:gravity="start"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp">
 
-            <!-- Drawer Button -->
             <ImageButton
                 android:id="@+id/btnOpenDrawer"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_gravity="start"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="@android:color/transparent"
-                android:contentDescription="Menü öffnen"
                 android:src="@android:drawable/ic_menu_sort_by_size"
-                android:tint="@color/text_primary" />
-
-            <!-- Logo/Icon -->
-            <ImageView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:src="@drawable/ic_dumbbell"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="24dp"
-                android:tint="@color/text_primary" />
+                android:tint="@color/gold_primary"
+                android:contentDescription="Menü öffnen" />
+        </LinearLayout>
 
             <TextView
                 android:id="@+id/title"
@@ -70,6 +57,48 @@
         </LinearLayout>
 
         <!-- ScrollView für Buttons -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="20dp"
+            android:paddingStart="28dp"
+            android:paddingEnd="28dp"
+            android:background="@drawable/gradient_header_plain"
+            android:elevation="12dp">
+
+            <ImageView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/ic_dumbbell"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="12dp"
+                android:tint="@color/text_primary" />
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="IRONX"
+                android:textSize="34sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_gravity="center_horizontal"
+                android:letterSpacing="0.15"
+                android:fontFamily="sans-serif-black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dein persönlicher Trainingsbegleiter"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans-serif-medium" />
+        </LinearLayout>
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -179,7 +208,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:text="Kennzahlen &amp; Auswertung"
+                            android:text="Kennzahlen & Auswertung"
                             android:textSize="13sp"
                             android:textColor="@color/text_tertiary"
                             android:fontFamily="sans-serif-medium" />
@@ -231,7 +260,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:text="Trends, PRs &amp; Balance"
+                            android:text="Trends, PRs & Balance"
                             android:textSize="13sp"
                             android:textColor="@color/text_tertiary"
                             android:fontFamily="sans-serif-medium" />
@@ -242,84 +271,101 @@
         </ScrollView>
     </LinearLayout>
 
-    <!-- DRAWER (START) -->
     <LinearLayout
-        android:layout_width="280dp"
+        android:id="@+id/drawerPanel"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:orientation="vertical"
         android:background="@color/primary"
+        android:orientation="vertical"
         android:padding="20dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="MENÜ"
+            android:textColor="@color/gold_primary"
             android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="@color/text_primary"
-            android:layout_marginBottom="16dp" />
+            android:textSize="20sp"
+            android:letterSpacing="0.08"
+            android:paddingBottom="16dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider" />
 
         <TextView
             android:id="@+id/drawerWorkout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="14dp"
-            android:text="Workout"
+            android:text="🏋️ Workout"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
-            android:textColor="@color/text_primary" />
+            android:paddingTop="18dp"
+            android:paddingBottom="18dp"
+            android:clickable="true"
+            android:focusable="true" />
 
         <TextView
             android:id="@+id/drawerHistory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="14dp"
-            android:text="Verlauf"
+            android:text="🗂 Trainingshistorie"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
-            android:textColor="@color/text_primary" />
+            android:paddingTop="18dp"
+            android:paddingBottom="18dp"
+            android:clickable="true"
+            android:focusable="true" />
 
         <TextView
             android:id="@+id/drawerStats"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="14dp"
-            android:text="Statistik"
+            android:text="📊 Statistik"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
-            android:textColor="@color/text_primary" />
+            android:paddingTop="18dp"
+            android:paddingBottom="18dp"
+            android:clickable="true"
+            android:focusable="true" />
 
         <TextView
             android:id="@+id/drawerProgress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="14dp"
-            android:text="Fortschritt"
+            android:text="📈 Fortschritt"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
-            android:textColor="@color/text_primary" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="12dp"
-            android:background="@color/divider" />
+            android:paddingTop="18dp"
+            android:paddingBottom="18dp"
+            android:clickable="true"
+            android:focusable="true" />
 
         <TextView
             android:id="@+id/drawerReset"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="14dp"
-            android:text="Reset"
+            android:text="🧹 Alle Daten zurücksetzen"
+            android:textColor="@color/error"
             android:textSize="16sp"
-            android:textColor="@color/text_primary" />
+            android:paddingTop="18dp"
+            android:paddingBottom="18dp"
+            android:clickable="true"
+            android:focusable="true" />
 
         <TextView
             android:id="@+id/drawerSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="14dp"
-            android:text="Einstellungen"
+            android:text="⚙️ Einstellungen"
+            android:textColor="@color/text_tertiary"
             android:textSize="16sp"
-            android:textColor="@color/text_primary" />
-
+            android:paddingTop="18dp"
+            android:paddingBottom="18dp"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 
 </androidx.drawerlayout.widget.DrawerLayout>
