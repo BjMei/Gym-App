@@ -36,6 +36,9 @@
             android:name=".ProgressActivity"
             android:exported="false" />
         <activity
+            android:name=".FortschrittActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
