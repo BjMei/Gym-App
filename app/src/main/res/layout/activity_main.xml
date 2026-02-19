@@ -82,11 +82,13 @@
                 android:foreground="?android:attr/selectableItemBackground">
 
                 <ImageView
-                    android:layout_width="90dp"
-                    android:layout_height="90dp"
-                    android:src="@drawable/ic_dumbbell"
-                    android:tint="@color/text_primary"
-                    android:layout_marginEnd="24dp"/>
+                    android:layout_width="74dp"
+                    android:layout_height="74dp"
+                    android:layout_marginEnd="22dp"
+                    android:padding="16dp"
+                    android:background="@drawable/icon_badge"
+                    android:src="@drawable/ic_workout_home"
+                    android:tint="@color/gold_primary"/>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -103,6 +105,15 @@
                         android:textColor="@color/text_primary"
                         android:fontFamily="sans-serif-black"
                         android:letterSpacing="0.05"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Push • Pull • Legs"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_tertiary"
+                        android:fontFamily="sans-serif-medium"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -122,11 +133,13 @@
                 android:foreground="?android:attr/selectableItemBackground">
 
                 <ImageView
-                    android:layout_width="90dp"
-                    android:layout_height="90dp"
-                    android:src="@drawable/ic_stats"
-                    android:tint="@color/text_primary"
-                    android:layout_marginEnd="24dp"/>
+                    android:layout_width="74dp"
+                    android:layout_height="74dp"
+                    android:layout_marginEnd="22dp"
+                    android:padding="16dp"
+                    android:background="@drawable/icon_badge"
+                    android:src="@drawable/ic_stats_home"
+                    android:tint="@color/gold_primary"/>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -143,6 +156,15 @@
                         android:textColor="@color/text_primary"
                         android:fontFamily="sans-serif-black"
                         android:letterSpacing="0.05"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Kennzahlen & Auswertung"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_tertiary"
+                        android:fontFamily="sans-serif-medium"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -152,7 +174,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:background="@drawable/card_workout"
+                android:background="@drawable/card_progress"
                 android:padding="28dp"
                 android:gravity="center_vertical"
                 android:minHeight="140dp"
@@ -163,11 +185,13 @@
                 android:foreground="?android:attr/selectableItemBackground">
 
                 <ImageView
-                    android:layout_width="90dp"
-                    android:layout_height="90dp"
-                    android:src="@drawable/ic_stats"
-                    android:tint="@color/text_primary"
-                    android:layout_marginEnd="24dp"/>
+                    android:layout_width="74dp"
+                    android:layout_height="74dp"
+                    android:layout_marginEnd="22dp"
+                    android:padding="16dp"
+                    android:background="@drawable/icon_badge"
+                    android:src="@drawable/ic_progress_home"
+                    android:tint="@color/gold_primary"/>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -184,6 +208,15 @@
                         android:textColor="@color/text_primary"
                         android:fontFamily="sans-serif-black"
                         android:letterSpacing="0.05"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Trends, PRs & Balance"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_tertiary"
+                        android:fontFamily="sans-serif-medium"/>
                 </LinearLayout>
             </LinearLayout>
 
