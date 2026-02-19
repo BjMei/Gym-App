@@ -141,17 +141,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="Push • Pull • Legs"
-                            android:textSize="13sp"
-                            android:textColor="@color/text_tertiary"
-                            android:fontFamily="sans-serif-medium" />
-                    </LinearLayout>
-                </LinearLayout>
-
                 <!-- Statistik Card -->
                 <LinearLayout
                     android:id="@+id/statsCard"
@@ -196,18 +185,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:text="Kennzahlen &amp; Auswertung"
-                            android:textSize="13sp"
-                            android:textColor="@color/text_tertiary"
-                            android:fontFamily="sans-serif-medium" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="Kennzahlen &amp; Auswertung"
+                            android:text="@string/home_stats_subtitle"
                             android:textSize="13sp"
                             android:textColor="@color/text_tertiary"
                             android:fontFamily="sans-serif-medium" />
@@ -259,7 +237,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:text="Trends, PRs &amp; Balance"
+                            android:text="@string/home_progress_subtitle"
                             android:textSize="13sp"
                             android:textColor="@color/text_tertiary"
                             android:fontFamily="sans-serif-medium" />
