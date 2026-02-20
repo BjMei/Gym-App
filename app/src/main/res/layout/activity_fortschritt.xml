@@ -171,7 +171,9 @@
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="GESCHÄTZTES 1RM" />
+                    android:text="GESCHÄTZTES 1RM" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content" />
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/chart1RM"
@@ -181,7 +183,9 @@
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="MAX GEWICHT" />
+                    android:text="MAX GEWICHT" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content" />
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/chartMaxGewicht"
@@ -191,7 +195,9 @@
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="VOLUMEN" />
+                    android:text="VOLUMEN" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content" />
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/chartVolumen"
@@ -201,7 +207,9 @@
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="Ø WIEDERHOLUNGEN" />
+                    android:text="Ø WIEDERHOLUNGEN" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content" />
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/chartWiederholungen"
@@ -227,7 +235,9 @@
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="VOLUMEN JE MUSKELGRUPPE" />
+                    android:text="VOLUMEN JE MUSKELGRUPPE" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content" />
 
                 <com.github.mikephil.charting.charts.BarChart
                     android:id="@+id/chartMuskelVolumen"
@@ -249,7 +259,9 @@
 
                         <TextView
                             style="@style/ChartSectionLabel"
-                            android:text="PUSH VS PULL" />
+                            android:text="PUSH VS PULL" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content" />
 
                         <com.github.mikephil.charting.charts.PieChart
                             android:id="@+id/chartPushPull"
@@ -266,7 +278,9 @@
 
                         <TextView
                             style="@style/ChartSectionLabel"
-                            android:text="OBER VS UNTERKÖRPER" />
+                            android:text="OBER VS UNTERKÖRPER" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content" />
 
                         <com.github.mikephil.charting.charts.PieChart
                             android:id="@+id/chartOberUnter"
@@ -383,7 +397,9 @@
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="TRAININGSFREIE TAGE JE WOCHE" />
+                    android:text="TRAININGSFREIE TAGE JE WOCHE" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content" />
 
                 <com.github.mikephil.charting.charts.BarChart
                     android:id="@+id/chartFreieTage"
@@ -393,7 +409,9 @@
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="TRAININGSQUOTE" />
+                    android:text="TRAININGSQUOTE" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
