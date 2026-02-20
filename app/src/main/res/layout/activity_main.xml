@@ -34,7 +34,8 @@
                 app:tint="@color/gold_primary" />
         </LinearLayout>
 
-        <LinearLayout
+        <!-- ScrollView für Buttons -->
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/gradient_header_plain"
@@ -90,6 +91,7 @@
                 android:gravity="center_vertical"
                 android:orientation="vertical">
 
+                <!-- Workout Card -->
                 <LinearLayout
                     android:id="@+id/workoutCard"
                     android:layout_width="match_parent"
@@ -142,6 +144,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Statistik Card -->
                 <LinearLayout
                     android:id="@+id/statsCard"
                     android:layout_width="match_parent"
@@ -193,6 +196,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Fortschritt Card -->
                 <LinearLayout
                     android:id="@+id/progressCard"
                     android:layout_width="match_parent"
