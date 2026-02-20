@@ -192,11 +192,11 @@ public class StatistikActivity extends AppCompatActivity {
             e.getValue().setOnClickListener(v -> showSection(key));
         }
 
-        ((TextView) tabUebersicht.getChildAt(0)).setText("📋 Übersicht");
-        ((TextView) tabVolumen.getChildAt(0)).setText("🏋️ Volumen");
-        ((TextView) tabStruktur.getChildAt(0)).setText("📐 Struktur");
-        ((TextView) tabCardio.getChildAt(0)).setText("🚴 Cardio");
-        ((TextView) tabPR.getChildAt(0)).setText("🏆 Rekorde");
+        ((TextView) tabUebersicht.getChildAt(0)).setText("Übersicht");
+        ((TextView) tabVolumen.getChildAt(0)).setText("🏋Volumen");
+        ((TextView) tabStruktur.getChildAt(0)).setText("Struktur");
+        ((TextView) tabCardio.getChildAt(0)).setText("Cardio");
+        ((TextView) tabPR.getChildAt(0)).setText("Rekorde");
     }
 
     private void showSection(String tab) {
