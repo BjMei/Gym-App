@@ -34,6 +34,7 @@
                 app:tint="@color/gold_primary" />
         </LinearLayout>
 
+        <!-- ================= HEADER (NICHT SCROLLBAR) ================= -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,6 +91,7 @@
                 android:gravity="center_vertical"
                 android:orientation="vertical">
 
+                <!-- WORKOUT CARD -->
                 <LinearLayout
                     android:id="@+id/workoutCard"
                     android:layout_width="match_parent"
@@ -142,6 +144,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- STATISTIK CARD -->
                 <LinearLayout
                     android:id="@+id/statsCard"
                     android:layout_width="match_parent"
@@ -193,6 +196,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- FORTSCHRITT CARD -->
                 <LinearLayout
                     android:id="@+id/progressCard"
                     android:layout_width="match_parent"
