@@ -80,7 +80,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="💪 Muskeln"
+                android:text="Muskeln"
                 android:textColor="@color/text_tertiary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
@@ -107,7 +107,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🔥 Konsistenz"
+                android:text="Konsistenz"
                 android:textColor="@color/text_tertiary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
@@ -335,7 +335,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🔥 STREAK"
+                            android:text="STREAK"
                             android:textColor="@color/text_tertiary"
                             android:textSize="10sp"
                             android:letterSpacing="0.08" />
@@ -370,7 +370,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🏆 BESTE SERIE"
+                            android:text="BESTE SERIE"
                             android:textColor="@color/text_tertiary"
                             android:textSize="10sp"
                             android:letterSpacing="0.08" />
