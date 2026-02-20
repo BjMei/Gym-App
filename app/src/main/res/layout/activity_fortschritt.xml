@@ -18,7 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="📊 FORTSCHRITT"
+            android:text="FORTSCHRITT"
             android:textColor="@color/gold_primary"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -54,7 +54,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📈 Kraft"
+                android:text="Kraft"
                 android:textColor="@color/gold_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
