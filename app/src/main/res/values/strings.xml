@@ -45,10 +45,10 @@
     <string name="nav_workout">WORKOUT</string>
     <string name="nav_stats">STATISTIK</string>
     <string name="nav_progress">FORTSCHRITT</string>
-    <string name="nav_workout_emoji">🏋️ Workout</string>
-    <string name="nav_history_emoji">🗂 Trainingshistorie</string>
-    <string name="nav_stats_emoji">📊 Statistik</string>
-    <string name="nav_progress_emoji">📈 Fortschritt</string>
-    <string name="nav_reset_emoji">🧹 Alle Daten zurücksetzen</string>
-    <string name="nav_settings_emoji">⚙️ Einstellungen</string>
+    <string name="nav_workout_emoji">Workout</string>
+    <string name="nav_history_emoji">Trainingshistorie</string>
+    <string name="nav_stats_emoji">Statistik</string>
+    <string name="nav_progress_emoji">Fortschritt</string>
+    <string name="nav_reset_emoji">Alle Daten zurücksetzen</string>
+    <string name="nav_settings_emoji">Einstellungen</string>
 </resources>
