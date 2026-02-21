@@ -6,6 +6,7 @@
     Logik in PushActivity.java ist UNVERÄNDERT.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -25,34 +26,6 @@
         android:background="@drawable/gradient_header"
         android:elevation="12dp">
 
-        <!-- "SESSION AKTIV" Pill-Tag -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="28dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/glass_card">
-
-            <View
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:background="@drawable/bg_save_circle"
-                android:layout_marginEnd="6dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SESSION AKTIV"
-                android:textColor="@color/gold_dark"
-                android:textSize="9sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.14"
-                android:fontFamily="sans-serif-medium"/>
-        </LinearLayout>
-
         <!-- Titel -->
         <TextView
             android:layout_width="wrap_content"
@@ -64,6 +37,7 @@
             android:layout_gravity="start"
             android:letterSpacing="0.05"
             android:fontFamily="sans-serif-black"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="4dp"/>
 
         <!-- Untertitel -->
@@ -149,7 +123,7 @@
                     android:src="@android:drawable/ic_media_play"
                     android:scaleType="centerInside"
                     android:padding="8dp"
-                    android:tint="@color/black"
+                    app:tint="@color/black"
                     android:contentDescription="Start/Stop"
                     android:layout_marginEnd="8dp"/>
 
@@ -162,7 +136,7 @@
                     android:src="@android:drawable/ic_menu_revert"
                     android:scaleType="centerInside"
                     android:padding="8dp"
-                    android:tint="@color/text_tertiary"
+                    app:tint="@color/text_tertiary"
                     android:contentDescription="Zurücksetzen"/>
             </LinearLayout>
 
@@ -223,7 +197,7 @@
                         android:contentDescription="Einstellungen"
                         android:scaleType="centerInside"
                         android:padding="12dp"
-                        android:tint="@color/gold_primary"/>
+                        app:tint="@color/gold_primary"/>
 
                     <ImageButton
                         android:id="@+id/btnManageExercises"
@@ -234,7 +208,7 @@
                         android:contentDescription="Übungen verwalten"
                         android:scaleType="centerInside"
                         android:padding="12dp"
-                        android:tint="@color/gold_primary"/>
+                        app:tint="@color/gold_primary"/>
                 </LinearLayout>
 
                 <!-- LETZTES TRAINING (visibility="gone" by default, Java setzt es) -->
@@ -507,7 +481,7 @@
                         android:contentDescription="Speichern"
                         android:scaleType="centerInside"
                         android:padding="14dp"
-                        android:tint="@color/black"
+                        app:tint="@color/black"
                         android:elevation="8dp"/>
                 </LinearLayout>
             </LinearLayout>
@@ -520,7 +494,6 @@
                  Typische IDs: llSecondExercise (Body), tvToggleSecond
                  oder ähnlich für den Header-Click.
                  Der Inhalt (Spinner2, etWeight1_2..4, etReps1_2..4,
-                 btnSave2) muss mit den originalen IDs übereinstimmen.
             ───────────────────────────────────── -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -559,7 +532,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@android:drawable/arrow_down_float"
-                        android:tint="@color/gold_primary"/>
+                        app:tint="@color/gold_primary"/>
                 </LinearLayout>
 
                 <!-- Akkordeon-Body (sichtbar/versteckt per Java) -->
@@ -618,7 +591,7 @@
                             android:contentDescription="Einstellungen"
                             android:scaleType="centerInside"
                             android:padding="12dp"
-                            android:tint="@color/gold_primary"/>
+                            app:tint="@color/gold_primary"/>
 
                         <ImageButton
                             android:id="@+id/btnManageExercises2"
@@ -629,7 +602,40 @@
                             android:contentDescription="Übungen verwalten"
                             android:scaleType="centerInside"
                             android:padding="12dp"
-                            android:tint="@color/gold_primary"/>
+                            app:tint="@color/gold_primary"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llLastWorkoutSecond"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_lw_card"
+                        android:padding="14dp"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginEnd="14dp"
+                        android:layout_marginBottom="14dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="LETZTES TRAINING"
+                            android:textColor="@color/gold_dark"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.14"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:id="@+id/tvLastWorkoutDataSecond"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:lineSpacingMultiplier="1.5"
+                            android:fontFamily="monospace"/>
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#222222" android:layout_marginStart="14dp" android:layout_marginEnd="14dp" android:layout_marginBottom="4dp"/>
@@ -698,20 +704,6 @@
                         </LinearLayout>
                     </LinearLayout>
 
-                    <!-- Speichern Button (2. Übung) -->
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:paddingBottom="16dp">
-                        <ImageButton
-                            android:id="@+id/btnSave2"
-                            android:layout_width="58dp"
-                            android:layout_height="58dp"
-                            android:background="@drawable/bg_save_circle"
-                            android:src="@android:drawable/ic_menu_save"
-                            android:contentDescription="Speichern 2. Übung"
-                            android:scaleType="centerInside"
-                            android:padding="14dp"
-                            android:tint="@color/black"
-                            android:elevation="8dp"/>
-                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
@@ -746,20 +738,7 @@
                         android:fontFamily="sans-serif-black"
                         android:letterSpacing="0.08"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="OPTIONAL"
-                        android:textColor="@color/gold_dark"
-                        android:textSize="8sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.1"
-                        android:fontFamily="sans-serif-medium"
-                        android:background="@drawable/glass_card"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"/>
+
                 </LinearLayout>
 
                 <!-- Cardio-Übung Label + Spinner -->
@@ -813,8 +792,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:orientation="horizontal"
-                    android:layout_gap="12dp">
+                    android:orientation="horizontal">
 
                     <ImageButton
                         android:id="@+id/btnSaveCardio"
@@ -825,7 +803,7 @@
                         android:contentDescription="Cardio speichern"
                         android:scaleType="centerInside"
                         android:padding="14dp"
-                        android:tint="@color/black"
+                        app:tint="@color/black"
                         android:elevation="6dp"
                         android:layout_marginEnd="12dp"/>
 
@@ -838,7 +816,7 @@
                         android:contentDescription="Cardio bearbeiten"
                         android:scaleType="centerInside"
                         android:padding="14dp"
-                        android:tint="@color/text_tertiary"
+                        app:tint="@color/text_tertiary"
                         android:elevation="4dp"/>
                 </LinearLayout>
             </LinearLayout>
@@ -862,7 +840,7 @@
                     android:contentDescription="Trainingshistorie"
                     android:scaleType="centerInside"
                     android:padding="14dp"
-                    android:tint="@color/text_tertiary"
+                    app:tint="@color/text_tertiary"
                     android:elevation="4dp"/>
             </LinearLayout>
 

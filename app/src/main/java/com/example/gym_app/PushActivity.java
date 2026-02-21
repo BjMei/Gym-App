@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -32,7 +33,8 @@ public class PushActivity extends AppCompatActivity {
 
     private Spinner spinnerExercise;
     private Spinner spinnerExerciseSecond;
-    private ImageButton btnToggleSecondExercise;
+    private LinearLayout btnToggleSecondExercise;
+    private ImageView ivAccordionArrow;
     private ImageButton btnExerciseSettings;
     private ImageButton btnManageExercises;
     private EditText[] etWeights;
@@ -87,22 +89,23 @@ public class PushActivity extends AppCompatActivity {
 
         // Views initialisieren
         spinnerExercise = findViewById(R.id.spinnerExercise);
-        spinnerExerciseSecond = findViewById(R.id.spinnerExerciseSecond);
-        btnToggleSecondExercise = findViewById(R.id.btnToggleSecondExercise);
+        spinnerExerciseSecond = findViewById(R.id.spinnerExercise2);
+        btnToggleSecondExercise = findViewById(R.id.llToggleSecondExercise);
+        ivAccordionArrow = findViewById(R.id.ivAccordionArrow);
         btnExerciseSettings = findViewById(R.id.btnExerciseSettings);
         btnManageExercises = findViewById(R.id.btnManageExercises);
         btnSave = findViewById(R.id.btnSave);
         spinnerCardio = findViewById(R.id.spinnerCardio);
         etCardioMinutes = findViewById(R.id.etCardioMinutes);
         btnSaveCardio = findViewById(R.id.btnSaveCardio);
-        btnManageCardio = findViewById(R.id.btnManageCardio);
+        btnManageCardio = findViewById(R.id.btnEditCardio);
         llEntries = findViewById(R.id.llEntries);
         llLastWorkout = findViewById(R.id.llLastWorkout);
         tvLastWorkoutData = findViewById(R.id.tvLastWorkoutData);
         tvStopwatch = findViewById(R.id.tvStopwatch);
-        btnTimerStartPause = findViewById(R.id.btnTimerStartPause);
-        btnTimerReset = findViewById(R.id.btnTimerReset);
-        llSecondExerciseSection = findViewById(R.id.llSecondExerciseSection);
+        btnTimerStartPause = findViewById(R.id.btnStartStop);
+        btnTimerReset = findViewById(R.id.btnReset);
+        llSecondExerciseSection = findViewById(R.id.llSecondExercise);
         llLastWorkoutSecond = findViewById(R.id.llLastWorkoutSecond);
         tvLastWorkoutDataSecond = findViewById(R.id.tvLastWorkoutDataSecond);
 
@@ -134,17 +137,17 @@ public class PushActivity extends AppCompatActivity {
         };
 
         etSecondWeights = new EditText[]{
-            findViewById(R.id.etWeightSecond1),
-            findViewById(R.id.etWeightSecond2),
-            findViewById(R.id.etWeightSecond3),
-            findViewById(R.id.etWeightSecond4)
+            findViewById(R.id.etWeight1_2),
+            findViewById(R.id.etWeight2_2),
+            findViewById(R.id.etWeight3_2),
+            findViewById(R.id.etWeight4_2)
         };
 
         etSecondReps = new EditText[]{
-            findViewById(R.id.etRepsSecond1),
-            findViewById(R.id.etRepsSecond2),
-            findViewById(R.id.etRepsSecond3),
-            findViewById(R.id.etRepsSecond4)
+            findViewById(R.id.etReps1_2),
+            findViewById(R.id.etReps2_2),
+            findViewById(R.id.etReps3_2),
+            findViewById(R.id.etReps4_2)
         };
 
         // Listen für Einträge initialisieren
@@ -206,7 +209,7 @@ public class PushActivity extends AppCompatActivity {
 
         llSecondExerciseSection.setVisibility(View.GONE);
         llLastWorkoutSecond.setVisibility(View.GONE);
-        btnToggleSecondExercise.setImageResource(android.R.drawable.arrow_down_float);
+        ivAccordionArrow.setImageResource(android.R.drawable.arrow_down_float);
 
         // Initial die erste Übung laden
         if (spinnerExercise.getCount() > 0) {
@@ -254,10 +257,10 @@ public class PushActivity extends AppCompatActivity {
         boolean isVisible = llSecondExerciseSection.getVisibility() == View.VISIBLE;
         if (isVisible) {
             llSecondExerciseSection.setVisibility(View.GONE);
-            btnToggleSecondExercise.setImageResource(android.R.drawable.arrow_down_float);
+            ivAccordionArrow.setImageResource(android.R.drawable.arrow_down_float);
         } else {
             llSecondExerciseSection.setVisibility(View.VISIBLE);
-            btnToggleSecondExercise.setImageResource(android.R.drawable.arrow_up_float);
+            ivAccordionArrow.setImageResource(android.R.drawable.arrow_up_float);
             Object secondSelected = spinnerExerciseSecond.getSelectedItem();
             if (secondSelected != null) {
                 loadLastWorkoutSecond(secondSelected.toString());
