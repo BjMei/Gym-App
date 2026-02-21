@@ -6,6 +6,7 @@
     Logik in PushActivity.java ist UNVERÄNDERT.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -149,7 +150,7 @@
                     android:src="@android:drawable/ic_media_play"
                     android:scaleType="centerInside"
                     android:padding="8dp"
-                    android:tint="@color/black"
+                    app:tint="@color/black"
                     android:contentDescription="Start/Stop"
                     android:layout_marginEnd="8dp"/>
 
@@ -162,7 +163,7 @@
                     android:src="@android:drawable/ic_menu_revert"
                     android:scaleType="centerInside"
                     android:padding="8dp"
-                    android:tint="@color/text_tertiary"
+                    app:tint="@color/text_tertiary"
                     android:contentDescription="Zurücksetzen"/>
             </LinearLayout>
 
@@ -223,7 +224,7 @@
                         android:contentDescription="Einstellungen"
                         android:scaleType="centerInside"
                         android:padding="12dp"
-                        android:tint="@color/gold_primary"/>
+                        app:tint="@color/gold_primary"/>
 
                     <ImageButton
                         android:id="@+id/btnManageExercises"
@@ -234,7 +235,7 @@
                         android:contentDescription="Übungen verwalten"
                         android:scaleType="centerInside"
                         android:padding="12dp"
-                        android:tint="@color/gold_primary"/>
+                        app:tint="@color/gold_primary"/>
                 </LinearLayout>
 
                 <!-- LETZTES TRAINING (visibility="gone" by default, Java setzt es) -->
@@ -507,7 +508,7 @@
                         android:contentDescription="Speichern"
                         android:scaleType="centerInside"
                         android:padding="14dp"
-                        android:tint="@color/black"
+                        app:tint="@color/black"
                         android:elevation="8dp"/>
                 </LinearLayout>
             </LinearLayout>
@@ -559,7 +560,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@android:drawable/arrow_down_float"
-                        android:tint="@color/gold_primary"/>
+                        app:tint="@color/gold_primary"/>
                 </LinearLayout>
 
                 <!-- Akkordeon-Body (sichtbar/versteckt per Java) -->
@@ -618,7 +619,7 @@
                             android:contentDescription="Einstellungen"
                             android:scaleType="centerInside"
                             android:padding="12dp"
-                            android:tint="@color/gold_primary"/>
+                            app:tint="@color/gold_primary"/>
 
                         <ImageButton
                             android:id="@+id/btnManageExercises2"
@@ -629,7 +630,7 @@
                             android:contentDescription="Übungen verwalten"
                             android:scaleType="centerInside"
                             android:padding="12dp"
-                            android:tint="@color/gold_primary"/>
+                            app:tint="@color/gold_primary"/>
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#222222" android:layout_marginStart="14dp" android:layout_marginEnd="14dp" android:layout_marginBottom="4dp"/>
@@ -709,7 +710,7 @@
                             android:contentDescription="Speichern 2. Übung"
                             android:scaleType="centerInside"
                             android:padding="14dp"
-                            android:tint="@color/black"
+                            app:tint="@color/black"
                             android:elevation="8dp"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -813,8 +814,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:orientation="horizontal"
-                    android:layout_gap="12dp">
+                    android:orientation="horizontal">
 
                     <ImageButton
                         android:id="@+id/btnSaveCardio"
@@ -825,7 +825,7 @@
                         android:contentDescription="Cardio speichern"
                         android:scaleType="centerInside"
                         android:padding="14dp"
-                        android:tint="@color/black"
+                        app:tint="@color/black"
                         android:elevation="6dp"
                         android:layout_marginEnd="12dp"/>
 
@@ -838,7 +838,7 @@
                         android:contentDescription="Cardio bearbeiten"
                         android:scaleType="centerInside"
                         android:padding="14dp"
-                        android:tint="@color/text_tertiary"
+                        app:tint="@color/text_tertiary"
                         android:elevation="4dp"/>
                 </LinearLayout>
             </LinearLayout>
@@ -862,7 +862,7 @@
                     android:contentDescription="Trainingshistorie"
                     android:scaleType="centerInside"
                     android:padding="14dp"
-                    android:tint="@color/text_tertiary"
+                    app:tint="@color/text_tertiary"
                     android:elevation="4dp"/>
             </LinearLayout>
 
