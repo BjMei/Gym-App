@@ -44,9 +44,6 @@
             android:name=".FortschrittActivity"
             android:exported="false" />
         <activity
-            android:name=".UpgradeActivity"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
