@@ -3,100 +3,61 @@ package com.example.gym_app;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    private DrawerLayout drawerLayout;
     private LinearLayout workoutCard;
     private LinearLayout statsCard;
-    private LinearLayout progressCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        applyWindowInsets();
 
         getWindow().setStatusBarColor(Color.BLACK);
         getWindow().setNavigationBarColor(Color.BLACK);
         new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView())
                 .setAppearanceLightStatusBars(false);
 
-        drawerLayout = findViewById(R.id.drawerLayout);
         workoutCard = findViewById(R.id.workoutCard);
         statsCard = findViewById(R.id.statsCard);
-        progressCard = findViewById(R.id.progressCard);
+        LinearLayout fortschrittCard = findViewById(R.id.fortschrittCard);
 
-        ImageButton btnOpenDrawer = findViewById(R.id.btnOpenDrawer);
-        TextView drawerWorkout = findViewById(R.id.drawerWorkout);
-        TextView drawerHistory = findViewById(R.id.drawerHistory);
-        TextView drawerStats = findViewById(R.id.drawerStats);
-        TextView drawerProgress = findViewById(R.id.drawerProgress);
-        TextView drawerReset = findViewById(R.id.drawerReset);
-        TextView drawerSettings = findViewById(R.id.drawerSettings);
+        workoutCard.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, WorkoutActivity.class)));
 
-        workoutCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WorkoutActivity.class)));
-        statsCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, StatistikActivity.class)));
-        progressCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, FortschrittActivity.class)));
+        statsCard.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, StatistikActivity.class)));
 
-        btnOpenDrawer.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
-
-        drawerWorkout.setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
-        });
-
-        drawerHistory.setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
-        });
-
-        drawerStats.setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, StatistikActivity.class));
-        });
-
-        drawerProgress.setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, FortschrittActivity.class));
-        });
-
-        drawerReset.setOnClickListener(v -> showResetDialog());
-
-        drawerSettings.setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            Toast.makeText(MainActivity.this, "Einstellungen folgen bald.", Toast.LENGTH_SHORT).show();
-        });
+        fortschrittCard.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, FortschrittActivity.class)));
     }
 
-    @Override
-    public void onBackPressed() {
-        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            return;
-        }
-        super.onBackPressed();
-    }
+    private void applyWindowInsets() {
+        android.view.View rootLayout = findViewById(R.id.rootMainLayout);
+        int basePaddingLeft = rootLayout.getPaddingLeft();
+        int basePaddingTop = rootLayout.getPaddingTop();
+        int basePaddingRight = rootLayout.getPaddingRight();
+        int basePaddingBottom = rootLayout.getPaddingBottom();
 
-    private void showResetDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("Alle Daten zurücksetzen?")
-                .setMessage("Möchtest du wirklich alle Trainingsdaten und Einstellungen löschen?")
-                .setNegativeButton("Abbrechen", null)
-                .setPositiveButton("Löschen", (dialog, which) -> {
-                    WorkoutStorage.resetAllData(MainActivity.this);
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                    Toast.makeText(MainActivity.this, "Alle Daten wurden gelöscht.", Toast.LENGTH_SHORT).show();
-                })
-                .show();
+        ViewCompat.setOnApplyWindowInsetsListener(rootLayout, (view, windowInsets) -> {
+            Insets systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            view.setPadding(
+                    basePaddingLeft + systemBars.left,
+                    basePaddingTop + systemBars.top,
+                    basePaddingRight + systemBars.right,
+                    basePaddingBottom + systemBars.bottom
+            );
+            return windowInsets;
+        });
+        ViewCompat.requestApplyInsets(rootLayout);
     }
 }
