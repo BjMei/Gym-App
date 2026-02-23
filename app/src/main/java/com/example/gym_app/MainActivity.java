@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         TextView drawerHistory = findViewById(R.id.drawerHistory);
         TextView drawerStats = findViewById(R.id.drawerStats);
         TextView drawerProgress = findViewById(R.id.drawerProgress);
+        TextView drawerUpgrade = findViewById(R.id.drawerUpgrade);
         TextView drawerReset = findViewById(R.id.drawerReset);
         TextView drawerSettings = findViewById(R.id.drawerSettings);
 
@@ -68,6 +69,11 @@ public class MainActivity extends AppCompatActivity {
         drawerProgress.setOnClickListener(v -> {
             drawerLayout.closeDrawer(GravityCompat.START);
             startActivity(new Intent(MainActivity.this, FortschrittActivity.class));
+        });
+
+        drawerUpgrade.setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(MainActivity.this, UpgradeActivity.class));
         });
 
         drawerReset.setOnClickListener(v -> showResetDialog());
