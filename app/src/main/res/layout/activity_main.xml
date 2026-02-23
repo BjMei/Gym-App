@@ -326,18 +326,6 @@
             android:textSize="16sp" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/drawerUpgrade"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingTop="18dp"
-            android:paddingBottom="18dp"
-            android:text="@string/nav_upgrade_emoji"
-            android:textColor="@color/gold_primary"
-            android:textSize="16sp" />
-
-        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/drawerReset"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
