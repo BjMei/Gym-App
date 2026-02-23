@@ -37,9 +37,8 @@ public class MainActivity extends AppCompatActivity {
         statsCard.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, StatistikActivity.class)));
 
-        fortschrittCard.setOnClickListener(v -> {
-            // später: FortschrittActivity starten
-        });
+        fortschrittCard.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, FortschrittActivity.class)));
     }
 
     private void applyWindowInsets() {
