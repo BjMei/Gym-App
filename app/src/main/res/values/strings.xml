@@ -51,4 +51,10 @@
     <string name="nav_progress_emoji">Fortschritt</string>
     <string name="nav_reset_emoji">Alle Daten zurücksetzen</string>
     <string name="nav_settings_emoji">Einstellungen</string>
+    <string name="nav_upgrade_emoji">Upgrade auf PRO</string>
+    <string name="upgrade_cta_yearly">Jetzt 33 % sparen – PRO holen</string>
+    <string name="upgrade_cta_yearly_sub">39,99 € · ≈ 3,33 € / Monat</string>
+    <string name="upgrade_cta_monthly">Jetzt PRO werden</string>
+    <string name="upgrade_cta_monthly_sub">4,99 € · pro Monat</string>
+    <string name="upgrade_purchase_placeholder">[IRONX] Purchase plan: %1$s</string>
 </resources>
