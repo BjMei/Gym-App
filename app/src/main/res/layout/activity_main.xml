@@ -29,6 +29,24 @@
         android:gravity="center_horizontal"
         android:elevation="12dp">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_marginBottom="12dp">
+
+            <ImageButton
+                android:id="@+id/btnBurgerMenu"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:background="@drawable/bg_burger_button"
+                android:src="@drawable/ic_burger_menu"
+                android:tint="@color/gold_primary"
+                android:contentDescription="@string/drawer_open"
+                android:scaleType="centerInside" />
+        </LinearLayout>
+
         <!-- Logo -->
         <ImageView
             android:layout_width="72dp"
@@ -108,9 +126,9 @@
                     android:layout_marginEnd="20dp">
 
                     <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_dumbbell"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_workout_home"
                         android:tint="@color/gold_primary"/>
                 </LinearLayout>
 
@@ -177,9 +195,9 @@
                     android:layout_marginEnd="20dp">
 
                     <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_stats"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_stats_home"
                         android:tint="@color/gold_primary"/>
                 </LinearLayout>
 
@@ -247,9 +265,9 @@
                     android:layout_marginEnd="20dp">
 
                     <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_pull"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_progress_home"
                         android:tint="@color/gold_primary"/>
                 </LinearLayout>
 
