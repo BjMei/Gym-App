@@ -3,7 +3,9 @@ package com.example.gym_app;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -15,6 +17,8 @@ public class MainActivity extends AppCompatActivity {
 
     private LinearLayout workoutCard;
     private LinearLayout statsCard;
+    private LinearLayout fortschrittCard;
+    private ImageButton btnBurgerMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
         workoutCard = findViewById(R.id.workoutCard);
         statsCard = findViewById(R.id.statsCard);
-        LinearLayout fortschrittCard = findViewById(R.id.fortschrittCard);
+        fortschrittCard = findViewById(R.id.fortschrittCard);
+        btnBurgerMenu = findViewById(R.id.btnBurgerMenu);
 
         workoutCard.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, WorkoutActivity.class)));
@@ -39,6 +44,33 @@ public class MainActivity extends AppCompatActivity {
 
         fortschrittCard.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, FortschrittActivity.class)));
+
+        btnBurgerMenu.setOnClickListener(v -> showBurgerMenu());
+    }
+
+    private void showBurgerMenu() {
+        PopupMenu popupMenu = new PopupMenu(this, btnBurgerMenu);
+        popupMenu.getMenuInflater().inflate(R.menu.home_burger_menu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.menu_workout) {
+                startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
+                return true;
+            } else if (itemId == R.id.menu_history) {
+                startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
+                return true;
+            } else if (itemId == R.id.menu_stats) {
+                startActivity(new Intent(MainActivity.this, StatistikActivity.class));
+                return true;
+            } else if (itemId == R.id.menu_progress) {
+                startActivity(new Intent(MainActivity.this, FortschrittActivity.class));
+                return true;
+            }
+            return false;
+        });
+
+        popupMenu.show();
     }
 
     private void applyWindowInsets() {
