@@ -193,7 +193,7 @@ public class StatistikActivity extends AppCompatActivity {
         }
 
         ((TextView) tabUebersicht.getChildAt(0)).setText("Übersicht");
-        ((TextView) tabVolumen.getChildAt(0)).setText("🏋Volumen");
+        ((TextView) tabVolumen.getChildAt(0)).setText("Volumen");
         ((TextView) tabStruktur.getChildAt(0)).setText("Struktur");
         ((TextView) tabCardio.getChildAt(0)).setText("Cardio");
         ((TextView) tabPR.getChildAt(0)).setText("Rekorde");
