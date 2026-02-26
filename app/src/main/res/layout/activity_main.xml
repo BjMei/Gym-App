@@ -108,9 +108,9 @@
                     android:layout_marginEnd="20dp">
 
                     <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_dumbbell"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_workout_home"
                         android:tint="@color/gold_primary"/>
                 </LinearLayout>
 
@@ -177,9 +177,9 @@
                     android:layout_marginEnd="20dp">
 
                     <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_stats"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_stats_home"
                         android:tint="@color/gold_primary"/>
                 </LinearLayout>
 
@@ -247,9 +247,9 @@
                     android:layout_marginEnd="20dp">
 
                     <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_pull"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_progress_home"
                         android:tint="@color/gold_primary"/>
                 </LinearLayout>
 
