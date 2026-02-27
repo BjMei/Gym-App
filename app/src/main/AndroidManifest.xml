@@ -12,9 +12,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GymApp">
         <activity
-            android:name=".LS"
-            android:exported="false" />
-        <activity
             android:name=".LegActivity"
             android:exported="false" />
         <activity
@@ -30,15 +27,9 @@
             android:name=".TrainingHistoryActivity"
             android:exported="false" />
         <activity
-            android:name=".StatsActivity"
-            android:exported="false" />
-        <activity
             android:name=".StatistikActivity"
             android:label="Statistik"
             android:theme="@style/Theme.GymApp"
-            android:exported="false" />
-        <activity
-            android:name=".ProgressActivity"
             android:exported="false" />
         <activity
             android:name=".FortschrittActivity"
