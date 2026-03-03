@@ -155,6 +155,10 @@ public class TrainingHistoryActivity extends AppCompatActivity {
     private View createExerciseLine(WorkoutStorage.DetailedWorkout workout) {
         TextView line = new TextView(this);
         StringBuilder builder = new StringBuilder();
+        String workoutLabel = getWorkoutTypeLabel(workout.workoutType);
+        if (!workoutLabel.isEmpty()) {
+            builder.append("[").append(workoutLabel).append("] ");
+        }
         builder.append(workout.exercise).append(": ");
 
         if (workout.sets != null && !workout.sets.isEmpty()) {
@@ -179,7 +183,9 @@ public class TrainingHistoryActivity extends AppCompatActivity {
 
     private View createCardioLine(WorkoutStorage.CardioSession cardioSession) {
         TextView line = new TextView(this);
-        String text = String.format(Locale.getDefault(), "%s: %d Minuten", cardioSession.exercise, cardioSession.minutes);
+        String workoutLabel = getWorkoutTypeLabel(cardioSession.workoutType);
+        String prefix = workoutLabel.isEmpty() ? "" : "[" + workoutLabel + "] ";
+        String text = String.format(Locale.getDefault(), "%s%s: %d Minuten", prefix, cardioSession.exercise, cardioSession.minutes);
         line.setText(text);
         line.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
         line.setTextSize(14);
