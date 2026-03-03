@@ -66,6 +66,9 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.menu_progress) {
                 startActivity(new Intent(MainActivity.this, FortschrittActivity.class));
                 return true;
+            } else if (itemId == R.id.menu_settings) {
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                return true;
             }
             return false;
         });
