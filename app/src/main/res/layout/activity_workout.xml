@@ -74,8 +74,22 @@
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/bg_icon_circle"
+                    android:gravity="center"
+                    android:layout_marginEnd="20dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_push"
+                        app:tint="@color/gold_primary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="PUSH DAY"
                     android:textSize="24sp"
@@ -101,8 +115,22 @@
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/bg_icon_circle"
+                    android:gravity="center"
+                    android:layout_marginEnd="20dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_pull"
+                        app:tint="@color/gold_primary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="PULL DAY"
                     android:textSize="24sp"
@@ -127,8 +155,22 @@
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/bg_icon_circle"
+                    android:gravity="center"
+                    android:layout_marginEnd="20dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_leg"
+                        app:tint="@color/gold_primary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="LEG DAY"
                     android:textSize="24sp"
