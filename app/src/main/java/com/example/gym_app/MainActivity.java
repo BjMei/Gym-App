@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
         drawerSettings.setOnClickListener(v -> {
             drawerLayout.closeDrawer(GravityCompat.START);
-            openSettings();
+            openSettingsScreen();
         });
     }
 
@@ -96,22 +96,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void openSettings() {
+    private void openSettingsScreen() {
         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
     }
 
 
-    private void applyMenuItemTextColor(PopupMenu popupMenu, int color) {
-        for (int i = 0; i < popupMenu.getMenu().size(); i++) {
-            CharSequence title = popupMenu.getMenu().getItem(i).getTitle();
-            SpannableString styledTitle = new SpannableString(title);
-            styledTitle.setSpan(new ForegroundColorSpan(color), 0, styledTitle.length(), 0);
-            popupMenu.getMenu().getItem(i).setTitle(styledTitle);
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return;
         }
-    }
-
-    private void openSettings() {
-        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+        super.onBackPressed();
     }
 
     private void applyWindowInsets() {
