@@ -11,7 +11,8 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:statusBarBackground="@color/primary_dark">
 
 <LinearLayout
     android:id="@+id/rootMainLayout"
