@@ -4,32 +4,32 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Hantel Icon - Gold, edel -->
-    <!-- Linke Hantelscheibe -->
+
     <path
-        android:fillColor="#FFD700"
-        android:pathData="M20,40 L20,68 C20,72.4 23.6,76 28,76 L32,76 C36.4,76 40,72.4 40,68 L40,40 C40,35.6 36.4,32 32,32 L28,32 C23.6,32 20,35.6 20,40 Z"/>
-    <!-- Stange -->
-    <path
-        android:fillColor="#FFD700"
-        android:pathData="M40,48 L68,48 L68,60 L40,60 Z"/>
-    <!-- Rechte Hantelscheibe -->
-    <path
-        android:fillColor="#FFD700"
-        android:pathData="M68,40 L68,68 C68,72.4 71.6,76 76,76 L80,76 C84.4,76 88,72.4 88,68 L88,40 C88,35.6 84.4,32 80,32 L76,32 C71.6,32 68,35.6 68,40 Z"/>
-    <!-- Highlight auf linke Scheibe - helleres Gold -->
-    <path
-        android:fillColor="#FFE87C"
-        android:fillAlpha="0.6"
-        android:pathData="M22,42 L22,66 C22,68.2 23.8,70 26,70 L30,70 C32.2,70 34,68.2 34,66 L34,42 C34,39.8 32.2,38 30,38 L26,38 C23.8,38 22,39.8 22,42 Z"/>
-    <!-- Highlight auf rechte Scheibe - helleres Gold -->
-    <path
-        android:fillColor="#FFE87C"
-        android:fillAlpha="0.6"
-        android:pathData="M70,42 L70,66 C70,68.2 71.8,70 74,70 L78,70 C80.2,70 82,68.2 82,66 L82,42 C82,39.8 80.2,38 78,38 L74,38 C71.8,38 70,39.8 70,42 Z"/>
-    <!-- Schatten unter der Stange -->
-    <path
-        android:fillColor="#C9A961"
-        android:fillAlpha="0.4"
-        android:pathData="M40,60 L68,60 L68,62 L40,62 Z"/>
+        android:fillColor="#0B0B0B"
+        android:pathData="M0,0h108v108h-108z" />
+
+    <path android:fillColor="#1A1A1A" android:fillAlpha="0.65" android:pathData="M0,16h108v4h-108z"/>
+    <path android:fillColor="#1A1A1A" android:fillAlpha="0.45" android:pathData="M0,44h108v4h-108z"/>
+    <path android:fillColor="#1A1A1A" android:fillAlpha="0.35" android:pathData="M0,72h108v4h-108z"/>
+
+    <path android:fillColor="#FFB300" android:fillAlpha="0.25" android:pathData="M28,49h52v10h-52z"/>
+    <path android:fillColor="#FFB300" android:fillAlpha="0.40" android:pathData="M30,51h48v6h-48z"/>
+    <path android:fillColor="#FFE082" android:pathData="M32,53h44v2h-44z"/>
+
+    <path android:fillColor="#FFB300" android:fillAlpha="0.22" android:pathData="M18,33h10v42h-10z"/>
+    <path android:fillColor="#FFB300" android:fillAlpha="0.35" android:pathData="M21,29h8v50h-8z"/>
+    <path android:fillColor="#FFD54F" android:pathData="M23,26h5v56h-5z"/>
+
+    <path android:fillColor="#FFB300" android:fillAlpha="0.22" android:pathData="M80,33h10v42h-10z"/>
+    <path android:fillColor="#FFB300" android:fillAlpha="0.35" android:pathData="M79,29h8v50h-8z"/>
+    <path android:fillColor="#FFD54F" android:pathData="M80,26h5v56h-5z"/>
+
+    <path android:fillColor="#FFB300" android:fillAlpha="0.28" android:pathData="M13,39h4v30h-4z"/>
+    <path android:fillColor="#FFB300" android:fillAlpha="0.45" android:pathData="M9,43h3v22h-3z"/>
+    <path android:fillColor="#FFD54F" android:pathData="M6,47h2v14h-2z"/>
+
+    <path android:fillColor="#FFB300" android:fillAlpha="0.28" android:pathData="M91,39h4v30h-4z"/>
+    <path android:fillColor="#FFB300" android:fillAlpha="0.45" android:pathData="M96,43h3v22h-3z"/>
+    <path android:fillColor="#FFD54F" android:pathData="M100,47h2v14h-2z"/>
 </vector>
