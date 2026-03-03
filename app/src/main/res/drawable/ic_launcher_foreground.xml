@@ -1,35 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    ic_launcher_foreground.xml  –  Adaptive Icon Foreground (Neon Dumbbell)
+    Ablage: app/src/main/res/drawable/ic_launcher_foreground.xml
+    Wird referenziert von: mipmap-anydpi-v26/ic_launcher.xml
+
+    Adaptive Icons nutzen ein 108×108dp Canvas, davon sind 72×72dp
+    sichtbarer Bereich (die äußeren 18dp je Seite sind "safe zone" Puffer).
+    Die Hantel ist deshalb zentriert in den sichtbaren 72dp-Bereich eingepasst.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="216dp"
-    android:height="116dp"
-    android:viewportWidth="216"
-    android:viewportHeight="116">
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
 
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- Hintergrund  (dunkles Anthrazit/Schwarz wie im Original) -->
+    <!-- ═══════════════════════════════════════════ -->
     <path
-        android:fillColor="#0B0B0B"
-        android:pathData="M0,0h216v116h-216z" />
+        android:fillColor="#1A1A1A"
+        android:pathData="M0,0 H108 V108 H0 Z" />
 
-    <path android:fillColor="#1A1A1A" android:fillAlpha="0.65" android:pathData="M0,14h216v4h-216z"/>
-    <path android:fillColor="#1A1A1A" android:fillAlpha="0.45" android:pathData="M0,44h216v4h-216z"/>
-    <path android:fillColor="#1A1A1A" android:fillAlpha="0.35" android:pathData="M0,74h216v4h-216z"/>
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- GLOW LAYER 1  – äußerster, weichster Schein -->
+    <!-- ═══════════════════════════════════════════ -->
+    <group android:alpha="0.22">
+        <path android:fillColor="#FFAA00" android:pathData="M14,46 H94 V62 H14 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M10,39 H18 V69 H10 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M90,39 H98 V69 H90 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M16,33 H24 V75 H16 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M84,33 H92 V75 H84 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M22,28 H30 V80 H22 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M78,28 H86 V80 H78 Z" />
+    </group>
 
-    <path android:fillColor="#FFB300" android:fillAlpha="0.25" android:pathData="M61,53h94v10h-94z"/>
-    <path android:fillColor="#FFB300" android:fillAlpha="0.40" android:pathData="M63,55h90v6h-90z"/>
-    <path android:fillColor="#FFE082" android:pathData="M66,57h84v2h-84z"/>
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- GLOW LAYER 2  – mittlerer Schein -->
+    <!-- ═══════════════════════════════════════════ -->
+    <group android:alpha="0.45">
+        <path android:fillColor="#FFAA00" android:pathData="M16,48 H92 V60 H16 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M11,41 H17 V67 H11 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M91,41 H97 V67 H91 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M17,35 H23 V73 H17 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M85,35 H91 V73 H85 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M23,30 H29 V78 H23 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M79,30 H85 V78 H79 Z" />
+    </group>
 
-    <path android:fillColor="#FFB300" android:fillAlpha="0.22" android:pathData="M42,35h20v46h-20z"/>
-    <path android:fillColor="#FFB300" android:fillAlpha="0.35" android:pathData="M46,31h16v54h-16z"/>
-    <path android:fillColor="#FFD54F" android:pathData="M49,28h10v60h-10z"/>
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SOLID CORE  – leuchtende Hauptform -->
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- center bar -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M18,50 H90 V58 H18 Z" />
+    <!-- left collar -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M12,43 H18 V65 H12 Z" />
+    <!-- right collar -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M90,43 H96 V65 H90 Z" />
+    <!-- left inner plate -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M18,37 H24 V71 H18 Z" />
+    <!-- left mid plate -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M24,32 H30 V76 H24 Z" />
+    <!-- right inner plate -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M84,37 H90 V71 H84 Z" />
+    <!-- right mid plate -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M78,32 H84 V76 H78 Z" />
 
-    <path android:fillColor="#FFB300" android:fillAlpha="0.22" android:pathData="M154,35h20v46h-20z"/>
-    <path android:fillColor="#FFB300" android:fillAlpha="0.35" android:pathData="M154,31h16v54h-16z"/>
-    <path android:fillColor="#FFD54F" android:pathData="M157,28h10v60h-10z"/>
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- WHITE HIGHLIGHT  – glänzendes Neon-Zentrum -->
+    <!-- ═══════════════════════════════════════════ -->
+    <group android:alpha="0.50">
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M19,51 H89 V54 H19 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M13,44 H17 V48 H13 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M91,44 H95 V48 H91 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M19,38 H23 V42 H19 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M85,38 H89 V42 H85 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M25,33 H29 V37 H25 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M79,33 H83 V37 H79 Z" />
+    </group>
 
-    <path android:fillColor="#FFB300" android:fillAlpha="0.28" android:pathData="M33,41h8v34h-8z"/>
-    <path android:fillColor="#FFB300" android:fillAlpha="0.45" android:pathData="M27,45h5v26h-5z"/>
-    <path android:fillColor="#FFD54F" android:pathData="M22,49h3v18h-3z"/>
-
-    <path android:fillColor="#FFB300" android:fillAlpha="0.28" android:pathData="M175,41h8v34h-8z"/>
-    <path android:fillColor="#FFB300" android:fillAlpha="0.45" android:pathData="M184,45h5v26h-5z"/>
-    <path android:fillColor="#FFD54F" android:pathData="M191,49h3v18h-3z"/>
 </vector>
