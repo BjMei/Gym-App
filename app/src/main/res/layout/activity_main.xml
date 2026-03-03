@@ -63,7 +63,6 @@
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:src="@drawable/ic_dumbbell"
-            app:tint="@color/text_primary"
             android:layout_marginBottom="16dp"
             android:contentDescription="@string/home_logo_description"/>
 
