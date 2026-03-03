@@ -3,8 +3,7 @@ package com.example.gym_app;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,10 +18,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 public class MainActivity extends AppCompatActivity {
 
-    private LinearLayout workoutCard;
-    private LinearLayout statsCard;
-    private LinearLayout fortschrittCard;
-    private ImageButton btnBurgerMenu;
     private DrawerLayout drawerLayout;
 
     @Override
@@ -37,21 +32,40 @@ public class MainActivity extends AppCompatActivity {
                 .setAppearanceLightStatusBars(false);
 
         drawerLayout = findViewById(R.id.drawerLayout);
-        workoutCard = findViewById(R.id.workoutCard);
-        statsCard = findViewById(R.id.statsCard);
-        fortschrittCard = findViewById(R.id.fortschrittCard);
-        btnBurgerMenu = findViewById(R.id.btnBurgerMenu);
 
-        workoutCard.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, WorkoutActivity.class)));
+        LinearLayout workoutCard = findViewById(R.id.workoutCard);
+        LinearLayout statsCard = findViewById(R.id.statsCard);
+        LinearLayout fortschrittCard = findViewById(R.id.fortschrittCard);
+        ImageButton btnBurgerMenu = findViewById(R.id.btnBurgerMenu);
 
-        statsCard.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, StatistikActivity.class)));
+        workoutCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
+            }
+        });
 
-        fortschrittCard.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, FortschrittActivity.class)));
+        statsCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, StatistikActivity.class));
+            }
+        });
 
-        btnBurgerMenu.setOnClickListener(v -> toggleDrawer());
+        fortschrittCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, FortschrittActivity.class));
+            }
+        });
+
+        btnBurgerMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleDrawer();
+            }
+        });
+
         setupDrawerMenuItems();
     }
 
@@ -60,32 +74,43 @@ public class MainActivity extends AppCompatActivity {
         TextView drawerProfileGoals = findViewById(R.id.drawerProfileGoals);
         TextView drawerSettings = findViewById(R.id.drawerSettings);
 
-        drawerHistory.setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
+        drawerHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawerLayout != null) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                }
+                startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
+            }
+        });
+    }
+
+        drawerProfileGoals.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawerLayout != null) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                }
+                startActivity(new Intent(MainActivity.this, ProfileGoalsActivity.class));
+            }
         });
 
-        drawerProfileGoals.setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, ProfileGoalsActivity.class));
+        drawerSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawerLayout != null) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                }
+                openSettingsScreen();
+            }
         });
     }
 
     private void toggleDrawer() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            drawerLayout.openDrawer(GravityCompat.START);
+        if (drawerLayout == null) {
+            return;
         }
-    }
 
-        drawerSettings.setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            openSettingsScreen();
-        });
-    }
-
-    private void toggleDrawer() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
@@ -97,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
     }
 
-
     @Override
     public void onBackPressed() {
         if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -108,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void applyWindowInsets() {
-        android.view.View rootLayout = findViewById(R.id.rootMainLayout);
+        View rootLayout = findViewById(R.id.rootMainLayout);
         int basePaddingLeft = rootLayout.getPaddingLeft();
         int basePaddingTop = rootLayout.getPaddingTop();
         int basePaddingRight = rootLayout.getPaddingRight();
