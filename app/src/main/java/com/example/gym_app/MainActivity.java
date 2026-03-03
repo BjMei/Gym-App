@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
             }
         });
+    }
 
         drawerProfileGoals.setOnClickListener(new View.OnClickListener() {
             @Override
