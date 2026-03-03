@@ -1,35 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    ic_launcher_foreground.xml  –  Adaptive Icon Foreground (Neon Dumbbell)
+    Ablage: app/src/main/res/drawable/ic_launcher_foreground.xml
+    Wird referenziert von: mipmap-anydpi-v26/ic_launcher.xml
+
+    Adaptive Icons nutzen ein 108×108dp Canvas, davon sind 72×72dp
+    sichtbarer Bereich (die äußeren 18dp je Seite sind "safe zone" Puffer).
+    Die Hantel ist deshalb zentriert in den sichtbaren 72dp-Bereich eingepasst.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Hantel Icon - Gold, edel -->
-    <!-- Linke Hantelscheibe -->
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- Hintergrund  (dunkles Anthrazit/Schwarz wie im Original) -->
+    <!-- ═══════════════════════════════════════════ -->
     <path
-        android:fillColor="#FFD700"
-        android:pathData="M20,40 L20,68 C20,72.4 23.6,76 28,76 L32,76 C36.4,76 40,72.4 40,68 L40,40 C40,35.6 36.4,32 32,32 L28,32 C23.6,32 20,35.6 20,40 Z"/>
-    <!-- Stange -->
-    <path
-        android:fillColor="#FFD700"
-        android:pathData="M40,48 L68,48 L68,60 L40,60 Z"/>
-    <!-- Rechte Hantelscheibe -->
-    <path
-        android:fillColor="#FFD700"
-        android:pathData="M68,40 L68,68 C68,72.4 71.6,76 76,76 L80,76 C84.4,76 88,72.4 88,68 L88,40 C88,35.6 84.4,32 80,32 L76,32 C71.6,32 68,35.6 68,40 Z"/>
-    <!-- Highlight auf linke Scheibe - helleres Gold -->
-    <path
-        android:fillColor="#FFE87C"
-        android:fillAlpha="0.6"
-        android:pathData="M22,42 L22,66 C22,68.2 23.8,70 26,70 L30,70 C32.2,70 34,68.2 34,66 L34,42 C34,39.8 32.2,38 30,38 L26,38 C23.8,38 22,39.8 22,42 Z"/>
-    <!-- Highlight auf rechte Scheibe - helleres Gold -->
-    <path
-        android:fillColor="#FFE87C"
-        android:fillAlpha="0.6"
-        android:pathData="M70,42 L70,66 C70,68.2 71.8,70 74,70 L78,70 C80.2,70 82,68.2 82,66 L82,42 C82,39.8 80.2,38 78,38 L74,38 C71.8,38 70,39.8 70,42 Z"/>
-    <!-- Schatten unter der Stange -->
-    <path
-        android:fillColor="#C9A961"
-        android:fillAlpha="0.4"
-        android:pathData="M40,60 L68,60 L68,62 L40,62 Z"/>
+        android:fillColor="#1A1A1A"
+        android:pathData="M0,0 H108 V108 H0 Z" />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- GLOW LAYER 1  – äußerster, weichster Schein -->
+    <!-- ═══════════════════════════════════════════ -->
+    <group android:alpha="0.22">
+        <path android:fillColor="#FFAA00" android:pathData="M14,46 H94 V62 H14 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M10,39 H18 V69 H10 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M90,39 H98 V69 H90 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M16,33 H24 V75 H16 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M84,33 H92 V75 H84 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M22,28 H30 V80 H22 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M78,28 H86 V80 H78 Z" />
+    </group>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- GLOW LAYER 2  – mittlerer Schein -->
+    <!-- ═══════════════════════════════════════════ -->
+    <group android:alpha="0.45">
+        <path android:fillColor="#FFAA00" android:pathData="M16,48 H92 V60 H16 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M11,41 H17 V67 H11 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M91,41 H97 V67 H91 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M17,35 H23 V73 H17 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M85,35 H91 V73 H85 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M23,30 H29 V78 H23 Z" />
+        <path android:fillColor="#FFAA00" android:pathData="M79,30 H85 V78 H79 Z" />
+    </group>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SOLID CORE  – leuchtende Hauptform -->
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- center bar -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M18,50 H90 V58 H18 Z" />
+    <!-- left collar -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M12,43 H18 V65 H12 Z" />
+    <!-- right collar -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M90,43 H96 V65 H90 Z" />
+    <!-- left inner plate -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M18,37 H24 V71 H18 Z" />
+    <!-- left mid plate -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M24,32 H30 V76 H24 Z" />
+    <!-- right inner plate -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M84,37 H90 V71 H84 Z" />
+    <!-- right mid plate -->
+    <path android:fillColor="#FFBB00"
+        android:pathData="M78,32 H84 V76 H78 Z" />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- WHITE HIGHLIGHT  – glänzendes Neon-Zentrum -->
+    <!-- ═══════════════════════════════════════════ -->
+    <group android:alpha="0.50">
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M19,51 H89 V54 H19 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M13,44 H17 V48 H13 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M91,44 H95 V48 H91 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M19,38 H23 V42 H19 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M85,38 H89 V42 H85 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M25,33 H29 V37 H25 Z" />
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M79,33 H83 V37 H79 Z" />
+    </group>
+
 </vector>
