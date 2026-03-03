@@ -8,10 +8,12 @@
     Keine Logik geändert.
 -->
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    app:statusBarBackground="@color/primary_dark">
 
 <LinearLayout
     android:id="@+id/rootMainLayout"
@@ -36,7 +38,7 @@
             android:padding="8dp"
             android:background="@drawable/bg_burger_button"
             android:src="@drawable/ic_burger_menu"
-            android:tint="@color/gold_primary"
+            app:tint="@color/gold_primary"
             android:contentDescription="@string/drawer_open"
             android:scaleType="centerInside" />
     </LinearLayout>
@@ -61,15 +63,15 @@
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:src="@drawable/ic_dumbbell"
-            android:tint="@color/text_primary"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="16dp"
+            android:contentDescription="@string/home_logo_description"/>
 
         <!-- App-Titel -->
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="IRONX"
+            android:text="@string/app_name"
             android:textSize="44sp"
             android:textStyle="bold"
             android:textColor="@color/gold_primary"
@@ -138,7 +140,7 @@
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:src="@drawable/ic_workout_home"
-                        android:tint="@color/gold_primary"/>
+                        app:tint="@color/gold_primary"/>
                 </LinearLayout>
 
                 <!-- Text -->
@@ -168,13 +170,6 @@
                         android:fontFamily="sans-serif"/>
                 </LinearLayout>
 
-                <!-- Pfeil -->
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@android:drawable/arrow_up_float"
-                    android:tint="#44FFD700"
-                    android:rotation="90"/>
             </LinearLayout>
 
             <!-- ──────────────────────────────
@@ -207,7 +202,7 @@
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:src="@drawable/ic_stats_home"
-                        android:tint="@color/gold_primary"/>
+                        app:tint="@color/gold_primary"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -235,13 +230,6 @@
                         android:textColor="@color/text_tertiary"
                         android:fontFamily="sans-serif"/>
                 </LinearLayout>
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@android:drawable/arrow_up_float"
-                    android:tint="#44FFD700"
-                    android:rotation="90"/>
             </LinearLayout>
 
             <!-- ──────────────────────────────
@@ -277,7 +265,7 @@
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:src="@drawable/ic_progress_home"
-                        android:tint="@color/gold_primary"/>
+                        app:tint="@color/gold_primary"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -305,13 +293,6 @@
                         android:textColor="@color/text_tertiary"
                         android:fontFamily="sans-serif"/>
                 </LinearLayout>
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@android:drawable/arrow_up_float"
-                    android:tint="#44FFD700"
-                    android:rotation="90"/>
             </LinearLayout>
 
         </LinearLayout>
