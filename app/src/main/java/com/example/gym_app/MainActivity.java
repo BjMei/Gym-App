@@ -38,33 +38,10 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout fortschrittCard = findViewById(R.id.fortschrittCard);
         ImageButton btnBurgerMenu = findViewById(R.id.btnBurgerMenu);
 
-        workoutCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
-            }
-        });
-
-        statsCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, StatistikActivity.class));
-            }
-        });
-
-        fortschrittCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, FortschrittActivity.class));
-            }
-        });
-
-        btnBurgerMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleDrawer();
-            }
-        });
+        workoutCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WorkoutActivity.class)));
+        statsCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, StatistikActivity.class)));
+        fortschrittCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, FortschrittActivity.class)));
+        btnBurgerMenu.setOnClickListener(v -> toggleDrawer());
 
         setupDrawerMenuItems();
     }
@@ -74,52 +51,37 @@ public class MainActivity extends AppCompatActivity {
         TextView drawerProfileGoals = findViewById(R.id.drawerProfileGoals);
         TextView drawerSettings = findViewById(R.id.drawerSettings);
 
-        drawerHistory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (drawerLayout != null) {
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                }
-                startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
-            }
+        drawerHistory.setOnClickListener(v -> {
+            closeDrawerIfOpen();
+            startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
+        });
+
+        drawerProfileGoals.setOnClickListener(v -> {
+            closeDrawerIfOpen();
+            startActivity(new Intent(MainActivity.this, ProfileGoalsActivity.class));
+        });
+
+        drawerSettings.setOnClickListener(v -> {
+            closeDrawerIfOpen();
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         });
     }
 
-        drawerProfileGoals.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (drawerLayout != null) {
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                }
-                startActivity(new Intent(MainActivity.this, ProfileGoalsActivity.class));
-            }
-        });
-
-        drawerSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (drawerLayout != null) {
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                }
-                openSettingsScreen();
-            }
-        });
+    private void closeDrawerIfOpen() {
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
     }
 
     private void toggleDrawer() {
         if (drawerLayout == null) {
             return;
         }
-
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             drawerLayout.openDrawer(GravityCompat.START);
         }
-    }
-
-    private void openSettingsScreen() {
-        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
     }
 
     @Override
