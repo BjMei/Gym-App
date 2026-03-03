@@ -7,13 +7,15 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout statsCard;
     private LinearLayout fortschrittCard;
     private ImageButton btnBurgerMenu;
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView())
                 .setAppearanceLightStatusBars(false);
 
+        drawerLayout = findViewById(R.id.drawerLayout);
         workoutCard = findViewById(R.id.workoutCard);
         statsCard = findViewById(R.id.statsCard);
         fortschrittCard = findViewById(R.id.fortschrittCard);
@@ -47,43 +51,53 @@ public class MainActivity extends AppCompatActivity {
         fortschrittCard.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, FortschrittActivity.class)));
 
-        btnBurgerMenu.setOnClickListener(v -> showBurgerMenu());
+        btnBurgerMenu.setOnClickListener(v -> toggleDrawer());
+        setupDrawerMenuItems();
     }
 
-    private void showBurgerMenu() {
-        PopupMenu popupMenu = new PopupMenu(this, btnBurgerMenu);
-        popupMenu.getMenuInflater().inflate(R.menu.home_burger_menu, popupMenu.getMenu());
-        applyMenuItemTextColor(popupMenu, Color.WHITE);
+    private void setupDrawerMenuItems() {
+        TextView drawerWorkout = findViewById(R.id.drawerWorkout);
+        TextView drawerHistory = findViewById(R.id.drawerHistory);
+        TextView drawerStats = findViewById(R.id.drawerStats);
+        TextView drawerProgress = findViewById(R.id.drawerProgress);
+        TextView drawerSettings = findViewById(R.id.drawerSettings);
 
-        popupMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.menu_settings) {
-                openSettings();
-                return true;
-            }
-            if (itemId == R.id.menu_workout) {
-                startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
-                return true;
-            }
-            if (itemId == R.id.menu_history) {
-                startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
-                return true;
-            }
-            if (itemId == R.id.menu_stats) {
-                startActivity(new Intent(MainActivity.this, StatistikActivity.class));
-                return true;
-            }
-            if (itemId == R.id.menu_progress) {
-                startActivity(new Intent(MainActivity.this, FortschrittActivity.class));
-                return true;
-            } else if (itemId == R.id.menu_settings) {
-                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-                return true;
-            }
-            return false;
+        drawerWorkout.setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
         });
 
-        popupMenu.show();
+        drawerHistory.setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
+        });
+
+        drawerStats.setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(MainActivity.this, StatistikActivity.class));
+        });
+
+        drawerProgress.setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(MainActivity.this, FortschrittActivity.class));
+        });
+
+        drawerSettings.setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            openSettings();
+        });
+    }
+
+    private void toggleDrawer() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
+    }
+
+    private void openSettings() {
+        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
     }
 
 
