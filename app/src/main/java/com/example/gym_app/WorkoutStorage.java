@@ -131,7 +131,7 @@ public class WorkoutStorage {
                     sets.add(new WorkoutSet(setObj.getDouble("weight"), setObj.getInt("reps")));
                 }
                 
-                workouts.add(new DetailedWorkout(exercise, timestamp, sets));
+                workouts.add(new DetailedWorkout(exercise, timestamp, sets, type));
             } catch (JSONException ignored) {
             }
         }
@@ -150,7 +150,8 @@ public class WorkoutStorage {
                 sessions.add(new CardioSession(
                     session.getString("exercise"),
                     session.getInt("minutes"),
-                    session.getString("timestamp")
+                    session.getString("timestamp"),
+                    type
                 ));
             } catch (JSONException ignored) {
             }
@@ -160,8 +161,21 @@ public class WorkoutStorage {
 
     // Trainings nach Tagen gruppieren
     public static List<DailyWorkout> getDailyWorkouts(Context context, String type) {
-        List<DetailedWorkout> allWorkouts = getDetailedWorkouts(context, type);
-        List<CardioSession> cardioSessions = getCardioSessions(context, type);
+        List<DetailedWorkout> allWorkouts = new ArrayList<>();
+        List<CardioSession> cardioSessions = new ArrayList<>();
+
+        boolean allTypes = type == null || type.trim().isEmpty();
+        if (allTypes) {
+            String[] types = new String[]{TYPE_PUSH, TYPE_PULL, TYPE_LEG};
+            for (String workoutType : types) {
+                allWorkouts.addAll(getDetailedWorkouts(context, workoutType));
+                cardioSessions.addAll(getCardioSessions(context, workoutType));
+            }
+        } else {
+            allWorkouts = getDetailedWorkouts(context, type);
+            cardioSessions = getCardioSessions(context, type);
+        }
+
         java.util.Map<String, DailyWorkout> dailyMap = new java.util.HashMap<>();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
@@ -289,11 +303,17 @@ public class WorkoutStorage {
         public String exercise;
         public String timestamp;
         public List<WorkoutSet> sets;
-        
+        public String workoutType;
+
         public DetailedWorkout(String exercise, String timestamp, List<WorkoutSet> sets) {
+            this(exercise, timestamp, sets, "");
+        }
+
+        public DetailedWorkout(String exercise, String timestamp, List<WorkoutSet> sets, String workoutType) {
             this.exercise = exercise;
             this.timestamp = timestamp;
             this.sets = sets;
+            this.workoutType = workoutType;
         }
     }
 
@@ -317,11 +337,17 @@ public class WorkoutStorage {
         public String exercise;
         public int minutes;
         public String timestamp;
+        public String workoutType;
 
         public CardioSession(String exercise, int minutes, String timestamp) {
+            this(exercise, minutes, timestamp, "");
+        }
+
+        public CardioSession(String exercise, int minutes, String timestamp, String workoutType) {
             this.exercise = exercise;
             this.minutes = minutes;
             this.timestamp = timestamp;
+            this.workoutType = workoutType;
         }
     }
 }
