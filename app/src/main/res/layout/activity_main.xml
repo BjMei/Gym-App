@@ -7,12 +7,39 @@
       fortschrittCard  → Codex: in MainActivity.java als Platzhalter ergänzen
     Keine Logik geändert.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+<LinearLayout
     android:id="@+id/rootMainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/primary_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:paddingTop="12dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
+
+        <ImageButton
+            android:id="@+id/btnBurgerMenu"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:background="@drawable/bg_burger_button"
+            android:src="@drawable/ic_burger_menu"
+            android:tint="@color/gold_primary"
+            android:contentDescription="@string/drawer_open"
+            android:scaleType="centerInside" />
+    </LinearLayout>
 
     <!-- ═══════════════════════════════════════
          HEADER
@@ -21,31 +48,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="52dp"
+        android:paddingTop="32dp"
         android:paddingBottom="28dp"
         android:paddingStart="28dp"
         android:paddingEnd="28dp"
         android:background="@drawable/gradient_header"
         android:gravity="center_horizontal"
         android:elevation="12dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:layout_marginBottom="12dp">
-
-            <ImageButton
-                android:id="@+id/btnBurgerMenu"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
-                android:background="@drawable/bg_burger_button"
-                android:src="@drawable/ic_burger_menu"
-                android:tint="@color/gold_primary"
-                android:contentDescription="@string/drawer_open"
-                android:scaleType="centerInside" />
-        </LinearLayout>
 
         <!-- Logo -->
         <ImageView
@@ -309,3 +318,90 @@
     </ScrollView>
 
 </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/drawerMenuPanel"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:orientation="vertical"
+        android:background="@color/primary_dark"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Menü"
+            android:textColor="@color/gold_primary"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:id="@+id/drawerWorkout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Workout"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/drawerHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Trainingshistorie"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/drawerStats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Statistik"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/drawerProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Fortschritt"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/drawerSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Einstellungen"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground" />
+
+    </LinearLayout>
+
+</androidx.drawerlayout.widget.DrawerLayout>
