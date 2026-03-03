@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GymApp">
         <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProfileGoalsActivity"
+            android:exported="false" />
+        <activity
             android:name=".LegActivity"
             android:exported="false" />
         <activity
