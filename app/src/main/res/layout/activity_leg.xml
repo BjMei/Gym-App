@@ -575,37 +575,12 @@
 
                         <Spinner
                             android:id="@+id/spinnerExercise2"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="52dp"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
                             android:background="@drawable/spinner_background"
                             android:paddingStart="14dp"
                             android:paddingEnd="14dp"
                             android:textColor="@color/text_primary"/>
-
-                        <ImageButton
-                            android:id="@+id/btnExerciseSettings2"
-                            android:layout_width="52dp"
-                            android:layout_height="52dp"
-                            android:layout_marginEnd="8dp"
-                            android:background="@drawable/rounded_input"
-                            android:src="@android:drawable/ic_menu_preferences"
-                            android:contentDescription="Einstellungen"
-                            android:scaleType="centerInside"
-                            android:padding="12dp"
-                            app:tint="@color/gold_primary"/>
-
-                        <ImageButton
-                            android:id="@+id/btnManageExercises2"
-                            android:layout_width="52dp"
-                            android:layout_height="52dp"
-                            android:background="@drawable/rounded_input"
-                            android:src="@android:drawable/ic_input_add"
-                            android:contentDescription="Übungen verwalten"
-                            android:scaleType="centerInside"
-                            android:padding="12dp"
-                            app:tint="@color/gold_primary"/>
                     </LinearLayout>
 
                     <LinearLayout
