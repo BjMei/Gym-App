@@ -3,16 +3,13 @@ package com.example.gym_app;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -24,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        applyWindowInsets();
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
 
         getWindow().setStatusBarColor(Color.BLACK);
         getWindow().setNavigationBarColor(Color.BLACK);
@@ -91,25 +88,5 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         super.onBackPressed();
-    }
-
-    private void applyWindowInsets() {
-        View rootLayout = findViewById(R.id.rootMainLayout);
-        int basePaddingLeft = rootLayout.getPaddingLeft();
-        int basePaddingTop = rootLayout.getPaddingTop();
-        int basePaddingRight = rootLayout.getPaddingRight();
-        int basePaddingBottom = rootLayout.getPaddingBottom();
-
-        ViewCompat.setOnApplyWindowInsetsListener(rootLayout, (view, windowInsets) -> {
-            Insets systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            view.setPadding(
-                    basePaddingLeft + systemBars.left,
-                    basePaddingTop + systemBars.top,
-                    basePaddingRight + systemBars.right,
-                    basePaddingBottom + systemBars.bottom
-            );
-            return windowInsets;
-        });
-        ViewCompat.requestApplyInsets(rootLayout);
     }
 }
