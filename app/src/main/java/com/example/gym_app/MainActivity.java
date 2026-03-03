@@ -3,22 +3,22 @@ package com.example.gym_app;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 public class MainActivity extends AppCompatActivity {
 
-    private LinearLayout workoutCard;
-    private LinearLayout statsCard;
-    private LinearLayout fortschrittCard;
-    private ImageButton btnBurgerMenu;
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,50 +31,70 @@ public class MainActivity extends AppCompatActivity {
         new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView())
                 .setAppearanceLightStatusBars(false);
 
-        workoutCard = findViewById(R.id.workoutCard);
-        statsCard = findViewById(R.id.statsCard);
-        fortschrittCard = findViewById(R.id.fortschrittCard);
-        btnBurgerMenu = findViewById(R.id.btnBurgerMenu);
+        drawerLayout = findViewById(R.id.drawerLayout);
 
-        workoutCard.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, WorkoutActivity.class)));
+        LinearLayout workoutCard = findViewById(R.id.workoutCard);
+        LinearLayout statsCard = findViewById(R.id.statsCard);
+        LinearLayout fortschrittCard = findViewById(R.id.fortschrittCard);
+        ImageButton btnBurgerMenu = findViewById(R.id.btnBurgerMenu);
 
-        statsCard.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, StatistikActivity.class)));
+        workoutCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WorkoutActivity.class)));
+        statsCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, StatistikActivity.class)));
+        fortschrittCard.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, FortschrittActivity.class)));
+        btnBurgerMenu.setOnClickListener(v -> toggleDrawer());
 
-        fortschrittCard.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, FortschrittActivity.class)));
-
-        btnBurgerMenu.setOnClickListener(v -> showBurgerMenu());
+        setupDrawerMenuItems();
     }
 
-    private void showBurgerMenu() {
-        PopupMenu popupMenu = new PopupMenu(this, btnBurgerMenu);
-        popupMenu.getMenuInflater().inflate(R.menu.home_burger_menu, popupMenu.getMenu());
+    private void setupDrawerMenuItems() {
+        TextView drawerHistory = findViewById(R.id.drawerHistory);
+        TextView drawerProfileGoals = findViewById(R.id.drawerProfileGoals);
+        TextView drawerSettings = findViewById(R.id.drawerSettings);
 
-        popupMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.menu_workout) {
-                startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
-                return true;
-            } else if (itemId == R.id.menu_history) {
-                startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
-                return true;
-            } else if (itemId == R.id.menu_stats) {
-                startActivity(new Intent(MainActivity.this, StatistikActivity.class));
-                return true;
-            } else if (itemId == R.id.menu_progress) {
-                startActivity(new Intent(MainActivity.this, FortschrittActivity.class));
-                return true;
-            }
-            return false;
+        drawerHistory.setOnClickListener(v -> {
+            closeDrawerIfOpen();
+            startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
         });
 
-        popupMenu.show();
+        drawerProfileGoals.setOnClickListener(v -> {
+            closeDrawerIfOpen();
+            startActivity(new Intent(MainActivity.this, ProfileGoalsActivity.class));
+        });
+
+        drawerSettings.setOnClickListener(v -> {
+            closeDrawerIfOpen();
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+        });
+    }
+
+    private void closeDrawerIfOpen() {
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+    }
+
+    private void toggleDrawer() {
+        if (drawerLayout == null) {
+            return;
+        }
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return;
+        }
+        super.onBackPressed();
     }
 
     private void applyWindowInsets() {
-        android.view.View rootLayout = findViewById(R.id.rootMainLayout);
+        View rootLayout = findViewById(R.id.rootMainLayout);
         int basePaddingLeft = rootLayout.getPaddingLeft();
         int basePaddingTop = rootLayout.getPaddingTop();
         int basePaddingRight = rootLayout.getPaddingRight();

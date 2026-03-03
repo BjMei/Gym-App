@@ -160,8 +160,21 @@ public class WorkoutStorage {
 
     // Trainings nach Tagen gruppieren
     public static List<DailyWorkout> getDailyWorkouts(Context context, String type) {
-        List<DetailedWorkout> allWorkouts = getDetailedWorkouts(context, type);
-        List<CardioSession> cardioSessions = getCardioSessions(context, type);
+        List<DetailedWorkout> allWorkouts = new ArrayList<>();
+        List<CardioSession> cardioSessions = new ArrayList<>();
+
+        boolean allTypes = type == null || type.trim().isEmpty();
+        if (allTypes) {
+            String[] types = new String[]{TYPE_PUSH, TYPE_PULL, TYPE_LEG};
+            for (String workoutType : types) {
+                allWorkouts.addAll(getDetailedWorkouts(context, workoutType));
+                cardioSessions.addAll(getCardioSessions(context, workoutType));
+            }
+        } else {
+            allWorkouts = getDetailedWorkouts(context, type);
+            cardioSessions = getCardioSessions(context, type);
+        }
+
         java.util.Map<String, DailyWorkout> dailyMap = new java.util.HashMap<>();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
