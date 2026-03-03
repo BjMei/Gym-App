@@ -3,6 +3,8 @@ package com.example.gym_app;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private void showBurgerMenu() {
         PopupMenu popupMenu = new PopupMenu(this, btnBurgerMenu);
         popupMenu.getMenuInflater().inflate(R.menu.home_burger_menu, popupMenu.getMenu());
+        applyMenuItemTextColor(popupMenu, Color.WHITE);
 
         popupMenu.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();
@@ -81,6 +84,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
         popupMenu.show();
+    }
+
+
+    private void applyMenuItemTextColor(PopupMenu popupMenu, int color) {
+        for (int i = 0; i < popupMenu.getMenu().size(); i++) {
+            CharSequence title = popupMenu.getMenu().getItem(i).getTitle();
+            SpannableString styledTitle = new SpannableString(title);
+            styledTitle.setSpan(new ForegroundColorSpan(color), 0, styledTitle.length(), 0);
+            popupMenu.getMenu().getItem(i).setTitle(styledTitle);
+        }
     }
 
     private void openSettings() {
