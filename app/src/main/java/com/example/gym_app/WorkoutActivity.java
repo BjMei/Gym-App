@@ -3,7 +3,6 @@ package com.example.gym_app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,9 +13,9 @@ public class WorkoutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout);
 
-        LinearLayout pushCard = findViewById(R.id.pushCard);
-        LinearLayout pullCard = findViewById(R.id.pullCard);
-        LinearLayout legCard = findViewById(R.id.legCard);
+        View pushCard = findViewById(R.id.pushCard);
+        View pullCard = findViewById(R.id.pullCard);
+        View legCard = findViewById(R.id.legCard);
 
         // Push - Button und Card
         View.OnClickListener pushClickListener = v ->

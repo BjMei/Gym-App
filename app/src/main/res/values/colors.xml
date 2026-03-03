@@ -55,4 +55,5 @@
     <!-- Glow Effekte -->
     <color name="glow_gold">#FFD700</color>
     <color name="glow_gold_light">#FFE87C</color>
+    <color name="ic_launcher_background">#1A1A1A</color>
 </resources>

@@ -684,7 +684,7 @@ public class PullActivity extends AppCompatActivity {
 
         EditText etSeatPositions = dialog.findViewById(R.id.etSeatPositions);
         Button btnCancel = dialog.findViewById(R.id.btnCancel);
-        ImageButton btnSaveSettings = dialog.findViewById(R.id.btnSaveSettings);
+        Button btnSaveSettings = dialog.findViewById(R.id.btnSaveSettings);
 
         // Gespeicherte Einstellungen laden
         String savedPositions = sharedPreferences.getString(selectedExercise, "");
