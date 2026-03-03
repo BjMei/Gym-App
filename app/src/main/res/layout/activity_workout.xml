@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootWorkoutLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -60,127 +59,61 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <LinearLayout
+            <TextView
                 android:id="@+id/pushCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/bg_main_card"
-                android:padding="20dp"
-                android:gravity="center"
-                android:minHeight="88dp"
                 android:layout_marginBottom="14dp"
-                android:elevation="6dp"
+                android:background="@drawable/bg_main_card"
                 android:clickable="true"
                 android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground">
+                android:foreground="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:minHeight="88dp"
+                android:padding="20dp"
+                android:text="PUSH DAY"
+                android:textColor="@color/gold_primary"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.04" />
 
-                <LinearLayout
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="@drawable/bg_icon_circle"
-                    android:gravity="center"
-                    android:layout_marginEnd="20dp">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_push"
-                        app:tint="@color/gold_primary" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="PUSH DAY"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/gold_primary"
-                    android:fontFamily="sans-serif-black"
-                    android:letterSpacing="0.04"
-                    android:gravity="center" />
-            </LinearLayout>
-
-            <LinearLayout
+            <TextView
                 android:id="@+id/pullCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/bg_main_card"
-                android:padding="20dp"
-                android:gravity="center"
-                android:minHeight="88dp"
                 android:layout_marginBottom="14dp"
-                android:elevation="6dp"
+                android:background="@drawable/bg_main_card"
                 android:clickable="true"
                 android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground">
+                android:foreground="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:minHeight="88dp"
+                android:padding="20dp"
+                android:text="PULL DAY"
+                android:textColor="@color/gold_primary"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.04" />
 
-                <LinearLayout
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="@drawable/bg_icon_circle"
-                    android:gravity="center"
-                    android:layout_marginEnd="20dp">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_pull"
-                        app:tint="@color/gold_primary" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="PULL DAY"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/gold_primary"
-                    android:fontFamily="sans-serif-black"
-                    android:letterSpacing="0.04"
-                    android:gravity="center" />
-            </LinearLayout>
-
-            <LinearLayout
+            <TextView
                 android:id="@+id/legCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:background="@drawable/bg_main_card"
-                android:padding="20dp"
-                android:gravity="center"
-                android:minHeight="88dp"
-                android:elevation="6dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground">
-
-                <LinearLayout
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="@drawable/bg_icon_circle"
-                    android:gravity="center"
-                    android:layout_marginEnd="20dp">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_leg"
-                        app:tint="@color/gold_primary" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="LEG DAY"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/gold_primary"
-                    android:fontFamily="sans-serif-black"
-                    android:letterSpacing="0.04"
-                    android:gravity="center" />
-            </LinearLayout>
+                android:foreground="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:minHeight="88dp"
+                android:padding="20dp"
+                android:text="LEG DAY"
+                android:textColor="@color/gold_primary"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.04" />
 
         </LinearLayout>
     </ScrollView>
