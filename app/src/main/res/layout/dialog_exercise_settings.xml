@@ -53,16 +53,18 @@
             app:backgroundTint="@null"
             android:layout_marginEnd="8dp"/>
 
-        <ImageButton
+        <Button
             android:id="@+id/btnSaveSettings"
-            android:layout_width="56dp"
+            android:layout_width="0dp"
             android:layout_height="56dp"
-            android:background="@drawable/rounded_button"
-            android:src="@android:drawable/ic_menu_save"
-            android:contentDescription="Speichern"
-            android:scaleType="centerInside"
-            android:padding="12dp"
-            android:tint="@color/text_primary"
+            android:layout_weight="1"
+            android:text="SPEICHERN"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@drawable/gradient_button"
+            android:backgroundTint="@null"
+            app:backgroundTint="@null"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
 </LinearLayout>
