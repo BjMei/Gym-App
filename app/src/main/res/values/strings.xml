@@ -35,6 +35,7 @@
         <item>Hip Thrust</item>
         <item>Hyperextension</item>
     </string-array>
+    <string name="home_logo_description">IRONX Logo</string>
     <string name="drawer_open">Menü öffnen</string>
     <string name="nav_workout_emoji">Workout</string>
     <string name="nav_history_emoji">Trainingshistorie</string>
