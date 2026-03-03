@@ -44,6 +44,7 @@
 
     <string name="settings_title">Einstellungen</string>
     <string name="settings_subtitle">Passe dein Profil, Ziele und die Darstellung der App an.</string>
+    <string name="settings_display_subtitle">Hier kannst du nur Darstellung, Einheiten und Sprache konfigurieren.</string>
     <string name="settings_profile_goals">Profil &amp; Ziele</string>
     <string name="settings_name">Name</string>
     <string name="settings_weight">Gewicht</string>
@@ -51,6 +52,8 @@
     <string name="settings_display">Darstellung</string>
     <string name="settings_save">Speichern</string>
     <string name="settings_saved">Einstellungen gespeichert</string>
+    <string name="profile_goals_subtitle">Verwalte hier Name, Gewicht, Ziel und Kalorienziel.</string>
+    <string name="profile_goals_saved">Profil und Ziele gespeichert</string>
 
     <string name="settings_goal_muscle">Muskelaufbau</string>
     <string name="settings_goal_weight_loss">Abnehmen</string>

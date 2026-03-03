@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/settings_title"
+            android:text="@string/settings_profile_goals"
             android:textColor="@color/gold_primary"
             android:textStyle="bold"
             android:textSize="30sp"
@@ -22,7 +22,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/settings_display_subtitle"
+            android:text="@string/profile_goals_subtitle"
             android:textColor="@color/text_tertiary"
             android:textSize="14sp"
             android:layout_marginBottom="16dp" />
@@ -35,38 +35,51 @@
             android:padding="16dp"
             android:layout_marginBottom="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/etProfileName"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_display"
+                android:hint="@string/settings_name"
+                android:inputType="textPersonName"
                 android:textColor="@color/text_primary"
-                android:textStyle="bold"
-                android:textSize="18sp"
+                android:textColorHint="@color/text_tertiary"
+                android:background="@drawable/bg_input_compact"
+                android:padding="10dp"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/etProfileWeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/settings_weight"
+                android:inputType="numberDecimal"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_tertiary"
+                android:background="@drawable/bg_input_compact"
+                android:padding="10dp"
                 android:layout_marginBottom="8dp" />
 
             <Spinner
-                android:id="@+id/spinnerTheme"
+                android:id="@+id/spinnerGoal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/spinner_background"
                 android:layout_marginBottom="8dp" />
 
-            <Spinner
-                android:id="@+id/spinnerUnits"
+            <EditText
+                android:id="@+id/etCalorieGoal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/spinner_background"
-                android:layout_marginBottom="8dp" />
-
-            <Spinner
-                android:id="@+id/spinnerLanguage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/spinner_background" />
+                android:hint="@string/settings_calorie_goal"
+                android:inputType="number"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_tertiary"
+                android:background="@drawable/bg_input_compact"
+                android:padding="10dp" />
         </LinearLayout>
 
         <Button
-            android:id="@+id/btnSaveSettings"
+            android:id="@+id/btnSaveProfileGoals"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/settings_save"

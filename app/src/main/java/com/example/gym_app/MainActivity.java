@@ -56,31 +56,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupDrawerMenuItems() {
-        TextView drawerWorkout = findViewById(R.id.drawerWorkout);
         TextView drawerHistory = findViewById(R.id.drawerHistory);
-        TextView drawerStats = findViewById(R.id.drawerStats);
-        TextView drawerProgress = findViewById(R.id.drawerProgress);
+        TextView drawerProfileGoals = findViewById(R.id.drawerProfileGoals);
         TextView drawerSettings = findViewById(R.id.drawerSettings);
-
-        drawerWorkout.setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
-        });
 
         drawerHistory.setOnClickListener(v -> {
             drawerLayout.closeDrawer(GravityCompat.START);
             startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
         });
 
-        drawerStats.setOnClickListener(v -> {
+        drawerProfileGoals.setOnClickListener(v -> {
             drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, StatistikActivity.class));
+            startActivity(new Intent(MainActivity.this, ProfileGoalsActivity.class));
         });
+    }
 
-        drawerProgress.setOnClickListener(v -> {
+    private void toggleDrawer() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, FortschrittActivity.class));
-        });
+        } else {
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
+    }
 
         drawerSettings.setOnClickListener(v -> {
             drawerLayout.closeDrawer(GravityCompat.START);

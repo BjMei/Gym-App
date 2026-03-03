@@ -338,19 +338,6 @@
             android:layout_marginBottom="20dp" />
 
         <TextView
-            android:id="@+id/drawerWorkout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Workout"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground" />
-
-        <TextView
             android:id="@+id/drawerHistory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -364,23 +351,10 @@
             android:foreground="?android:attr/selectableItemBackground" />
 
         <TextView
-            android:id="@+id/drawerStats"
+            android:id="@+id/drawerProfileGoals"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Statistik"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground" />
-
-        <TextView
-            android:id="@+id/drawerProgress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Fortschritt"
+            android:text="Profil &amp; Ziele"
             android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:paddingTop="10dp"
