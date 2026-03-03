@@ -13,8 +13,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class TrainingHistoryActivity extends AppCompatActivity {
 
@@ -97,7 +100,12 @@ public class TrainingHistoryActivity extends AppCompatActivity {
         card.setLayoutParams(cardParams);
 
         TextView tvDate = new TextView(this);
-        tvDate.setText(day.date);
+        String dayWorkoutLabel = getDayWorkoutLabel(day);
+        if (dayWorkoutLabel.isEmpty()) {
+            tvDate.setText(day.date);
+        } else {
+            tvDate.setText(String.format(Locale.getDefault(), "%s  •  %s", day.date, dayWorkoutLabel));
+        }
         tvDate.setTextColor(ContextCompat.getColor(this, R.color.gold_primary));
         tvDate.setTextSize(15);
         tvDate.setTypeface(Typeface.create("sans-serif-black", Typeface.BOLD));
@@ -178,6 +186,49 @@ public class TrainingHistoryActivity extends AppCompatActivity {
         line.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
         line.setPadding(0, dpToPx(2), 0, dpToPx(4));
         return line;
+    }
+
+
+
+    private String getDayWorkoutLabel(WorkoutStorage.DailyWorkout day) {
+        Set<String> labels = new LinkedHashSet<>();
+
+        if (day.exercises != null) {
+            for (WorkoutStorage.DetailedWorkout workout : day.exercises) {
+                String label = getWorkoutTypeLabel(workout.workoutType);
+                if (!label.isEmpty()) {
+                    labels.add(label);
+                }
+            }
+        }
+
+        if (day.cardioSessions != null) {
+            for (WorkoutStorage.CardioSession cardioSession : day.cardioSessions) {
+                String label = getWorkoutTypeLabel(cardioSession.workoutType);
+                if (!label.isEmpty()) {
+                    labels.add(label);
+                }
+            }
+        }
+
+        if (labels.isEmpty()) {
+            return "";
+        }
+
+        return String.join(" / ", new ArrayList<>(labels));
+    }
+
+    private String getWorkoutTypeLabel(String workoutType) {
+        if (WorkoutStorage.TYPE_PUSH.equals(workoutType)) {
+            return "Push-Day";
+        }
+        if (WorkoutStorage.TYPE_PULL.equals(workoutType)) {
+            return "Pull-Day";
+        }
+        if (WorkoutStorage.TYPE_LEG.equals(workoutType)) {
+            return "Leg-Day";
+        }
+        return "";
     }
 
     private int dpToPx(int dp) {
