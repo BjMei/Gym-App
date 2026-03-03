@@ -171,13 +171,6 @@
                         android:fontFamily="sans-serif"/>
                 </LinearLayout>
 
-                <!-- Pfeil -->
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@android:drawable/arrow_up_float"
-                    app:tint="#44FFD700"
-                    android:rotation="90"/>
             </LinearLayout>
 
             <!-- ──────────────────────────────
@@ -238,13 +231,6 @@
                         android:textColor="@color/text_tertiary"
                         android:fontFamily="sans-serif"/>
                 </LinearLayout>
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@android:drawable/arrow_up_float"
-                    app:tint="#44FFD700"
-                    android:rotation="90"/>
             </LinearLayout>
 
             <!-- ──────────────────────────────
@@ -308,13 +294,6 @@
                         android:textColor="@color/text_tertiary"
                         android:fontFamily="sans-serif"/>
                 </LinearLayout>
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@android:drawable/arrow_up_float"
-                    app:tint="#44FFD700"
-                    android:rotation="90"/>
             </LinearLayout>
 
         </LinearLayout>
