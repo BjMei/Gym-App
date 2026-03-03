@@ -3,6 +3,8 @@ package com.example.gym_app;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
