@@ -41,4 +41,47 @@
     <string name="nav_stats_emoji">Statistik</string>
     <string name="nav_progress_emoji">Fortschritt</string>
     <string name="nav_settings">Einstellungen</string>
+
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_subtitle">Passe dein Profil, Ziele und die Darstellung der App an.</string>
+    <string name="settings_profile_goals">Profil &amp; Ziele</string>
+    <string name="settings_name">Name</string>
+    <string name="settings_weight">Gewicht</string>
+    <string name="settings_calorie_goal">Kalorienziel (kcal)</string>
+    <string name="settings_display">Darstellung</string>
+    <string name="settings_save">Speichern</string>
+    <string name="settings_saved">Einstellungen gespeichert</string>
+
+    <string name="settings_goal_muscle">Muskelaufbau</string>
+    <string name="settings_goal_weight_loss">Abnehmen</string>
+
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_light">Light</string>
+
+    <string name="settings_unit_kg">kg</string>
+    <string name="settings_unit_lbs">lbs</string>
+
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_english">English</string>
+
+    <string-array name="settings_goals">
+        <item>@string/settings_goal_muscle</item>
+        <item>@string/settings_goal_weight_loss</item>
+    </string-array>
+
+    <string-array name="settings_theme_options">
+        <item>@string/settings_theme_dark</item>
+        <item>@string/settings_theme_light</item>
+    </string-array>
+
+    <string-array name="settings_units_options">
+        <item>@string/settings_unit_kg</item>
+        <item>@string/settings_unit_lbs</item>
+    </string-array>
+
+    <string-array name="settings_language_options">
+        <item>@string/settings_language_german</item>
+        <item>@string/settings_language_english</item>
+    </string-array>
+
 </resources>

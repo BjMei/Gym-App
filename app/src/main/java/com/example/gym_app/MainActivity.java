@@ -54,16 +54,23 @@ public class MainActivity extends AppCompatActivity {
 
         popupMenu.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();
+            if (itemId == R.id.menu_settings) {
+                openSettings();
+                return true;
+            }
             if (itemId == R.id.menu_workout) {
                 startActivity(new Intent(MainActivity.this, WorkoutActivity.class));
                 return true;
-            } else if (itemId == R.id.menu_history) {
+            }
+            if (itemId == R.id.menu_history) {
                 startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
                 return true;
-            } else if (itemId == R.id.menu_stats) {
+            }
+            if (itemId == R.id.menu_stats) {
                 startActivity(new Intent(MainActivity.this, StatistikActivity.class));
                 return true;
-            } else if (itemId == R.id.menu_progress) {
+            }
+            if (itemId == R.id.menu_progress) {
                 startActivity(new Intent(MainActivity.this, FortschrittActivity.class));
                 return true;
             } else if (itemId == R.id.menu_settings) {
@@ -74,6 +81,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         popupMenu.show();
+    }
+
+    private void openSettings() {
+        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
     }
 
     private void applyWindowInsets() {
