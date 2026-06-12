@@ -19,6 +19,7 @@
     <color name="training_gold">#C9A961</color>
     <color name="training_gold_highlight">#D8BE78</color>
     <color name="training_gold_pressed">#A98543</color>
+    <color name="timer_active_green">#09B300</color>
     
     <!-- Gradient Gold -->
     <color name="gradient_gold_start">#FFD700</color>

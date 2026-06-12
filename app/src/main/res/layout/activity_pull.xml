@@ -127,6 +127,7 @@
          SCROLLABLE CONTENT
     ═══════════════════════════════════════════════ -->
     <ScrollView
+        android:id="@+id/trainingScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -467,24 +468,32 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/btnSave"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSaveTraining"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="16dp"
-                    android:background="@drawable/bg_training_primary_action"
                     android:clickable="true"
                     android:elevation="3dp"
                     android:focusable="true"
                     android:fontFamily="sans-serif-black"
                     android:gravity="center"
+                    android:insetBottom="0dp"
+                    android:insetTop="0dp"
                     android:letterSpacing="0.08"
                     android:text="@string/training_save_workout"
+                    android:textAllCaps="false"
                     android:textColor="@color/black"
                     android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/training_gold_highlight"
+                    app:cornerRadius="14dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:rippleColor="@color/training_gold_pressed"
+                    app:strokeWidth="0dp" />
             </LinearLayout>
 
             <!-- ─────────────────────────────────
@@ -770,23 +779,35 @@
                     android:gravity="center"
                     android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/btnSaveCardio"
+                    <FrameLayout
                         android:layout_width="0dp"
                         android:layout_height="50dp"
                         android:layout_weight="1"
-                        android:background="@drawable/bg_training_primary_action"
-                        android:clickable="true"
-                        android:contentDescription="@string/training_save_cardio"
-                        android:elevation="3dp"
-                        android:focusable="true"
-                        android:fontFamily="sans-serif-black"
-                        android:gravity="center"
-                        android:letterSpacing="0.06"
-                        android:text="@string/training_save"
-                        android:textColor="@color/black"
-                        android:textSize="11sp"
-                        android:layout_marginEnd="10dp"/>
+                        android:layout_marginEnd="10dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSaveCardio"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/training_save_cardio"
+                            android:elevation="3dp"
+                            android:fontFamily="sans-serif-black"
+                            android:gravity="center"
+                            android:insetBottom="0dp"
+                            android:insetTop="0dp"
+                            android:letterSpacing="0.06"
+                            android:text="@string/training_save"
+                            android:textAllCaps="false"
+                            android:textColor="@color/black"
+                            android:textSize="11sp"
+                            app:backgroundTint="@color/training_gold_highlight"
+                            app:cornerRadius="14dp"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            app:rippleColor="@color/training_gold_pressed"
+                            app:strokeWidth="0dp" />
+                    </FrameLayout>
 
                     <LinearLayout
                         android:id="@+id/btnEditCardio"

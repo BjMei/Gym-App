@@ -23,11 +23,13 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.android.material.button.MaterialButton;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,15 +49,17 @@ public class PushActivity extends IronxActivity {
     private EditText[] etReps;
     private EditText[] etSecondWeights;
     private EditText[] etSecondReps;
-    private TextView btnSave;
+    private MaterialButton btnSaveTraining;
+    private ScrollView trainingScrollView;
     private Spinner spinnerCardio;
     private EditText etCardioMinutes;
-    private View btnSaveCardio;
+    private MaterialButton btnSaveCardio;
     private View btnManageCardio;
     private LinearLayout llEntries;
     private LinearLayout llLastWorkout;
     private TextView tvLastWorkoutData;
     private TextView tvStopwatch;
+    private View timerCard;
     private LinearLayout llSecondExerciseSection;
     private LinearLayout llLastWorkoutSecond;
     private TextView tvLastWorkoutDataSecond;
@@ -65,8 +69,12 @@ public class PushActivity extends IronxActivity {
     private long timerBaseMs = 0L;
     private long elapsedWhenPausedMs = 0L;
     private boolean timerRunning = false;
+    private boolean exitDialogVisible = false;
     private String trainingSessionId;
+    private long workoutStartedElapsedMs;
     private static final String STATE_SESSION_ID = "training_session_id";
+    private static final String STATE_WORKOUT_STARTED =
+            "training_workout_started";
     private static final String STATE_TIMER_ELAPSED = "timer_elapsed";
     private static final String STATE_TIMER_RUNNING = "timer_running";
     private final Runnable timerRunnable = new Runnable() {
@@ -107,7 +115,8 @@ public class PushActivity extends IronxActivity {
         ivAccordionArrow = findViewById(R.id.ivAccordionArrow);
         btnExerciseSettings = findViewById(R.id.btnExerciseSettings);
         btnManageExercises = findViewById(R.id.btnManageExercises);
-        btnSave = findViewById(R.id.btnSave);
+        btnSaveTraining = findViewById(R.id.btnSaveTraining);
+        trainingScrollView = findViewById(R.id.trainingScrollView);
         spinnerCardio = findViewById(R.id.spinnerCardio);
         etCardioMinutes = findViewById(R.id.etCardioMinutes);
         btnSaveCardio = findViewById(R.id.btnSaveCardio);
@@ -116,6 +125,7 @@ public class PushActivity extends IronxActivity {
         llLastWorkout = findViewById(R.id.llLastWorkout);
         tvLastWorkoutData = findViewById(R.id.tvLastWorkoutData);
         tvStopwatch = findViewById(R.id.tvStopwatch);
+        timerCard = findViewById(R.id.timerCard);
         btnTimerStartPause = findViewById(R.id.btnStartStop);
         btnTimerReset = findViewById(R.id.btnReset);
         llSecondExerciseSection = findViewById(R.id.llSecondExercise);
@@ -167,11 +177,29 @@ public class PushActivity extends IronxActivity {
         // Listen für Einträge initialisieren
         workoutEntries = new ArrayList<>();
         cardioEntries = new ArrayList<>();
+        setupBackNavigation();
 
         // Button-Click-Listener
         btnToggleSecondExercise.setOnClickListener(v -> toggleSecondExerciseSection());
-        btnSave.setOnClickListener(v -> saveEntry());
-        btnSaveCardio.setOnClickListener(v -> saveCardioEntry());
+        btnSaveTraining.setOnClickListener(v -> {
+            btnSaveTraining.setEnabled(false);
+            if (saveEntry()) {
+                SaveSuccessButtonAnimator.play(
+                        btnSaveTraining,
+                        this::returnToExerciseSelection
+                );
+            } else {
+                btnSaveTraining.setEnabled(true);
+            }
+        });
+        btnSaveCardio.setOnClickListener(v -> {
+            btnSaveCardio.setEnabled(false);
+            if (saveCardioEntry()) {
+                SaveSuccessButtonAnimator.play(btnSaveCardio, null);
+            } else {
+                btnSaveCardio.setEnabled(true);
+            }
+        });
         btnManageCardio.setOnClickListener(v -> showManageCardioDialog());
         btnExerciseSettings.setOnClickListener(v -> showExerciseSettingsDialog());
         btnManageExercises.setOnClickListener(v -> showManageExercisesDialog());
@@ -268,29 +296,64 @@ public class PushActivity extends IronxActivity {
         if (timerRunning) {
             timerBaseMs = SystemClock.elapsedRealtime() - elapsedWhenPausedMs;
             btnTimerStartPause.setImageResource(R.drawable.ic_ironx_pause);
+            btnTimerStartPause.setContentDescription(
+                    getString(R.string.training_timer_pause)
+            );
+            TrainingTimerAnimator.setRunning(timerCard, true);
             timerHandler.post(timerRunnable);
+        } else {
+            btnTimerStartPause.setImageResource(R.drawable.ic_ironx_play);
+            btnTimerStartPause.setContentDescription(
+                    getString(R.string.training_timer_start)
+            );
         }
         btnTimerStartPause.setOnClickListener(v -> {
             if (timerRunning) {
                 elapsedWhenPausedMs = SystemClock.elapsedRealtime() - timerBaseMs;
                 timerRunning = false;
                 timerHandler.removeCallbacks(timerRunnable);
-                btnTimerStartPause.setImageResource(R.drawable.ic_ironx_play);
+                TrainingTimerAnimator.changeButtonState(
+                        btnTimerStartPause,
+                        R.drawable.ic_ironx_play
+                );
+                btnTimerStartPause.setContentDescription(
+                        getString(R.string.training_timer_start)
+                );
+                TrainingTimerAnimator.setRunning(timerCard, false);
             } else {
                 timerBaseMs = SystemClock.elapsedRealtime() - elapsedWhenPausedMs;
                 timerRunning = true;
-                btnTimerStartPause.setImageResource(R.drawable.ic_ironx_pause);
+                TrainingTimerAnimator.changeButtonState(
+                        btnTimerStartPause,
+                        R.drawable.ic_ironx_pause
+                );
+                btnTimerStartPause.setContentDescription(
+                        getString(R.string.training_timer_pause)
+                );
+                TrainingTimerAnimator.setRunning(timerCard, true);
                 timerHandler.post(timerRunnable);
             }
         });
 
         btnTimerReset.setOnClickListener(v -> {
+            boolean wasRunning = timerRunning;
             timerRunning = false;
             timerHandler.removeCallbacks(timerRunnable);
             timerBaseMs = 0L;
             elapsedWhenPausedMs = 0L;
             updateStopwatchText(0L);
-            btnTimerStartPause.setImageResource(R.drawable.ic_ironx_play);
+            if (wasRunning) {
+                TrainingTimerAnimator.changeButtonState(
+                        btnTimerStartPause,
+                        R.drawable.ic_ironx_play
+                );
+            } else {
+                btnTimerStartPause.setImageResource(R.drawable.ic_ironx_play);
+            }
+            btnTimerStartPause.setContentDescription(
+                    getString(R.string.training_timer_start)
+            );
+            TrainingTimerAnimator.setRunning(timerCard, false);
         });
     }
 
@@ -304,11 +367,16 @@ public class PushActivity extends IronxActivity {
     private void restoreSessionState(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             trainingSessionId = UUID.randomUUID().toString();
+            workoutStartedElapsedMs = SystemClock.elapsedRealtime();
             return;
         }
         trainingSessionId = savedInstanceState.getString(
                 STATE_SESSION_ID,
                 UUID.randomUUID().toString()
+        );
+        workoutStartedElapsedMs = savedInstanceState.getLong(
+                STATE_WORKOUT_STARTED,
+                SystemClock.elapsedRealtime()
         );
         elapsedWhenPausedMs = savedInstanceState.getLong(STATE_TIMER_ELAPSED, 0L);
         timerRunning = savedInstanceState.getBoolean(STATE_TIMER_RUNNING, false);
@@ -320,12 +388,19 @@ public class PushActivity extends IronxActivity {
                 : elapsedWhenPausedMs;
     }
 
-    private void saveCurrentTrainingDuration(long minimumDurationMs) {
+    private long getCurrentWorkoutDurationMs() {
+        return Math.max(
+                0L,
+                SystemClock.elapsedRealtime() - workoutStartedElapsedMs
+        );
+    }
+
+    private void saveCurrentTrainingDuration() {
         WorkoutStorage.saveTrainingSession(
                 this,
                 trainingSessionId,
                 WORKOUT_TYPE,
-                Math.max(getCurrentElapsedMs(), minimumDurationMs)
+                getCurrentWorkoutDurationMs()
         );
     }
 
@@ -770,18 +845,18 @@ public class PushActivity extends IronxActivity {
         dialog.show();
     }
 
-    private void saveEntry() {
+    private boolean saveEntry() {
         Object selectedExerciseObj = spinnerExercise.getSelectedItem();
         String exercise = selectedExerciseObj == null ? "" : selectedExerciseObj.toString();
 
         if (exercise == null || exercise.isEmpty()) {
             Toast.makeText(this, "Bitte Übung auswählen", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
 
         List<Set> primarySets = parseSetsFromInputs(etWeights, etReps, "Hauptübung");
         if (primarySets == null) {
-            return;
+            return false;
         }
 
         Object secondExerciseObj = spinnerExerciseSecond.getSelectedItem();
@@ -792,29 +867,32 @@ public class PushActivity extends IronxActivity {
         if (secondHasInput) {
             if (secondExercise == null || secondExercise.isEmpty()) {
                 Toast.makeText(this, "Bitte 2. Übung auswählen", Toast.LENGTH_SHORT).show();
-                return;
+                return false;
             }
             if (exercise.equalsIgnoreCase(secondExercise)) {
                 Toast.makeText(this, "Bitte eine andere 2. Übung wählen", Toast.LENGTH_SHORT).show();
-                return;
+                return false;
             }
 
             secondSets = parseSetsFromInputs(etSecondWeights, etSecondReps, "2. Übung");
             if (secondSets == null) {
-                return;
+                return false;
             }
         }
 
-        saveWorkoutExercise(exercise, primarySets);
-        if (secondHasInput && secondSets != null) {
-            saveWorkoutExercise(secondExercise, secondSets);
+        boolean saved = saveWorkoutExercise(exercise, primarySets);
+        if (saved && secondHasInput && secondSets != null) {
+            saved = saveWorkoutExercise(secondExercise, secondSets);
         }
-        saveCurrentTrainingDuration(0L);
-
-        TrainingSaveFeedback.show(btnSave);
+        if (!saved) {
+            Toast.makeText(this, R.string.training_save_failed, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        saveCurrentTrainingDuration();
 
         clearInputFields();
         loadLastWorkout(exercise);
+        return true;
     }
 
     private List<Set> parseSetsFromInputs(EditText[] weights, EditText[] reps, String label) {
@@ -851,20 +929,31 @@ public class PushActivity extends IronxActivity {
         return false;
     }
 
-    private void saveWorkoutExercise(String exercise, List<Set> sets) {
-        WorkoutEntry entry = new WorkoutEntry(exercise, sets);
-        workoutEntries.add(entry);
-        addEntryToView(entry);
-        saveWorkoutSummary(exercise, sets);
-
+    private boolean saveWorkoutExercise(String exercise, List<Set> sets) {
         List<WorkoutStorage.WorkoutSet> storageSets = new ArrayList<>();
         for (Set set : sets) {
             storageSets.add(new WorkoutStorage.WorkoutSet(set.getWeight(), set.getReps()));
         }
-        WorkoutStorage.saveDetailedWorkout(this, WORKOUT_TYPE, exercise, storageSets);
+        boolean detailedSaved =
+                WorkoutStorage.saveDetailedWorkout(
+                        this,
+                        WORKOUT_TYPE,
+                        trainingSessionId,
+                        exercise,
+                        storageSets
+                );
+        boolean summarySaved = detailedSaved && saveWorkoutSummary(exercise, sets);
+        if (!summarySaved) {
+            return false;
+        }
+
+        WorkoutEntry entry = new WorkoutEntry(exercise, sets);
+        workoutEntries.add(entry);
+        addEntryToView(entry);
+        return true;
     }
 
-    private void saveWorkoutSummary(String exercise, List<Set> sets) {
+    private boolean saveWorkoutSummary(String exercise, List<Set> sets) {
         StringBuilder builder = new StringBuilder();
         builder.append(exercise).append(": ");
         for (int i = 0; i < sets.size(); i++) {
@@ -881,7 +970,7 @@ public class PushActivity extends IronxActivity {
         }
         String timestamp = new SimpleDateFormat("dd.MM. HH:mm", Locale.getDefault()).format(new Date());
         builder.append(" • ").append(timestamp);
-        WorkoutStorage.addWorkout(this, WORKOUT_TYPE, builder.toString());
+        return WorkoutStorage.addWorkout(this, WORKOUT_TYPE, builder.toString());
     }
 
     private void clearInputFields() {
@@ -958,7 +1047,10 @@ public class PushActivity extends IronxActivity {
 
         // Zur LinearLayout hinzufügen
         llEntries.addView(exerciseContainer);
-        TrainingSaveFeedback.revealSavedEntry(exerciseContainer);
+    }
+
+    private void returnToExerciseSelection() {
+        trainingScrollView.post(() -> trainingScrollView.smoothScrollTo(0, 0));
     }
 
     private void configureWeightUnit() {
@@ -971,7 +1063,7 @@ public class PushActivity extends IronxActivity {
         }
     }
 
-    private void saveCardioEntry() {
+    private boolean saveCardioEntry() {
         // Cardio-Übung aus Spinner auslesen
         Object selectedCardioObj = spinnerCardio.getSelectedItem();
         String cardioExercise = selectedCardioObj == null ? "" : selectedCardioObj.toString();
@@ -980,26 +1072,36 @@ public class PushActivity extends IronxActivity {
         // Validierung
         if (cardioExercise == null || cardioExercise.isEmpty()) {
             Toast.makeText(this, "Bitte Cardio-Übung auswählen", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
 
         if (minutesStr.isEmpty()) {
             Toast.makeText(this, "Bitte Zeit in Minuten eingeben", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
 
         try {
             int minutes = Integer.parseInt(minutesStr);
             if (minutes <= 0) {
                 Toast.makeText(this, "Bitte eine gültige Zeit eingeben", Toast.LENGTH_SHORT).show();
-                return;
+                return false;
             }
 
-            // Cardio-Eintrag erstellen, anzeigen und speichern
+            boolean saved = WorkoutStorage.saveCardioSession(
+                    this,
+                    WORKOUT_TYPE,
+                    trainingSessionId,
+                    cardioExercise,
+                    minutes
+            );
+            if (!saved) {
+                Toast.makeText(this, R.string.training_save_failed, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
             CardioEntry entry = new CardioEntry(cardioExercise, minutes);
             cardioEntries.add(entry);
-            WorkoutStorage.saveCardioSession(this, WORKOUT_TYPE, cardioExercise, minutes);
-            saveCurrentTrainingDuration(minutes * 60_000L);
+            saveCurrentTrainingDuration();
 
             // Eintrag in der UI anzeigen
             addCardioEntryToView(entry);
@@ -1008,11 +1110,10 @@ public class PushActivity extends IronxActivity {
             spinnerCardio.setSelection(0);
             etCardioMinutes.setText("");
 
-            Toast.makeText(this, String.format("Cardio '%s' gespeichert (%d Minuten)", 
-                cardioExercise, minutes), Toast.LENGTH_SHORT).show();
-
+            return true;
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Ungültige Eingabe für Minuten", Toast.LENGTH_SHORT).show();
+            return false;
         }
     }
 
@@ -1070,17 +1171,91 @@ public class PushActivity extends IronxActivity {
         llEntries.addView(cardioContainer);
     }
 
+    private void setupBackNavigation() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                showTrainingExitDialog();
+            }
+        });
+    }
+
+    private void showTrainingExitDialog() {
+        if (exitDialogVisible) {
+            return;
+        }
+        exitDialogVisible = true;
+        boolean resumeTimer = pauseTimerForExitDialog();
+        TrainingExitDialog.show(
+                this,
+                trainingSessionId,
+                WORKOUT_TYPE,
+                workoutStartedElapsedMs,
+                hasUnsavedTrainingInput(),
+                () -> {
+                    exitDialogVisible = false;
+                    if (resumeTimer) {
+                        resumeTimerAfterExitDialog();
+                    }
+                },
+                () -> {
+                    exitDialogVisible = false;
+                    finish();
+                }
+        );
+    }
+
+    private boolean pauseTimerForExitDialog() {
+        if (!timerRunning) {
+            return false;
+        }
+        elapsedWhenPausedMs = SystemClock.elapsedRealtime() - timerBaseMs;
+        timerRunning = false;
+        timerHandler.removeCallbacks(timerRunnable);
+        TrainingTimerAnimator.changeButtonState(
+                btnTimerStartPause,
+                R.drawable.ic_ironx_play
+        );
+        btnTimerStartPause.setContentDescription(
+                getString(R.string.training_timer_start)
+        );
+        TrainingTimerAnimator.setRunning(timerCard, false);
+        return true;
+    }
+
+    private void resumeTimerAfterExitDialog() {
+        timerBaseMs = SystemClock.elapsedRealtime() - elapsedWhenPausedMs;
+        timerRunning = true;
+        TrainingTimerAnimator.changeButtonState(
+                btnTimerStartPause,
+                R.drawable.ic_ironx_pause
+        );
+        btnTimerStartPause.setContentDescription(
+                getString(R.string.training_timer_pause)
+        );
+        TrainingTimerAnimator.setRunning(timerCard, true);
+        timerHandler.post(timerRunnable);
+    }
+
+    private boolean hasUnsavedTrainingInput() {
+        return hasAnyInput(etWeights, etReps)
+                || hasAnyInput(etSecondWeights, etSecondReps)
+                || !etCardioMinutes.getText().toString().trim().isEmpty();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         if (timerRunning) {
             timerHandler.post(timerRunnable);
+            TrainingTimerAnimator.setRunning(timerCard, true);
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(STATE_SESSION_ID, trainingSessionId);
+        outState.putLong(STATE_WORKOUT_STARTED, workoutStartedElapsedMs);
         outState.putLong(STATE_TIMER_ELAPSED, getCurrentElapsedMs());
         outState.putBoolean(STATE_TIMER_RUNNING, timerRunning);
         super.onSaveInstanceState(outState);
@@ -1090,12 +1265,14 @@ public class PushActivity extends IronxActivity {
     protected void onPause() {
         super.onPause();
         timerHandler.removeCallbacks(timerRunnable);
+        TrainingTimerAnimator.suspend(timerCard);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         timerHandler.removeCallbacks(timerRunnable);
+        TrainingTimerAnimator.release(timerCard);
     }
 
     // Innere Klasse für einen Satz

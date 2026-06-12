@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/timerCard"
     android:layout_width="match_parent"
     android:layout_height="64dp"
     android:layout_marginStart="16dp"
@@ -42,8 +43,8 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginEnd="8dp"
-        android:background="@drawable/bg_training_primary_action"
-        android:contentDescription="Start/Stop"
+        android:background="@drawable/bg_timer_action_circle"
+        android:contentDescription="@string/training_timer_start"
         android:padding="10dp"
         android:scaleType="centerInside"
         android:src="@drawable/ic_ironx_play"

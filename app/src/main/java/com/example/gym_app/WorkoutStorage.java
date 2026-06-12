@@ -23,9 +23,18 @@ public class WorkoutStorage {
     public static final String TYPE_LEG = "leg";
 
     // Strukturierte Trainingsdaten speichern
-    public static void saveDetailedWorkout(Context context, String type, String exercise, List<WorkoutSet> sets) {
+    public static boolean saveDetailedWorkout(Context context, String type, String exercise, List<WorkoutSet> sets) {
+        return saveDetailedWorkout(context, type, "", exercise, sets);
+    }
+
+    public static boolean saveDetailedWorkout(
+            Context context,
+            String type,
+            String sessionId,
+            String exercise,
+            List<WorkoutSet> sets) {
         if (exercise == null || exercise.isEmpty() || sets == null || sets.isEmpty()) {
-            return;
+            return false;
         }
         
         SharedPreferences prefs = context.getSharedPreferences(PREFS_DETAILED, Context.MODE_PRIVATE);
@@ -36,6 +45,7 @@ public class WorkoutStorage {
         JSONObject workout = new JSONObject();
         try {
             workout.put("exercise", exercise);
+            workout.put("sessionId", sessionId == null ? "" : sessionId);
             workout.put("timestamp", new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(new Date()));
             
             JSONArray setsArray = new JSONArray();
@@ -54,15 +64,25 @@ public class WorkoutStorage {
                 newArray.put(storedArray.getJSONObject(i));
             }
             
-            prefs.edit().putString(type, newArray.toString()).apply();
+            return prefs.edit().putString(type, newArray.toString()).commit();
         } catch (JSONException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
     public static void saveCardioSession(Context context, String type, String exercise, int minutes) {
+        saveCardioSession(context, type, "", exercise, minutes);
+    }
+
+    public static boolean saveCardioSession(
+            Context context,
+            String type,
+            String sessionId,
+            String exercise,
+            int minutes) {
         if (exercise == null || exercise.isEmpty() || minutes <= 0) {
-            return;
+            return false;
         }
 
         SharedPreferences prefs = context.getSharedPreferences(PREFS_CARDIO, Context.MODE_PRIVATE);
@@ -73,6 +93,7 @@ public class WorkoutStorage {
         try {
             session.put("exercise", exercise);
             session.put("minutes", minutes);
+            session.put("sessionId", sessionId == null ? "" : sessionId);
             session.put("timestamp", new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(new Date()));
 
             newArray.put(session);
@@ -82,9 +103,10 @@ public class WorkoutStorage {
                 newArray.put(storedArray.getJSONObject(i));
             }
 
-            prefs.edit().putString(type, newArray.toString()).apply();
+            return prefs.edit().putString(type, newArray.toString()).commit();
         } catch (JSONException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -202,7 +224,13 @@ public class WorkoutStorage {
                     sets.add(new WorkoutSet(setObj.getDouble("weight"), setObj.getInt("reps")));
                 }
                 
-                workouts.add(new DetailedWorkout(exercise, timestamp, sets, type));
+                workouts.add(new DetailedWorkout(
+                        exercise,
+                        timestamp,
+                        sets,
+                        type,
+                        workout.optString("sessionId", "")
+                ));
             } catch (JSONException ignored) {
             }
         }
@@ -222,12 +250,25 @@ public class WorkoutStorage {
                     session.getString("exercise"),
                     session.getInt("minutes"),
                     session.getString("timestamp"),
-                    type
+                    type,
+                    session.optString("sessionId", "")
                 ));
             } catch (JSONException ignored) {
             }
         }
         return sessions;
+    }
+
+    public static long getTrainingSessionDuration(Context context, String sessionId) {
+        if (sessionId == null || sessionId.trim().isEmpty()) {
+            return 0L;
+        }
+        for (TrainingSession session : getTrainingSessions(context)) {
+            if (sessionId.equals(session.sessionId)) {
+                return session.durationMs;
+            }
+        }
+        return 0L;
     }
 
     // Trainings nach Tagen gruppieren
@@ -390,9 +431,9 @@ public class WorkoutStorage {
     }
 
     // Alte Methode für Rückwärtskompatibilität
-    public static void addWorkout(Context context, String type, String summary) {
+    public static boolean addWorkout(Context context, String type, String summary) {
         if (summary == null || summary.isEmpty()) {
-            return;
+            return false;
         }
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         JSONArray storedArray = parseArray(prefs.getString(type, "[]"));
@@ -407,7 +448,7 @@ public class WorkoutStorage {
             }
         }
 
-        prefs.edit().putString(type, newArray.toString()).apply();
+        return prefs.edit().putString(type, newArray.toString()).commit();
     }
 
     public static List<String> getWorkouts(Context context, String type) {
@@ -475,16 +516,27 @@ public class WorkoutStorage {
         public String timestamp;
         public List<WorkoutSet> sets;
         public String workoutType;
+        public String sessionId;
 
         public DetailedWorkout(String exercise, String timestamp, List<WorkoutSet> sets) {
             this(exercise, timestamp, sets, "");
         }
 
         public DetailedWorkout(String exercise, String timestamp, List<WorkoutSet> sets, String workoutType) {
+            this(exercise, timestamp, sets, workoutType, "");
+        }
+
+        public DetailedWorkout(
+                String exercise,
+                String timestamp,
+                List<WorkoutSet> sets,
+                String workoutType,
+                String sessionId) {
             this.exercise = exercise;
             this.timestamp = timestamp;
             this.sets = sets;
             this.workoutType = workoutType;
+            this.sessionId = sessionId;
         }
     }
 
@@ -519,16 +571,27 @@ public class WorkoutStorage {
         public int minutes;
         public String timestamp;
         public String workoutType;
+        public String sessionId;
 
         public CardioSession(String exercise, int minutes, String timestamp) {
-            this(exercise, minutes, timestamp, "");
+            this(exercise, minutes, timestamp, "", "");
         }
 
         public CardioSession(String exercise, int minutes, String timestamp, String workoutType) {
+            this(exercise, minutes, timestamp, workoutType, "");
+        }
+
+        public CardioSession(
+                String exercise,
+                int minutes,
+                String timestamp,
+                String workoutType,
+                String sessionId) {
             this.exercise = exercise;
             this.minutes = minutes;
             this.timestamp = timestamp;
             this.workoutType = workoutType;
+            this.sessionId = sessionId;
         }
     }
 
