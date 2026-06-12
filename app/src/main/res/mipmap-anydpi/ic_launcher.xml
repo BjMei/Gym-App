@@ -8,5 +8,5 @@
     <!-- Hintergrundfarbe (passt zum dunklen Neon-Look) -->
     <background android:drawable="@color/ic_launcher_background" />
     <!-- Vordergrund: unsere Neon-Hantel -->
-    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <foreground android:drawable="@drawable/ironx_launcher_foreground" />
 </adaptive-icon>

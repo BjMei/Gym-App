@@ -2,8 +2,15 @@ package com.example.gym_app;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.transition.TransitionManager;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -13,19 +20,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
-public class TrainingHistoryActivity extends AppCompatActivity {
+public class TrainingHistoryActivity extends IronxActivity {
 
     public static final String EXTRA_WORKOUT_TYPE = "extra_workout_type";
     public static final String EXTRA_WORKOUT_TITLE = "extra_workout_title";
-
     private TextView tvEmptyState;
+    private TextView tvSessionCount;
     private LinearLayout listContainer;
+    private boolean showingAllWorkoutTypes;
+    private String weightUnit;
+    private double weightFactor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +42,12 @@ public class TrainingHistoryActivity extends AppCompatActivity {
         TextView tvTitle = findViewById(R.id.tvHistoryTitle);
         View rootLayout = findViewById(R.id.rootHistoryLayout);
         tvEmptyState = findViewById(R.id.tvEmptyState);
+        tvSessionCount = findViewById(R.id.tvHistorySessionCount);
         listContainer = findViewById(R.id.historyListContainer);
+        findViewById(R.id.btnBackHistory).setOnClickListener(v -> finish());
+
+        weightUnit = AppSettings.getWeightUnit(this);
+        weightFactor = AppSettings.fromStoredKg(this, 1.0);
 
         int basePaddingLeft = rootLayout.getPaddingLeft();
         int basePaddingTop = rootLayout.getPaddingTop();
@@ -58,9 +70,9 @@ public class TrainingHistoryActivity extends AppCompatActivity {
         String title = getIntent().getStringExtra(EXTRA_WORKOUT_TITLE);
 
         if (title == null || title.trim().isEmpty()) {
-            title = "Trainingsverlauf";
+            title = getString(R.string.history_default_title);
         }
-        tvTitle.setText(title);
+        tvTitle.setText(normalizeTitle(title));
 
         populateHistory(workoutType);
     }
@@ -71,8 +83,15 @@ public class TrainingHistoryActivity extends AppCompatActivity {
         if (workoutType == null) {
             workoutType = "";
         }
+        showingAllWorkoutTypes = workoutType.trim().isEmpty();
 
-        List<WorkoutStorage.DailyWorkout> dailyWorkouts = WorkoutStorage.getDailyWorkouts(this, workoutType);
+        List<WorkoutStorage.DailyWorkout> dailyWorkouts =
+                WorkoutStorage.getHistoryWorkouts(this, workoutType);
+        tvSessionCount.setText(getResources().getQuantityString(
+                R.plurals.history_session_count,
+                dailyWorkouts.size(),
+                dailyWorkouts.size()
+        ));
         if (dailyWorkouts.isEmpty()) {
             tvEmptyState.setVisibility(View.VISIBLE);
             return;
@@ -89,28 +108,108 @@ public class TrainingHistoryActivity extends AppCompatActivity {
     private View createDayCard(WorkoutStorage.DailyWorkout day) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setBackgroundResource(R.drawable.rounded_card);
-        card.setPadding(dpToPx(18), dpToPx(16), dpToPx(18), dpToPx(16));
+        card.setBackgroundResource(R.drawable.bg_history_session);
+        card.setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14));
 
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        cardParams.bottomMargin = dpToPx(14);
+        cardParams.bottomMargin = dpToPx(12);
         card.setLayoutParams(cardParams);
 
-        TextView tvDate = new TextView(this);
-        String dayWorkoutLabel = getDayWorkoutLabel(day);
-        if (dayWorkoutLabel.isEmpty()) {
-            tvDate.setText(day.date);
-        } else {
-            tvDate.setText(String.format(Locale.getDefault(), "%s  •  %s", day.date, dayWorkoutLabel));
-        }
-        tvDate.setTextColor(ContextCompat.getColor(this, R.color.gold_primary));
-        tvDate.setTextSize(15);
+        LinearLayout header = new LinearLayout(this);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setClickable(true);
+        header.setFocusable(true);
+        header.setMinimumHeight(dpToPx(56));
+        card.addView(header, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+
+        LinearLayout heading = new LinearLayout(this);
+        heading.setOrientation(LinearLayout.VERTICAL);
+        header.addView(heading, new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+        ));
+
+        TextView tvDate = createTextView(
+                day.date,
+                16,
+                R.color.text_primary,
+                Typeface.BOLD
+        );
         tvDate.setTypeface(Typeface.create("sans-serif-black", Typeface.BOLD));
-        tvDate.setLetterSpacing(0.04f);
-        card.addView(tvDate);
+        tvDate.setLetterSpacing(0.05f);
+        heading.addView(tvDate);
+
+        TextView tvSummary = createTextView(
+                buildDaySummary(day),
+                10,
+                R.color.text_tertiary,
+                Typeface.NORMAL
+        );
+        LinearLayout.LayoutParams summaryParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        summaryParams.topMargin = dpToPx(3);
+        tvSummary.setLayoutParams(summaryParams);
+        heading.addView(tvSummary);
+
+        LinearLayout headerActions = new LinearLayout(this);
+        headerActions.setOrientation(LinearLayout.HORIZONTAL);
+        headerActions.setGravity(Gravity.CENTER_VERTICAL);
+        header.addView(headerActions);
+
+        String dayWorkoutLabel = getDayWorkoutLabel(day);
+        if (!dayWorkoutLabel.isEmpty()) {
+            TextView typeChip = createTextView(
+                    dayWorkoutLabel.replace("-", " ").toUpperCase(Locale.GERMAN),
+                    8,
+                    R.color.training_gold_highlight,
+                    Typeface.BOLD
+            );
+            typeChip.setBackgroundResource(R.drawable.bg_home_chip);
+            typeChip.setGravity(Gravity.CENTER);
+            typeChip.setLetterSpacing(0.07f);
+            typeChip.setPadding(dpToPx(10), 0, dpToPx(10), 0);
+            headerActions.addView(typeChip, new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    dpToPx(28)
+            ));
+        }
+
+        ImageView expandIcon = new ImageView(this);
+        boolean expandedByDefault = AppSettings.historyExpanded(this);
+        expandIcon.setImageResource(
+                expandedByDefault
+                        ? R.drawable.ic_ironx_chevron_up
+                        : R.drawable.ic_ironx_chevron_down
+        );
+        expandIcon.setContentDescription(
+                expandedByDefault
+                        ? getString(R.string.history_collapse_session)
+                        : getString(R.string.history_expand_session)
+        );
+        LinearLayout.LayoutParams expandParams = new LinearLayout.LayoutParams(
+                dpToPx(28),
+                dpToPx(28)
+        );
+        expandParams.leftMargin = dpToPx(8);
+        headerActions.addView(expandIcon, expandParams);
+
+        LinearLayout details = new LinearLayout(this);
+        details.setOrientation(LinearLayout.VERTICAL);
+        details.setVisibility(expandedByDefault ? View.VISIBLE : View.GONE);
+        card.addView(details, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
 
         View divider = new View(this);
         divider.setBackgroundColor(ContextCompat.getColor(this, R.color.divider));
@@ -118,110 +217,364 @@ public class TrainingHistoryActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 dpToPx(1)
         );
-        dividerParams.topMargin = dpToPx(10);
-        dividerParams.bottomMargin = dpToPx(12);
+        dividerParams.topMargin = dpToPx(13);
+        dividerParams.bottomMargin = dpToPx(2);
         divider.setLayoutParams(dividerParams);
-        card.addView(divider);
+        details.addView(divider);
 
         if (day.exercises != null && !day.exercises.isEmpty()) {
             for (WorkoutStorage.DetailedWorkout workout : day.exercises) {
-                card.addView(createExerciseLine(workout));
+                details.addView(createExerciseCard(workout));
             }
         }
 
         if (day.cardioSessions != null && !day.cardioSessions.isEmpty()) {
-            TextView cardioTitle = new TextView(this);
-            cardioTitle.setText("Cardio");
-            cardioTitle.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
-            cardioTitle.setTextSize(14);
-            cardioTitle.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
-            LinearLayout.LayoutParams cardioTitleParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            cardioTitleParams.topMargin = dpToPx(6);
-            cardioTitleParams.bottomMargin = dpToPx(6);
-            cardioTitle.setLayoutParams(cardioTitleParams);
-            card.addView(cardioTitle);
-
             for (WorkoutStorage.CardioSession cardioSession : day.cardioSessions) {
-                card.addView(createCardioLine(cardioSession));
+                details.addView(createCardioCard(cardioSession));
             }
         }
+
+        header.setContentDescription(getString(
+                R.string.history_header_show_details,
+                day.date,
+                dayWorkoutLabel,
+                buildDaySummary(day)
+        ));
+        header.setOnClickListener(view -> {
+            boolean expanding = details.getVisibility() != View.VISIBLE;
+            if (AppSettings.animationsEnabled(this)) {
+                TransitionManager.beginDelayedTransition(card);
+            }
+            details.setVisibility(expanding ? View.VISIBLE : View.GONE);
+            expandIcon.setImageResource(
+                    expanding
+                            ? R.drawable.ic_ironx_chevron_up
+                            : R.drawable.ic_ironx_chevron_down
+            );
+            expandIcon.setContentDescription(
+                    expanding
+                            ? getString(R.string.history_collapse_session)
+                            : getString(R.string.history_expand_session)
+            );
+            header.setContentDescription(getString(
+                    expanding
+                            ? R.string.history_header_hide_details
+                            : R.string.history_header_show_details,
+                    day.date,
+                    dayWorkoutLabel,
+                    buildDaySummary(day)
+            ));
+        });
 
         return card;
     }
 
-    private View createExerciseLine(WorkoutStorage.DetailedWorkout workout) {
-        TextView line = new TextView(this);
-        StringBuilder builder = new StringBuilder();
-        String workoutLabel = getWorkoutTypeLabel(workout.workoutType);
-        if (!workoutLabel.isEmpty()) {
-            builder.append("[").append(workoutLabel).append("] ");
-        }
-        builder.append(workout.exercise).append(": ");
+    private View createExerciseCard(WorkoutStorage.DetailedWorkout workout) {
+        LinearLayout exerciseCard = new LinearLayout(this);
+        exerciseCard.setOrientation(LinearLayout.VERTICAL);
+        exerciseCard.setBackgroundResource(R.drawable.bg_history_exercise);
+        exerciseCard.setPadding(dpToPx(13), dpToPx(12), dpToPx(13), dpToPx(12));
 
-        if (workout.sets != null && !workout.sets.isEmpty()) {
-            for (int i = 0; i < workout.sets.size(); i++) {
-                WorkoutStorage.WorkoutSet set = workout.sets.get(i);
-                builder.append(String.format(Locale.getDefault(), "%.1f kg × %d", set.weight, set.reps));
-                if (i < workout.sets.size() - 1) {
-                    builder.append(" | ");
+        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        cardParams.topMargin = dpToPx(10);
+        exerciseCard.setLayoutParams(cardParams);
+
+        LinearLayout titleRow = new LinearLayout(this);
+        titleRow.setOrientation(LinearLayout.HORIZONTAL);
+        titleRow.setGravity(Gravity.CENTER_VERTICAL);
+        exerciseCard.addView(titleRow);
+
+        TextView title = createTextView(
+                workout.exercise,
+                15,
+                R.color.text_primary,
+                Typeface.BOLD
+        );
+        title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        titleRow.addView(title, new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+        ));
+
+        int setCount = workout.sets == null ? 0 : workout.sets.size();
+        String meta = getResources().getQuantityString(
+                R.plurals.history_set_count_upper,
+                setCount,
+                setCount
+        );
+        if (showingAllWorkoutTypes) {
+            String workoutLabel = getWorkoutTypeLabel(workout.workoutType);
+            if (!workoutLabel.isEmpty()) {
+                meta += " · " + workoutLabel.replace("-Day", "").toUpperCase(Locale.GERMAN);
+            }
+        }
+        TextView setCountView = createTextView(
+                meta,
+                8,
+                R.color.training_gold,
+                Typeface.BOLD
+        );
+        setCountView.setLetterSpacing(0.06f);
+        titleRow.addView(setCountView);
+
+        if (setCount == 0) {
+            TextView emptySets = createTextView(
+                    getString(R.string.history_no_set_data),
+                    12,
+                    R.color.text_tertiary,
+                    Typeface.NORMAL
+            );
+            LinearLayout.LayoutParams emptyParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            emptyParams.topMargin = dpToPx(10);
+            emptySets.setLayoutParams(emptyParams);
+            exerciseCard.addView(emptySets);
+            return exerciseCard;
+        }
+
+        LinearLayout labels = createSetColumns();
+        LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        labelParams.topMargin = dpToPx(11);
+        labels.setLayoutParams(labelParams);
+        labels.addView(createColumnLabel(getString(R.string.history_set_label), dpToPx(46), 0));
+        labels.addView(createColumnLabel(getString(R.string.history_weight_label), 0, 1f));
+        labels.addView(createColumnLabel(getString(R.string.history_reps_label), dpToPx(72), 0));
+        exerciseCard.addView(labels);
+
+        for (int i = 0; i < workout.sets.size(); i++) {
+            exerciseCard.addView(createSetRow(i + 1, workout.sets.get(i)));
+        }
+
+        return exerciseCard;
+    }
+
+    private View createSetRow(int setNumber, WorkoutStorage.WorkoutSet set) {
+        LinearLayout row = createSetColumns();
+        row.setBackgroundResource(R.drawable.bg_history_set_row);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dpToPx(4), 0, dpToPx(4), 0);
+
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(46)
+        );
+        rowParams.topMargin = dpToPx(6);
+        row.setLayoutParams(rowParams);
+
+        TextView index = createValueText(
+                String.format(Locale.GERMAN, "%02d", setNumber),
+                R.color.training_gold_highlight,
+                Gravity.CENTER
+        );
+        row.addView(index, new LinearLayout.LayoutParams(dpToPx(42), dpToPx(46)));
+
+        TextView weight = createValueText(
+                formatWeight(set.weight),
+                R.color.text_primary,
+                Gravity.START | Gravity.CENTER_VERTICAL
+        );
+        styleWeightUnit(weight);
+        row.addView(weight, new LinearLayout.LayoutParams(
+                0,
+                dpToPx(46),
+                1f
+        ));
+
+        TextView reps = createValueText(
+                String.valueOf(set.reps),
+                R.color.text_primary,
+                Gravity.CENTER
+        );
+        row.addView(reps, new LinearLayout.LayoutParams(dpToPx(68), dpToPx(46)));
+        return row;
+    }
+
+    private View createCardioCard(WorkoutStorage.CardioSession cardioSession) {
+        LinearLayout cardioCard = new LinearLayout(this);
+        cardioCard.setOrientation(LinearLayout.HORIZONTAL);
+        cardioCard.setGravity(Gravity.CENTER_VERTICAL);
+        cardioCard.setBackgroundResource(R.drawable.bg_history_exercise);
+        cardioCard.setPadding(dpToPx(13), dpToPx(11), dpToPx(13), dpToPx(11));
+
+        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        cardParams.topMargin = dpToPx(10);
+        cardioCard.setLayoutParams(cardParams);
+
+        LinearLayout labels = new LinearLayout(this);
+        labels.setOrientation(LinearLayout.VERTICAL);
+        cardioCard.addView(labels, new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+        ));
+
+        TextView eyebrow = createTextView(
+                "CARDIO",
+                8,
+                R.color.training_gold,
+                Typeface.BOLD
+        );
+        eyebrow.setLetterSpacing(0.08f);
+        labels.addView(eyebrow);
+
+        TextView title = createTextView(
+                cardioSession.exercise,
+                15,
+                R.color.text_primary,
+                Typeface.BOLD
+        );
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        titleParams.topMargin = dpToPx(3);
+        title.setLayoutParams(titleParams);
+        labels.addView(title);
+
+        TextView minutes = createTextView(
+                getString(R.string.history_minutes_short, cardioSession.minutes),
+                15,
+                R.color.training_gold_highlight,
+                Typeface.BOLD
+        );
+        cardioCard.addView(minutes);
+        return cardioCard;
+    }
+
+    private LinearLayout createSetColumns() {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        return row;
+    }
+
+    private TextView createColumnLabel(String text, int width, float weight) {
+        TextView label = createTextView(
+                text,
+                8,
+                R.color.text_tertiary,
+                Typeface.BOLD
+        );
+        label.setLetterSpacing(0.08f);
+        label.setGravity(width == dpToPx(72) ? Gravity.CENTER : Gravity.START);
+        label.setLayoutParams(new LinearLayout.LayoutParams(
+                width,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                weight
+        ));
+        return label;
+    }
+
+    private TextView createValueText(String text, int colorRes, int gravity) {
+        TextView view = createTextView(text, 17, colorRes, Typeface.BOLD);
+        view.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        view.setGravity(gravity);
+        return view;
+    }
+
+    private TextView createTextView(String text, float sizeSp, int colorRes, int style) {
+        TextView view = new TextView(this);
+        view.setText(text);
+        view.setTextColor(ContextCompat.getColor(this, colorRes));
+        view.setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp);
+        view.setTypeface(Typeface.create("sans-serif", style));
+        return view;
+    }
+
+    private String buildDaySummary(WorkoutStorage.DailyWorkout day) {
+        int exerciseCount = day.exercises == null ? 0 : day.exercises.size();
+        int setCount = 0;
+        if (day.exercises != null) {
+            for (WorkoutStorage.DetailedWorkout workout : day.exercises) {
+                if (workout.sets != null) {
+                    setCount += workout.sets.size();
                 }
             }
-        } else {
-            builder.append("ohne Satzdaten");
         }
 
-        line.setText(builder.toString());
-        line.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
-        line.setTextSize(15);
-        line.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
-        line.setPadding(0, dpToPx(4), 0, dpToPx(4));
-        return line;
+        String exerciseSummary = getResources().getQuantityString(
+                R.plurals.history_exercise_count,
+                exerciseCount,
+                exerciseCount
+        );
+        String setSummary = getResources().getQuantityString(
+                R.plurals.history_set_count,
+                setCount,
+                setCount
+        );
+        String summary = getString(
+                R.string.history_day_summary,
+                exerciseSummary,
+                setSummary
+        );
+        if (day.cardioSessions != null && !day.cardioSessions.isEmpty()) {
+            summary += getString(
+                    R.string.history_cardio_count,
+                    day.cardioSessions.size()
+            );
+        }
+        return summary;
     }
 
-    private View createCardioLine(WorkoutStorage.CardioSession cardioSession) {
-        TextView line = new TextView(this);
-        String workoutLabel = getWorkoutTypeLabel(cardioSession.workoutType);
-        String prefix = workoutLabel.isEmpty() ? "" : "[" + workoutLabel + "] ";
-        String text = String.format(Locale.getDefault(), "%s%s: %d Minuten", prefix, cardioSession.exercise, cardioSession.minutes);
-        line.setText(text);
-        line.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
-        line.setTextSize(14);
-        line.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
-        line.setPadding(0, dpToPx(2), 0, dpToPx(4));
-        return line;
+    private String formatWeight(double weightKg) {
+        return String.format(Locale.getDefault(), "%.1f %s", weightKg * weightFactor, weightUnit);
     }
 
+    private void styleWeightUnit(TextView view) {
+        String text = view.getText().toString();
+        int unitStart = text.lastIndexOf(' ') + 1;
+        if (unitStart <= 0 || unitStart >= text.length()) {
+            return;
+        }
+
+        SpannableString styled = new SpannableString(text);
+        styled.setSpan(
+                new RelativeSizeSpan(0.62f),
+                unitStart,
+                text.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        styled.setSpan(
+                new ForegroundColorSpan(ContextCompat.getColor(this, R.color.text_tertiary)),
+                unitStart,
+                text.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        view.setText(styled);
+    }
+
+    private String normalizeTitle(String title) {
+        return title
+                .replace(" - Trainings", "")
+                .replace(" – Trainings", "")
+                .trim();
+    }
 
 
     private String getDayWorkoutLabel(WorkoutStorage.DailyWorkout day) {
-        Set<String> labels = new LinkedHashSet<>();
-
-        if (day.exercises != null) {
-            for (WorkoutStorage.DetailedWorkout workout : day.exercises) {
-                String label = getWorkoutTypeLabel(workout.workoutType);
-                if (!label.isEmpty()) {
-                    labels.add(label);
-                }
-            }
+        String storedLabel = getWorkoutTypeLabel(day.workoutType);
+        if (!storedLabel.isEmpty()) {
+            return storedLabel;
         }
 
-        if (day.cardioSessions != null) {
-            for (WorkoutStorage.CardioSession cardioSession : day.cardioSessions) {
-                String label = getWorkoutTypeLabel(cardioSession.workoutType);
-                if (!label.isEmpty()) {
-                    labels.add(label);
-                }
-            }
+        if (day.exercises != null && !day.exercises.isEmpty()) {
+            return getWorkoutTypeLabel(day.exercises.get(0).workoutType);
         }
-
-        if (labels.isEmpty()) {
-            return "";
+        if (day.cardioSessions != null && !day.cardioSessions.isEmpty()) {
+            return getWorkoutTypeLabel(day.cardioSessions.get(0).workoutType);
         }
-
-        return String.join(" / ", new ArrayList<>(labels));
+        return "";
     }
 
     private String getWorkoutTypeLabel(String workoutType) {

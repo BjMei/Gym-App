@@ -1,6 +1,7 @@
 package com.example.gym_app;
 
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -9,6 +10,7 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -18,18 +20,26 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -38,6 +48,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,26 +56,33 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class StatistikActivity extends AppCompatActivity {
+public class StatistikActivity extends IronxActivity {
 
     private static final int[] RANGE_DAYS = {7, 30, 90, 180, 365, Integer.MAX_VALUE};
     private static final String[] RANGE_LABELS = {"7T", "30T", "90T", "6M", "12M", "Gesamt"};
-
-    private static final String[] PUSH_EXERCISES = {"Flys", "Brustpresse", "Schrägbank", "Frontheben", "Seitheben", "Triceps"};
-    private static final String[] LEG_EXERCISES = {"Beinbeuger", "Beine innen", "Waden sitzend", "Beinstrecker", "Beinpresse", "Hip Thrust", "Hyperextension"};
-    private static final String[] CARDIO_EXERCISES = {"Fahrrad", "Seil springen"};
-    private static final Set<String> PUSH_SET = new HashSet<>(Arrays.asList(PUSH_EXERCISES));
-    private static final Set<String> LEG_SET = new HashSet<>(Arrays.asList(LEG_EXERCISES));
+    private static final String[] TYPE_FILTER_LABELS = {"Alle Typen", "Push", "Pull", "Leg"};
+    private static final String[] TYPE_FILTER_VALUES = {
+            "",
+            WorkoutStorage.TYPE_PUSH,
+            WorkoutStorage.TYPE_PULL,
+            WorkoutStorage.TYPE_LEG
+    };
 
     private LinearLayout tabUebersicht, tabVolumen, tabStruktur, tabCardio, tabPR;
     private View secUebersicht, secVolumen, secStruktur, secCardio, secPR;
 
     private Spinner spRangeUebersicht, spRangeVolumen, spRangeStruktur, spRangeCardio, spRangePR;
+    private Spinner spFilterType, spFilterExercise;
+    private ArrayAdapter<String> exerciseFilterAdapter;
+    private boolean updatingExerciseFilter;
 
     private TextView tvBestWeek;
+    private TextView tvComparisonPeriod;
+    private TextView tvCompareSessions, tvCompareVolume, tvCompareDuration;
     private TextView tvGesamtVolumen, tvAvgVolumen, tvAvgSatzVolumen;
     private BarChart chartVolPerType;
     private HorizontalBarChart chartVolPerExercise;
+    private LineChart chartWeightTrend, chartVolumeTrend, chartRepsTrend;
     private TextView tvSchwerstesDatum, tvSchwerstesTyp, tvSchwerstesGesamt, tvSchwerstesEinzelsatz;
 
     private PieChart chartPPLVerteilung;
@@ -91,9 +109,11 @@ public class StatistikActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statistik);
         applyWindowInsets();
+        findViewById(R.id.btnBackStatistik).setOnClickListener(v -> finish());
         bindViews();
         setupTabs();
         setupRangeSpinners();
+        setupFilters();
         showSection("uebersicht");
     }
 
@@ -135,14 +155,23 @@ public class StatistikActivity extends AppCompatActivity {
         spRangeStruktur = findViewById(R.id.spRangeStruktur);
         spRangeCardio = findViewById(R.id.spRangeCardio);
         spRangePR = findViewById(R.id.spRangePR);
+        spFilterType = findViewById(R.id.spFilterType);
+        spFilterExercise = findViewById(R.id.spFilterExercise);
 
         tvBestWeek = findViewById(R.id.tvBestWeek);
+        tvComparisonPeriod = findViewById(R.id.tvComparisonPeriod);
+        tvCompareSessions = findViewById(R.id.tvCompareSessions);
+        tvCompareVolume = findViewById(R.id.tvCompareVolume);
+        tvCompareDuration = findViewById(R.id.tvCompareDuration);
 
         tvGesamtVolumen = findViewById(R.id.tvGesamtVolumen);
         tvAvgVolumen = findViewById(R.id.tvAvgVolumen);
         tvAvgSatzVolumen = findViewById(R.id.tvAvgSatzVolumen);
         chartVolPerType = findViewById(R.id.chartVolPerType);
         chartVolPerExercise = findViewById(R.id.chartVolPerExercise);
+        chartWeightTrend = findViewById(R.id.chartWeightTrend);
+        chartVolumeTrend = findViewById(R.id.chartVolumeTrend);
+        chartRepsTrend = findViewById(R.id.chartRepsTrend);
         tvSchwerstesDatum = findViewById(R.id.tvSchwerstesDatum);
         tvSchwerstesTyp = findViewById(R.id.tvSchwerstesTyp);
         tvSchwerstesGesamt = findViewById(R.id.tvSchwerstesGesamt);
@@ -201,7 +230,7 @@ public class StatistikActivity extends AppCompatActivity {
 
     private void showSection(String tab) {
         currentTab = tab;
-        int activeColor = ContextCompat.getColor(this, R.color.gold_primary);
+        int activeColor = ContextCompat.getColor(this, R.color.training_gold_highlight);
         int inactiveColor = ContextCompat.getColor(this, R.color.text_tertiary);
 
         for (Map.Entry<String, LinearLayout> e : tabMap.entrySet()) {
@@ -216,16 +245,20 @@ public class StatistikActivity extends AppCompatActivity {
             e.getValue().setVisibility(e.getKey().equals(tab) ? View.VISIBLE : View.GONE);
         }
 
+        boolean exerciseFilterRelevant = !"cardio".equals(tab);
+        spFilterExercise.setEnabled(exerciseFilterRelevant);
+        spFilterExercise.setAlpha(exerciseFilterRelevant ? 1f : 0.45f);
+
         loadSection(tab);
     }
 
     private void setupRangeSpinners() {
         for (Map.Entry<String, Spinner> e : rangeMap.entrySet()) {
             final String key = e.getKey();
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item_white, RANGE_LABELS);
-            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item_stats, RANGE_LABELS);
+            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_stats);
             e.getValue().setAdapter(adapter);
-            e.getValue().setSelection(1);
+            e.getValue().setSelection(RANGE_LABELS.length - 1);
             e.getValue().setOnItemSelectedListener(new SimpleItemSelected() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -241,7 +274,105 @@ public class StatistikActivity extends AppCompatActivity {
         Spinner sp = rangeMap.get(tab);
         if (sp == null) return 30;
         int pos = sp.getSelectedItemPosition();
-        return (pos >= 0 && pos < RANGE_DAYS.length) ? RANGE_DAYS[pos] : 30;
+        return (pos >= 0 && pos < RANGE_DAYS.length)
+                ? RANGE_DAYS[pos]
+                : Integer.MAX_VALUE;
+    }
+
+    private void setupFilters() {
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(
+                this,
+                R.layout.spinner_item_stats,
+                TYPE_FILTER_LABELS
+        );
+        typeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_stats);
+        spFilterType.setAdapter(typeAdapter);
+
+        exerciseFilterAdapter = new ArrayAdapter<>(
+                this,
+                R.layout.spinner_item_stats,
+                new ArrayList<>()
+        );
+        exerciseFilterAdapter.setDropDownViewResource(
+                R.layout.spinner_dropdown_item_stats
+        );
+        spFilterExercise.setAdapter(exerciseFilterAdapter);
+
+        spFilterType.setOnItemSelectedListener(new SimpleItemSelected() {
+            @Override
+            public void onItemSelected(
+                    AdapterView<?> parent,
+                    View view,
+                    int position,
+                    long id) {
+                refreshExerciseFilter();
+                loadSection(currentTab);
+            }
+        });
+
+        spFilterExercise.setOnItemSelectedListener(new SimpleItemSelected() {
+            @Override
+            public void onItemSelected(
+                    AdapterView<?> parent,
+                    View view,
+                    int position,
+                    long id) {
+                if (!updatingExerciseFilter) {
+                    loadSection(currentTab);
+                }
+            }
+        });
+
+        refreshExerciseFilter();
+    }
+
+    private void refreshExerciseFilter() {
+        updatingExerciseFilter = true;
+        String selectedType = getSelectedTypeFilter();
+        Set<String> exercises = new LinkedHashSet<>();
+        String[] types = selectedType.isEmpty()
+                ? new String[]{
+                        WorkoutStorage.TYPE_PUSH,
+                        WorkoutStorage.TYPE_PULL,
+                        WorkoutStorage.TYPE_LEG
+                }
+                : new String[]{selectedType};
+
+        for (String type : types) {
+            for (WorkoutStorage.DetailedWorkout workout :
+                    WorkoutStorage.getDetailedWorkouts(this, type)) {
+                if (workout.exercise != null && !workout.exercise.trim().isEmpty()) {
+                    exercises.add(workout.exercise);
+                }
+            }
+        }
+
+        List<String> sorted = new ArrayList<>(exercises);
+        Collections.sort(sorted);
+        exerciseFilterAdapter.clear();
+        exerciseFilterAdapter.add("Alle Übungen");
+        exerciseFilterAdapter.addAll(sorted);
+        exerciseFilterAdapter.notifyDataSetChanged();
+        spFilterExercise.setSelection(0);
+        updatingExerciseFilter = false;
+    }
+
+    private String getSelectedTypeFilter() {
+        int position = spFilterType == null
+                ? 0
+                : spFilterType.getSelectedItemPosition();
+        return position >= 0 && position < TYPE_FILTER_VALUES.length
+                ? TYPE_FILTER_VALUES[position]
+                : "";
+    }
+
+    private String getSelectedExerciseFilter() {
+        if (spFilterExercise == null
+                || spFilterExercise.getSelectedItemPosition() <= 0
+                || spFilterExercise.getSelectedItem() == null) {
+            return "";
+        }
+        return spFilterExercise.getSelectedItem().toString();
     }
 
     private void loadSection(String tab) {
@@ -255,16 +386,103 @@ public class StatistikActivity extends AppCompatActivity {
     }
 
     private List<WorkoutStorage.DetailedWorkout> getAllWorkoutsInRange(int days) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
         Date cutoff = days == Integer.MAX_VALUE ? new Date(0) : getDaysAgo(days);
+        return getWorkoutsBetween(cutoff, new Date());
+    }
+
+    private List<WorkoutStorage.DetailedWorkout> getWorkoutsBetween(
+            Date startInclusive,
+            Date endExclusive) {
+        SimpleDateFormat sdf =
+                new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
         List<WorkoutStorage.DetailedWorkout> result = new ArrayList<>();
-        for (String t : new String[]{WorkoutStorage.TYPE_PUSH, WorkoutStorage.TYPE_PULL, WorkoutStorage.TYPE_LEG}) {
+        String selectedType = getSelectedTypeFilter();
+        String selectedExercise = getSelectedExerciseFilter();
+        String[] types = selectedType.isEmpty()
+                ? new String[]{
+                        WorkoutStorage.TYPE_PUSH,
+                        WorkoutStorage.TYPE_PULL,
+                        WorkoutStorage.TYPE_LEG
+                }
+                : new String[]{selectedType};
+
+        for (String t : types) {
             for (WorkoutStorage.DetailedWorkout w : WorkoutStorage.getDetailedWorkouts(this, t)) {
                 try {
                     Date d = sdf.parse(w.timestamp);
-                    if (d != null && !d.before(cutoff)) result.add(w);
+                    if (d != null
+                            && !d.before(startInclusive)
+                            && d.before(endExclusive)
+                            && (selectedExercise.isEmpty()
+                            || selectedExercise.equals(w.exercise))) {
+                        result.add(w);
+                    }
                 } catch (Exception ignored) {
                 }
+            }
+        }
+        return result;
+    }
+
+    private List<WorkoutStorage.CardioSession> getCardioBetween(
+            Date startInclusive,
+            Date endExclusive) {
+        SimpleDateFormat sdf =
+                new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
+        List<WorkoutStorage.CardioSession> result = new ArrayList<>();
+        String selectedType = getSelectedTypeFilter();
+        String[] types = selectedType.isEmpty()
+                ? new String[]{
+                        WorkoutStorage.TYPE_PUSH,
+                        WorkoutStorage.TYPE_PULL,
+                        WorkoutStorage.TYPE_LEG
+                }
+                : new String[]{selectedType};
+
+        for (String type : types) {
+            for (WorkoutStorage.CardioSession session :
+                    WorkoutStorage.getCardioSessions(this, type)) {
+                try {
+                    Date date = sdf.parse(session.timestamp);
+                    if (date != null
+                            && !date.before(startInclusive)
+                            && date.before(endExclusive)) {
+                        result.add(session);
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        return result;
+    }
+
+    private List<WorkoutStorage.TrainingSession> getMeasuredSessionsBetween(
+            Date startInclusive,
+            Date endExclusive) {
+        if (!getSelectedExerciseFilter().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        SimpleDateFormat sdf =
+                new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
+        String selectedType = getSelectedTypeFilter();
+        List<WorkoutStorage.TrainingSession> result = new ArrayList<>();
+
+        for (WorkoutStorage.TrainingSession session :
+                WorkoutStorage.getTrainingSessions(this)) {
+            if (!selectedType.isEmpty()
+                    && !selectedType.equals(session.workoutType)) {
+                continue;
+            }
+            try {
+                Date date = sdf.parse(session.timestamp);
+                if (date != null
+                        && !date.before(startInclusive)
+                        && date.before(endExclusive)
+                        && session.durationMs > 0) {
+                    result.add(session);
+                }
+            } catch (Exception ignored) {
             }
         }
         return result;
@@ -278,10 +496,31 @@ public class StatistikActivity extends AppCompatActivity {
         return days;
     }
 
+    private Set<String> getActiveDays(
+            List<WorkoutStorage.DetailedWorkout> workouts,
+            List<WorkoutStorage.CardioSession> cardioSessions) {
+        Set<String> days = getTrainedDays(workouts);
+        if (getSelectedExerciseFilter().isEmpty()) {
+            for (WorkoutStorage.CardioSession session : cardioSessions) {
+                if (session.timestamp != null) {
+                    days.add(session.timestamp.split(" ")[0]);
+                }
+            }
+        }
+        return days;
+    }
+
     private String getType(WorkoutStorage.DetailedWorkout w) {
-        if (PUSH_SET.contains(w.exercise)) return "Push";
-        if (LEG_SET.contains(w.exercise)) return "Leg";
-        return "Pull";
+        if (WorkoutStorage.TYPE_PUSH.equals(w.workoutType)) {
+            return "Push";
+        }
+        if (WorkoutStorage.TYPE_PULL.equals(w.workoutType)) {
+            return "Pull";
+        }
+        if (WorkoutStorage.TYPE_LEG.equals(w.workoutType)) {
+            return "Leg";
+        }
+        return "Sonstige";
     }
 
     private double calcVolume(List<WorkoutStorage.WorkoutSet> sets) {
@@ -298,41 +537,18 @@ public class StatistikActivity extends AppCompatActivity {
 
     private void loadUebersicht() {
         int days = getRange("uebersicht");
-        List<WorkoutStorage.DetailedWorkout> all = getAllWorkoutsInRange(days);
-        Set<String> trainedDays = getTrainedDays(all);
-        int totalSessions = trainedDays.size();
-
-        int totalCardioMin = 0;
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
-        Date cutoff = days == Integer.MAX_VALUE ? new Date(0) : getDaysAgo(days);
-        for (String t : new String[]{WorkoutStorage.TYPE_PUSH, WorkoutStorage.TYPE_PULL, WorkoutStorage.TYPE_LEG}) {
-            for (WorkoutStorage.CardioSession cs : WorkoutStorage.getCardioSessions(this, t)) {
-                try {
-                    Date d = sdf.parse(cs.timestamp);
-                    if (d != null && !d.before(cutoff)) totalCardioMin += cs.minutes;
-                } catch (Exception ignored) {
-                }
-            }
-        }
-
-        Map<String, Integer> setsPerDay = new HashMap<>();
-        for (WorkoutStorage.DetailedWorkout w : all) {
-            String day = w.timestamp.split(" ")[0];
-            setsPerDay.put(day, setsPerDay.getOrDefault(day, 0) + w.sets.size());
-        }
-        int totalEstMin = 0;
-        for (int s : setsPerDay.values()) totalEstMin += s * 3;
-        totalEstMin += totalCardioMin;
-
-        double totalHours = totalEstMin / 60.0;
-        double avgDuration = totalSessions > 0 ? (double) totalEstMin / totalSessions : 0;
-        int rangeWeeks = Math.max(1, days == Integer.MAX_VALUE ? Math.max(1, totalSessions) : days / 7);
-        double frequency = (double) totalSessions / rangeWeeks;
+        Date end = new Date();
+        Date start = days == Integer.MAX_VALUE ? new Date(0) : getDaysAgo(days);
+        OverviewMetrics metrics = calculateOverviewMetrics(
+                start,
+                end,
+                days == Integer.MAX_VALUE ? null : days
+        );
 
         SimpleDateFormat weekFmt = new SimpleDateFormat("'KW'ww/yyyy", Locale.getDefault());
         Map<String, Integer> weekCount = new HashMap<>();
         SimpleDateFormat dayParse = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-        for (String day : trainedDays) {
+        for (String day : metrics.activeDays) {
             try {
                 Date d = dayParse.parse(day);
                 if (d != null) {
@@ -357,18 +573,218 @@ public class StatistikActivity extends AppCompatActivity {
         View kpiFrequency = findViewById(R.id.kpiFrequency);
 
         ((TextView) kpiWorkouts.findViewById(R.id.kpiLabel)).setText("TRAININGS");
-        ((TextView) kpiWorkouts.findViewById(R.id.kpiValue)).setText(String.valueOf(totalSessions));
+        ((TextView) kpiWorkouts.findViewById(R.id.kpiValue))
+                .setText(String.valueOf(metrics.sessionCount));
+        ((TextView) kpiWorkouts.findViewById(R.id.kpiTrend))
+                .setText("Kraft und Cardio-Tage");
 
         ((TextView) kpiHours.findViewById(R.id.kpiLabel)).setText("STUNDEN");
-        ((TextView) kpiHours.findViewById(R.id.kpiValue)).setText(String.format(Locale.getDefault(), "%.1f", totalHours));
+        ((TextView) kpiHours.findViewById(R.id.kpiValue)).setText(
+                String.format(Locale.getDefault(), "%.1f", metrics.totalMinutes / 60.0)
+        );
+        String durationQuality = metrics.sessionCount == 0
+                ? "Noch keine Trainingsdauer"
+                : metrics.estimatedDays == 0
+                ? "Gemessene Timerzeit"
+                : String.format(
+                        Locale.getDefault(),
+                        "%d gemessen · %d geschätzt",
+                        metrics.measuredDays,
+                        metrics.estimatedDays
+                );
+        ((TextView) kpiHours.findViewById(R.id.kpiTrend)).setText(durationQuality);
 
         ((TextView) kpiDuration.findViewById(R.id.kpiLabel)).setText("∅ DAUER");
-        ((TextView) kpiDuration.findViewById(R.id.kpiValue)).setText(String.format(Locale.getDefault(), "%.0f min", avgDuration));
+        ((TextView) kpiDuration.findViewById(R.id.kpiValue)).setText(
+                String.format(Locale.getDefault(), "%.0f min", metrics.averageMinutes)
+        );
+        ((TextView) kpiDuration.findViewById(R.id.kpiTrend)).setText(durationQuality);
 
         ((TextView) kpiFrequency.findViewById(R.id.kpiLabel)).setText("PRO WOCHE");
-        ((TextView) kpiFrequency.findViewById(R.id.kpiValue)).setText(String.format(Locale.getDefault(), "%.1fx", frequency));
+        ((TextView) kpiFrequency.findViewById(R.id.kpiValue)).setText(
+                String.format(Locale.getDefault(), "%.1fx", metrics.weeklyFrequency)
+        );
+        ((TextView) kpiFrequency.findViewById(R.id.kpiTrend))
+                .setText(days == Integer.MAX_VALUE ? "Seit erster Aktivität" : "Im Zeitraum");
 
         tvBestWeek.setText(bestWeek + " (" + bestCount + " Sessions)");
+        updatePeriodComparison(days, end);
+    }
+
+    private OverviewMetrics calculateOverviewMetrics(
+            Date startInclusive,
+            Date endExclusive,
+            Integer frequencyDays) {
+        List<WorkoutStorage.DetailedWorkout> workouts =
+                getWorkoutsBetween(startInclusive, endExclusive);
+        List<WorkoutStorage.CardioSession> cardio =
+                getCardioBetween(startInclusive, endExclusive);
+        Set<String> activeDays = getActiveDays(workouts, cardio);
+
+        Map<String, Double> estimatedMinutesByDay = new HashMap<>();
+        double totalVolume = 0;
+        for (WorkoutStorage.DetailedWorkout workout : workouts) {
+            String day = workout.timestamp.split(" ")[0];
+            int setCount = workout.sets == null ? 0 : workout.sets.size();
+            estimatedMinutesByDay.put(
+                    day,
+                    estimatedMinutesByDay.getOrDefault(day, 0.0) + setCount * 2.5
+            );
+            if (workout.sets != null) {
+                totalVolume += calcVolume(workout.sets);
+            }
+        }
+
+        if (getSelectedExerciseFilter().isEmpty()) {
+            for (WorkoutStorage.CardioSession session : cardio) {
+                String day = session.timestamp.split(" ")[0];
+                estimatedMinutesByDay.put(
+                        day,
+                        estimatedMinutesByDay.getOrDefault(day, 0.0) + session.minutes
+                );
+            }
+        }
+
+        Map<String, Double> measuredMinutesByDay = new HashMap<>();
+        for (WorkoutStorage.TrainingSession session :
+                getMeasuredSessionsBetween(startInclusive, endExclusive)) {
+            String day = session.timestamp.split(" ")[0];
+            measuredMinutesByDay.put(
+                    day,
+                    measuredMinutesByDay.getOrDefault(day, 0.0)
+                            + session.durationMs / 60_000.0
+            );
+        }
+
+        double totalMinutes = 0;
+        int measuredDays = 0;
+        int estimatedDays = 0;
+        for (String day : activeDays) {
+            Double measured = measuredMinutesByDay.get(day);
+            if (measured != null && measured > 0) {
+                totalMinutes += measured;
+                measuredDays++;
+            } else {
+                totalMinutes += estimatedMinutesByDay.getOrDefault(day, 0.0);
+                estimatedDays++;
+            }
+        }
+
+        LocalDate firstActivity = null;
+        for (String day : activeDays) {
+            try {
+                LocalDate parsed = LocalDate.parse(
+                        day,
+                        java.time.format.DateTimeFormatter.ofPattern(
+                                "dd.MM.yyyy",
+                                Locale.GERMAN
+                        )
+                );
+                if (firstActivity == null || parsed.isBefore(firstActivity)) {
+                    firstActivity = parsed;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        int sessionCount = activeDays.size();
+        double averageMinutes = sessionCount == 0
+                ? 0
+                : totalMinutes / sessionCount;
+        double weeklyFrequency = StatisticsCalculator.weeklyFrequency(
+                sessionCount,
+                firstActivity,
+                endExclusive.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+                frequencyDays
+        );
+
+        return new OverviewMetrics(
+                activeDays,
+                sessionCount,
+                totalMinutes,
+                averageMinutes,
+                weeklyFrequency,
+                totalVolume,
+                measuredDays,
+                estimatedDays
+        );
+    }
+
+    private void updatePeriodComparison(int days, Date now) {
+        int comparisonDays = days == Integer.MAX_VALUE ? 30 : days;
+        Calendar currentStartCalendar = Calendar.getInstance();
+        currentStartCalendar.setTime(now);
+        currentStartCalendar.add(Calendar.DAY_OF_YEAR, -comparisonDays);
+        Date currentStart = currentStartCalendar.getTime();
+
+        Calendar previousStartCalendar = Calendar.getInstance();
+        previousStartCalendar.setTime(currentStart);
+        previousStartCalendar.add(Calendar.DAY_OF_YEAR, -comparisonDays);
+        Date previousStart = previousStartCalendar.getTime();
+
+        OverviewMetrics current = calculateOverviewMetrics(
+                currentStart,
+                now,
+                comparisonDays
+        );
+        OverviewMetrics previous = calculateOverviewMetrics(
+                previousStart,
+                currentStart,
+                comparisonDays
+        );
+
+        tvComparisonPeriod.setText(days == Integer.MAX_VALUE
+                ? "Letzte 30 Tage gegenüber den 30 Tagen davor"
+                : RANGE_LABELS[rangeMap.get("uebersicht").getSelectedItemPosition()]
+                + " gegenüber dem gleich langen Vorzeitraum");
+        tvCompareSessions.setText(
+                "TRAININGS " + StatisticsCalculator.formatChange(
+                        current.sessionCount,
+                        previous.sessionCount
+                )
+        );
+        tvCompareVolume.setText(
+                "VOLUMEN " + StatisticsCalculator.formatChange(
+                        current.totalVolume,
+                        previous.totalVolume
+                )
+        );
+        tvCompareDuration.setText(
+                "DAUER " + StatisticsCalculator.formatChange(
+                        current.averageMinutes,
+                        previous.averageMinutes
+                )
+        );
+    }
+
+    private static final class OverviewMetrics {
+        final Set<String> activeDays;
+        final int sessionCount;
+        final double totalMinutes;
+        final double averageMinutes;
+        final double weeklyFrequency;
+        final double totalVolume;
+        final int measuredDays;
+        final int estimatedDays;
+
+        OverviewMetrics(
+                Set<String> activeDays,
+                int sessionCount,
+                double totalMinutes,
+                double averageMinutes,
+                double weeklyFrequency,
+                double totalVolume,
+                int measuredDays,
+                int estimatedDays) {
+            this.activeDays = activeDays;
+            this.sessionCount = sessionCount;
+            this.totalMinutes = totalMinutes;
+            this.averageMinutes = averageMinutes;
+            this.weeklyFrequency = weeklyFrequency;
+            this.totalVolume = totalVolume;
+            this.measuredDays = measuredDays;
+            this.estimatedDays = estimatedDays;
+        }
     }
 
     private void loadVolumen() {
@@ -405,24 +821,50 @@ public class StatistikActivity extends AppCompatActivity {
         }
 
         int sessionCount = getTrainedDays(all).size();
-        tvGesamtVolumen.setText(String.format(Locale.getDefault(), "%.0f kg", totalVol));
-        tvAvgVolumen.setText(String.format(Locale.getDefault(), "%.0f kg", sessionCount > 0 ? totalVol / sessionCount : 0));
-        tvAvgSatzVolumen.setText(String.format(Locale.getDefault(), "%.0f kg", totalSaetze > 0 ? totalVol / totalSaetze : 0));
+        tvGesamtVolumen.setText(AppSettings.formatVolume(this, totalVol, 0));
+        tvAvgVolumen.setText(AppSettings.formatVolume(
+                this,
+                sessionCount > 0 ? totalVol / sessionCount : 0,
+                0
+        ));
+        tvAvgSatzVolumen.setText(AppSettings.formatVolume(
+                this,
+                totalSaetze > 0 ? totalVol / totalSaetze : 0,
+                0
+        ));
 
         List<BarEntry> typeEntries = new ArrayList<>();
         List<String> typeLabels = new ArrayList<>(volPerType.keySet());
-        for (int i = 0; i < typeLabels.size(); i++) typeEntries.add(new BarEntry(i, volPerType.get(typeLabels.get(i)).floatValue()));
-        buildBarChart(chartVolPerType, typeEntries, typeLabels, "kg", false);
+        for (int i = 0; i < typeLabels.size(); i++) {
+            typeEntries.add(new BarEntry(
+                    i,
+                    (float) AppSettings.fromStoredKg(
+                            this,
+                            volPerType.get(typeLabels.get(i))
+                    )
+            ));
+        }
+        buildBarChart(
+                chartVolPerType,
+                typeEntries,
+                typeLabels,
+                AppSettings.getWeightUnit(this),
+                false
+        );
 
-        List<Map.Entry<String, Double>> sortedEx = new ArrayList<>(volPerExercise.entrySet());
-        sortedEx.sort((a, b) -> Double.compare(a.getValue(), b.getValue()));
+        List<Map.Entry<String, Double>> sortedEx =
+                StatisticsCalculator.topDescending(volPerExercise, 10);
         List<BarEntry> exEntries = new ArrayList<>();
         List<String> exLabels = new ArrayList<>();
-        for (int i = 0; i < Math.min(sortedEx.size(), 10); i++) {
-            exEntries.add(new BarEntry(i, sortedEx.get(i).getValue().floatValue()));
+        for (int i = 0; i < sortedEx.size(); i++) {
+            exEntries.add(new BarEntry(
+                    i,
+                    (float) AppSettings.fromStoredKg(this, sortedEx.get(i).getValue())
+            ));
             exLabels.add(sortedEx.get(i).getKey());
         }
         buildHorizontalBarChart(chartVolPerExercise, exEntries, exLabels);
+        buildTrendCharts(all);
 
         String schwerstDatum = "–";
         double schwerstVol = 0;
@@ -446,21 +888,97 @@ public class StatistikActivity extends AppCompatActivity {
         }
         tvSchwerstesDatum.setText(schwerstDatum);
         tvSchwerstesTyp.setText(schwerstTyp);
-        tvSchwerstesGesamt.setText(String.format(Locale.getDefault(), "%.0f kg Gesamtvolumen", schwerstVol));
-        tvSchwerstesEinzelsatz.setText(String.format(Locale.getDefault(), "%.0f kg Einzelsatz", schwerstEinzel));
+        tvSchwerstesGesamt.setText(
+                AppSettings.formatVolume(this, schwerstVol, 0) + " Gesamtvolumen"
+        );
+        tvSchwerstesEinzelsatz.setText(
+                AppSettings.formatVolume(this, schwerstEinzel, 0) + " Einzelsatz"
+        );
+    }
+
+    private void buildTrendCharts(List<WorkoutStorage.DetailedWorkout> workouts) {
+        SimpleDateFormat parseFull =
+                new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
+        SimpleDateFormat keyFormat =
+                new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat labelFormat =
+                new SimpleDateFormat("dd.MM.", Locale.getDefault());
+
+        Map<String, double[]> valuesByDay = new TreeMap<>();
+        Map<String, String> labelsByDay = new HashMap<>();
+
+        for (WorkoutStorage.DetailedWorkout workout : workouts) {
+            if (workout.sets == null) {
+                continue;
+            }
+            try {
+                Date date = parseFull.parse(workout.timestamp);
+                if (date == null) {
+                    continue;
+                }
+                String key = keyFormat.format(date);
+                labelsByDay.put(key, labelFormat.format(date));
+                double[] values = valuesByDay.computeIfAbsent(
+                        key,
+                        ignored -> new double[]{0, 0, 0, 0}
+                );
+                for (WorkoutStorage.WorkoutSet set : workout.sets) {
+                    values[0] = Math.max(values[0], set.weight);
+                    values[1] += set.weight * set.reps;
+                    values[2] += set.reps;
+                    values[3]++;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        List<Entry> weightEntries = new ArrayList<>();
+        List<Entry> volumeEntries = new ArrayList<>();
+        List<Entry> repsEntries = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+
+        int index = 0;
+        for (Map.Entry<String, double[]> entry : valuesByDay.entrySet()) {
+            double[] values = entry.getValue();
+            labels.add(labelsByDay.getOrDefault(entry.getKey(), entry.getKey()));
+            weightEntries.add(new Entry(
+                    index,
+                    (float) AppSettings.fromStoredKg(this, values[0])
+            ));
+            volumeEntries.add(new Entry(
+                    index,
+                    (float) AppSettings.fromStoredKg(this, values[1])
+            ));
+            repsEntries.add(new Entry(
+                    index,
+                    values[3] == 0 ? 0 : (float) (values[2] / values[3])
+            ));
+            index++;
+        }
+
+        String weightUnit = AppSettings.getWeightUnit(this);
+        buildLineChart(chartWeightTrend, weightEntries, labels, weightUnit);
+        buildLineChart(chartVolumeTrend, volumeEntries, labels, weightUnit);
+        buildLineChart(chartRepsTrend, repsEntries, labels, " Wdh.");
     }
 
     private void loadStruktur() {
         int days = getRange("struktur");
         List<WorkoutStorage.DetailedWorkout> all = getAllWorkoutsInRange(days);
-        Set<String> trainedDays = getTrainedDays(all);
+        Date cutoff = days == Integer.MAX_VALUE ? new Date(0) : getDaysAgo(days);
+        List<WorkoutStorage.CardioSession> cardio =
+                getCardioBetween(cutoff, new Date());
+        Set<String> trainedDays = getActiveDays(all, cardio);
 
         Map<String, Set<String>> typeDays = new HashMap<>();
         typeDays.put("Push", new HashSet<>());
         typeDays.put("Pull", new HashSet<>());
         typeDays.put("Leg", new HashSet<>());
         for (WorkoutStorage.DetailedWorkout w : all) {
-            typeDays.get(getType(w)).add(w.timestamp.split(" ")[0]);
+            String type = getType(w);
+            if (typeDays.containsKey(type)) {
+                typeDays.get(type).add(w.timestamp.split(" ")[0]);
+            }
         }
         float pushC = typeDays.get("Push").size();
         float pullC = typeDays.get("Pull").size();
@@ -469,7 +987,11 @@ public class StatistikActivity extends AppCompatActivity {
         buildPieChart(chartPPLVerteilung,
                 new String[]{"Push", "Pull", "Leg"},
                 new float[]{pushC, pullC, legC},
-                new int[]{R.color.gold_primary, R.color.gold_secondary, R.color.gold_dark});
+                new int[]{
+                        R.color.training_gold_highlight,
+                        R.color.training_gold,
+                        R.color.training_gold_pressed
+                });
 
         SimpleDateFormat dayParse = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         int[] weekdays = new int[7];
@@ -490,63 +1012,50 @@ public class StatistikActivity extends AppCompatActivity {
         for (int i = 0; i < 7; i++) wdEntries.add(new BarEntry(i, weekdays[i]));
         buildBarChart(chartWochentag, wdEntries, Arrays.asList(wdLabels), "", false);
 
-        List<Date> sortedDates = new ArrayList<>();
+        List<LocalDate> sortedDates = new ArrayList<>();
+        java.time.format.DateTimeFormatter storageDate =
+                java.time.format.DateTimeFormatter.ofPattern(
+                        "dd.MM.yyyy",
+                        Locale.GERMAN
+                );
         for (String day : trainedDays) {
             try {
-                sortedDates.add(dayParse.parse(day));
+                sortedDates.add(LocalDate.parse(day, storageDate));
             } catch (Exception ignored) {
             }
         }
-        sortedDates.sort(Date::compareTo);
-
-        int[] pauseBins = new int[4];
-        long totalPause = 0;
-        for (int i = 1; i < sortedDates.size(); i++) {
-            long diff = (sortedDates.get(i).getTime() - sortedDates.get(i - 1).getTime()) / 86400000L - 1;
-            if (diff < 0) diff = 0;
-            totalPause += diff;
-            if (diff <= 1) pauseBins[0]++;
-            else if (diff <= 3) pauseBins[1]++;
-            else if (diff <= 6) pauseBins[2]++;
-            else pauseBins[3]++;
-        }
-
-        double avgPause = sortedDates.size() > 1 ? (double) totalPause / (sortedDates.size() - 1) : 0;
-        tvAvgPause.setText(String.format(Locale.getDefault(), "%.1f Tage", avgPause));
-        tvAvgZwischen.setText(String.format(Locale.getDefault(), "%.1f Tage", avgPause));
+        StatisticsCalculator.PauseStats pauseStats =
+                StatisticsCalculator.calculatePauseStats(sortedDates);
+        tvAvgPause.setText(String.format(
+                Locale.getDefault(),
+                "%.1f Tage",
+                pauseStats.averageRestDays
+        ));
+        tvAvgZwischen.setText(String.format(
+                Locale.getDefault(),
+                "%.1f Tage",
+                pauseStats.averageGapDays
+        ));
 
         List<BarEntry> pauseEntries = new ArrayList<>();
         String[] pauseLabels = {"0–1T", "2–3T", "4–6T", "7+T"};
-        for (int i = 0; i < 4; i++) pauseEntries.add(new BarEntry(i, pauseBins[i]));
+        for (int i = 0; i < 4; i++) {
+            pauseEntries.add(new BarEntry(i, pauseStats.restDayBins[i]));
+        }
         buildBarChart(chartPausenHistogramm, pauseEntries, Arrays.asList(pauseLabels), "x", false);
     }
 
     private void loadCardio() {
         int days = getRange("cardio");
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
         Date cutoff = days == Integer.MAX_VALUE ? new Date(0) : getDaysAgo(days);
-
-        List<WorkoutStorage.CardioSession> allCardio = new ArrayList<>();
-        for (String t : new String[]{WorkoutStorage.TYPE_PUSH, WorkoutStorage.TYPE_PULL, WorkoutStorage.TYPE_LEG}) {
-            for (WorkoutStorage.CardioSession cs : WorkoutStorage.getCardioSessions(this, t)) {
-                try {
-                    Date d = sdf.parse(cs.timestamp);
-                    if (d != null && !d.before(cutoff)) allCardio.add(cs);
-                } catch (Exception ignored) {
-                }
-            }
-        }
+        List<WorkoutStorage.CardioSession> allCardio =
+                getCardioBetween(cutoff, new Date());
 
         int totalMin = 0;
         int maxMin = 0;
         String maxDatum = "–";
         Map<String, Integer> artMin = new LinkedHashMap<>();
         Map<String, Integer> artCount = new LinkedHashMap<>();
-        for (String e : CARDIO_EXERCISES) {
-            artMin.put(e, 0);
-            artCount.put(e, 0);
-        }
-
         for (WorkoutStorage.CardioSession cs : allCardio) {
             totalMin += cs.minutes;
             if (cs.minutes > maxMin) {
@@ -565,7 +1074,12 @@ public class StatistikActivity extends AppCompatActivity {
         List<String> artLabels = new ArrayList<>(artCount.keySet());
         float[] artValues = new float[artLabels.size()];
         for (int i = 0; i < artLabels.size(); i++) artValues[i] = artCount.get(artLabels.get(i));
-        buildPieChart(chartCardioArt, artLabels.toArray(new String[0]), artValues, new int[]{R.color.gold_primary, R.color.gold_dark});
+        buildPieChart(
+                chartCardioArt,
+                artLabels.toArray(new String[0]),
+                artValues,
+                new int[]{R.color.training_gold_highlight, R.color.training_gold_pressed}
+        );
 
         List<BarEntry> minEntries = new ArrayList<>();
         List<String> minLabels = new ArrayList<>(artMin.keySet());
@@ -581,13 +1095,16 @@ public class StatistikActivity extends AppCompatActivity {
         Map<String, String> prDate = new HashMap<>();
 
         Map<String, Double> dayVol = new HashMap<>();
-        Map<String, String> dayType = new HashMap<>();
+        Map<String, Map<String, Double>> dayTypeVolume = new HashMap<>();
 
         for (WorkoutStorage.DetailedWorkout w : all) {
             String day = w.timestamp.split(" ")[0];
             double dayV = calcVolume(w.sets);
             dayVol.put(day, dayVol.getOrDefault(day, 0.0) + dayV);
-            dayType.put(day, getType(w));
+            String type = getType(w);
+            dayTypeVolume.putIfAbsent(day, new HashMap<>());
+            Map<String, Double> typeVolumes = dayTypeVolume.get(day);
+            typeVolumes.put(type, typeVolumes.getOrDefault(type, 0.0) + dayV);
 
             for (WorkoutStorage.WorkoutSet s : w.sets) {
                 double[] best = prMap.get(w.exercise);
@@ -606,7 +1123,7 @@ public class StatistikActivity extends AppCompatActivity {
             double[] v = prMap.get(ex);
             addTableRow(tableSchwersterSatz,
                     ex,
-                    String.format(Locale.getDefault(), "%.1f kg", v[0]),
+                    AppSettings.formatWeight(this, v[0], 1),
                     String.format(Locale.getDefault(), "%.0f", v[1]),
                     prDate.getOrDefault(ex, "–"));
         }
@@ -618,12 +1135,20 @@ public class StatistikActivity extends AppCompatActivity {
             if (e.getValue() > rekordVol) {
                 rekordVol = e.getValue();
                 rekordDatum = e.getKey();
-                rekordTyp = dayType.getOrDefault(e.getKey(), "–");
+                rekordTyp = dayTypeVolume.getOrDefault(
+                        e.getKey(),
+                        Collections.emptyMap()
+                ).entrySet().stream()
+                        .max(Map.Entry.comparingByValue())
+                        .map(Map.Entry::getKey)
+                        .orElse("–");
             }
         }
         tvVolRekordDatum.setText(rekordDatum);
         tvVolRekordTyp.setText(rekordTyp);
-        tvVolRekordGesamt.setText(String.format(Locale.getDefault(), "%.0f kg Gesamtvolumen", rekordVol));
+        tvVolRekordGesamt.setText(
+                AppSettings.formatVolume(this, rekordVol, 0) + " Gesamtvolumen"
+        );
 
         tableVolumenRekord.removeAllViews();
         addTableHeader(tableVolumenRekord, "Übung", "Gewicht", "Max Wdh.", "Datum");
@@ -657,15 +1182,14 @@ public class StatistikActivity extends AppCompatActivity {
                 }
             }
             addTableRow(tableVolumenRekord, ex,
-                    String.format(Locale.getDefault(), "%.1f kg", bestW),
+                    AppSettings.formatWeight(this, bestW, 1),
                     String.valueOf(bestR), bDate);
         }
     }
 
     private void buildBarChart(BarChart chart, List<BarEntry> entries, List<String> labels, String unit, boolean hasLegend) {
-        int gold = ContextCompat.getColor(this, R.color.gold_primary);
-        int bg = ContextCompat.getColor(this, R.color.card_background);
-        chart.setBackgroundColor(bg);
+        int gold = ContextCompat.getColor(this, R.color.training_gold);
+        chart.setBackgroundResource(R.drawable.bg_home_metric);
         chart.getDescription().setEnabled(false);
         chart.getLegend().setEnabled(hasLegend);
         if (entries.isEmpty()) {
@@ -682,18 +1206,24 @@ public class StatistikActivity extends AppCompatActivity {
         styleYAxis(chart.getAxisLeft(), unit);
         chart.getAxisRight().setEnabled(false);
         chart.setTouchEnabled(true);
-        chart.animateY(500);
+        chart.setHighlightPerTapEnabled(true);
+        chart.setOnChartValueSelectedListener(
+                createIndexedChartListener(labels, unit)
+        );
+        if (AppSettings.animationsEnabled(this)) {
+            chart.animateY(500);
+        }
         chart.invalidate();
     }
 
     private void buildHorizontalBarChart(HorizontalBarChart chart, List<BarEntry> entries, List<String> labels) {
-        int gold = ContextCompat.getColor(this, R.color.gold_primary);
-        int bg = ContextCompat.getColor(this, R.color.card_background);
-        chart.setBackgroundColor(bg);
+        int gold = ContextCompat.getColor(this, R.color.training_gold);
+        chart.setBackgroundResource(R.drawable.bg_home_metric);
         chart.getDescription().setEnabled(false);
         chart.getLegend().setEnabled(false);
         if (entries.isEmpty()) {
             chart.setNoDataText("Noch keine Daten");
+            chart.setNoDataTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
             chart.clear();
             return;
         }
@@ -713,21 +1243,30 @@ public class StatistikActivity extends AppCompatActivity {
         xAxis.setGranularity(1f);
         xAxis.setLabelCount(Math.min(labels.size(), 10), false);
 
-        styleYAxis(chart.getAxisLeft(), "kg");
+        String weightUnit = AppSettings.getWeightUnit(this);
+        styleYAxis(chart.getAxisLeft(), weightUnit);
         chart.getAxisRight().setEnabled(false);
 
-        chart.setTouchEnabled(false);
-        chart.animateX(500);
+        chart.setTouchEnabled(true);
+        chart.setHighlightPerTapEnabled(true);
+        chart.setOnChartValueSelectedListener(
+                createIndexedChartListener(labels, weightUnit)
+        );
+        if (AppSettings.animationsEnabled(this)) {
+            chart.animateX(500);
+        }
         chart.invalidate();
     }
 
     private void buildPieChart(PieChart chart, String[] labels, float[] values, int[] colorRes) {
-        chart.setBackgroundColor(ContextCompat.getColor(this, R.color.card_background));
+        chart.setBackgroundResource(R.drawable.bg_home_metric);
         chart.getDescription().setEnabled(false);
         chart.setDrawHoleEnabled(false);
         chart.setUsePercentValues(true);
         chart.setEntryLabelTextSize(11f);
         chart.setEntryLabelColor(ContextCompat.getColor(this, R.color.black));
+        chart.setTouchEnabled(true);
+        chart.setHighlightPerTapEnabled(true);
 
         List<PieEntry> ents = new ArrayList<>();
         List<Integer> colors = new ArrayList<>();
@@ -739,6 +1278,7 @@ public class StatistikActivity extends AppCompatActivity {
         }
         if (ents.isEmpty()) {
             chart.setNoDataText("Noch keine Daten");
+            chart.setNoDataTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
             chart.clear();
             return;
         }
@@ -757,8 +1297,117 @@ public class StatistikActivity extends AppCompatActivity {
         chart.getLegend().setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
         chart.getLegend().setTextSize(11f);
         chart.setData(new PieData(ds));
-        chart.animateY(600);
+        float totalPieValue = 0;
+        for (float value : values) {
+            totalPieValue += value;
+        }
+        final float pieTotal = totalPieValue;
+        chart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry entry, Highlight highlight) {
+                if (entry instanceof PieEntry) {
+                    PieEntry pieEntry = (PieEntry) entry;
+                    float percentage = pieTotal <= 0
+                            ? 0
+                            : (pieEntry.getValue() / pieTotal) * 100f;
+                    showChartDetail(String.format(
+                            Locale.getDefault(),
+                            "%s: %.0f%%",
+                            pieEntry.getLabel(),
+                            percentage
+                    ));
+                }
+            }
+
+            @Override
+            public void onNothingSelected() {
+            }
+        });
+        if (AppSettings.animationsEnabled(this)) {
+            chart.animateY(600);
+        }
         chart.invalidate();
+    }
+
+    private void buildLineChart(
+            LineChart chart,
+            List<Entry> entries,
+            List<String> labels,
+            String unit) {
+        int gold = ContextCompat.getColor(this, R.color.training_gold);
+        int background = ContextCompat.getColor(this, R.color.primary);
+
+        chart.setBackgroundResource(R.drawable.bg_home_metric);
+        chart.getDescription().setEnabled(false);
+        chart.getLegend().setEnabled(false);
+        chart.setTouchEnabled(true);
+        chart.setDragEnabled(true);
+        chart.setScaleEnabled(false);
+        chart.setHighlightPerTapEnabled(true);
+
+        if (entries.isEmpty()) {
+            chart.setNoDataText("Noch keine Daten");
+            chart.setNoDataTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
+            chart.clear();
+            return;
+        }
+
+        LineDataSet dataSet = new LineDataSet(entries, "");
+        dataSet.setColor(gold);
+        dataSet.setCircleColor(gold);
+        dataSet.setCircleHoleColor(background);
+        dataSet.setLineWidth(2f);
+        dataSet.setCircleRadius(3f);
+        dataSet.setDrawValues(false);
+        dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        dataSet.setDrawFilled(true);
+        dataSet.setFillColor(gold);
+        dataSet.setFillAlpha(28);
+        dataSet.setHighLightColor(
+                ContextCompat.getColor(this, R.color.training_gold_highlight)
+        );
+        chart.setData(new LineData(dataSet));
+
+        styleXAxis(chart.getXAxis(), labels);
+        styleYAxis(chart.getAxisLeft(), unit);
+        chart.getAxisRight().setEnabled(false);
+        chart.setOnChartValueSelectedListener(
+                createIndexedChartListener(labels, unit)
+        );
+        if (AppSettings.animationsEnabled(this)) {
+            chart.animateX(500);
+        }
+        chart.invalidate();
+    }
+
+    private OnChartValueSelectedListener createIndexedChartListener(
+            List<String> labels,
+            String unit) {
+        return new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry entry, Highlight highlight) {
+                int index = Math.round(entry.getX());
+                String label = index >= 0 && index < labels.size()
+                        ? labels.get(index)
+                        : "";
+                String suffix = unit == null || unit.isEmpty() ? "" : " " + unit.trim();
+                showChartDetail(String.format(
+                        Locale.getDefault(),
+                        "%s: %.1f%s",
+                        label,
+                        entry.getY(),
+                        suffix
+                ));
+            }
+
+            @Override
+            public void onNothingSelected() {
+            }
+        };
+    }
+
+    private void showChartDetail(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
     private void styleXAxis(XAxis x, List<String> labels) {
@@ -793,7 +1442,8 @@ public class StatistikActivity extends AppCompatActivity {
 
     private void addTableHeader(TableLayout table, String... cols) {
         TableRow row = new TableRow(this);
-        row.setBackgroundColor(ContextCompat.getColor(this, R.color.primary));
+        row.setBackgroundColor(ContextCompat.getColor(this, R.color.primary_light));
+        row.setMinimumHeight(dpToPx(44));
         for (String col : cols) {
             row.addView(makeCell(col, true));
         }
@@ -803,7 +1453,11 @@ public class StatistikActivity extends AppCompatActivity {
     private void addTableRow(TableLayout table, String... cols) {
         TableRow row = new TableRow(this);
         boolean odd = table.getChildCount() % 2 == 0;
-        row.setBackgroundColor(ContextCompat.getColor(this, odd ? R.color.card_background : R.color.card_background_light));
+        row.setBackgroundColor(ContextCompat.getColor(
+                this,
+                odd ? R.color.primary : R.color.primary_light
+        ));
+        row.setMinimumHeight(dpToPx(44));
         for (String col : cols) row.addView(makeCell(col, false));
         table.addView(row);
     }
@@ -811,13 +1465,24 @@ public class StatistikActivity extends AppCompatActivity {
     private TextView makeCell(String text, boolean isHeader) {
         TextView tv = new TextView(this);
         tv.setText(text);
-        tv.setPadding(12, 10, 12, 10);
+        tv.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
         tv.setTextSize(isHeader ? 11f : 12f);
-        tv.setTextColor(ContextCompat.getColor(this, isHeader ? R.color.gold_primary : R.color.text_secondary));
+        tv.setTextColor(ContextCompat.getColor(
+                this,
+                isHeader ? R.color.training_gold_highlight : R.color.text_secondary
+        ));
         if (isHeader) tv.setTypeface(tv.getTypeface(), android.graphics.Typeface.BOLD);
         TableRow.LayoutParams lp = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
         tv.setLayoutParams(lp);
         return tv;
+    }
+
+    private int dpToPx(int dp) {
+        return Math.round(TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                getResources().getDisplayMetrics()
+        ));
     }
 
     private abstract static class SimpleItemSelected implements AdapterView.OnItemSelectedListener {

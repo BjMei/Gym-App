@@ -3,26 +3,65 @@
     <style name="ChartSectionLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:textColor">@color/gold_dark</item>
         <item name="android:textSize">10sp</item>
-        <item name="android:letterSpacing">0.08</item>
-        <item name="android:layout_marginBottom">6dp</item>
-        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.1</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginTop">10dp</item>
     </style>
     <style name="SectionLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:textColor">@color/training_gold</item>
         <item name="android:textSize">10sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:letterSpacing">0.1</item>
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:layout_marginTop">8dp</item>
     </style>
 
     <style name="RangeSpinner">
-        <item name="android:layout_width">140dp</item>
-        <item name="android:layout_height">44dp</item>
+        <item name="android:layout_width">112dp</item>
+        <item name="android:layout_height">42dp</item>
         <item name="android:background">@drawable/spinner_background</item>
-        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+    </style>
+
+    <style name="ProfileFieldLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">7dp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.12</item>
+        <item name="android:textColor">@color/gold_dark</item>
+        <item name="android:textSize">9sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ProfileInput">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">54dp</item>
+        <item name="android:background">@drawable/bg_training_input_compact</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">15dp</item>
+        <item name="android:paddingEnd">15dp</item>
+        <item name="android:selectAllOnFocus">false</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_tertiary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="SettingsSpinner">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">54dp</item>
+        <item name="android:background">@drawable/spinner_background</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:popupBackground">@color/card_background</item>
     </style>
 </resources>

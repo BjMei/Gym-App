@@ -16,6 +16,8 @@ public class WorkoutStorage {
     private static final String PREFS_NAME = "WorkoutHistory";
     private static final String PREFS_DETAILED = "WorkoutHistoryDetailed";
     private static final String PREFS_CARDIO = "WorkoutCardio";
+    private static final String PREFS_SESSIONS = "WorkoutSessions";
+    private static final String KEY_SESSIONS = "sessions";
     public static final String TYPE_PUSH = "push";
     public static final String TYPE_PULL = "pull";
     public static final String TYPE_LEG = "leg";
@@ -84,6 +86,75 @@ public class WorkoutStorage {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void saveTrainingSession(
+            Context context,
+            String sessionId,
+            String type,
+            long durationMs) {
+        if (sessionId == null || sessionId.trim().isEmpty() || durationMs <= 0) {
+            return;
+        }
+
+        SharedPreferences prefs =
+                context.getSharedPreferences(PREFS_SESSIONS, Context.MODE_PRIVATE);
+        JSONArray storedArray = parseArray(prefs.getString(KEY_SESSIONS, "[]"));
+        JSONArray updatedArray = new JSONArray();
+        boolean updated = false;
+
+        try {
+            for (int i = 0; i < storedArray.length(); i++) {
+                JSONObject stored = storedArray.getJSONObject(i);
+                if (sessionId.equals(stored.optString("sessionId"))) {
+                    long previousDuration = stored.optLong("durationMs", 0L);
+                    stored.put("durationMs", Math.max(previousDuration, durationMs));
+                    stored.put("workoutType", type);
+                    updated = true;
+                }
+                updatedArray.put(stored);
+            }
+
+            if (!updated) {
+                JSONObject session = new JSONObject();
+                session.put("sessionId", sessionId);
+                session.put("workoutType", type);
+                session.put("durationMs", durationMs);
+                session.put(
+                        "timestamp",
+                        new SimpleDateFormat(
+                                "dd.MM.yyyy HH:mm",
+                                Locale.getDefault()
+                        ).format(new Date())
+                );
+                updatedArray.put(session);
+            }
+
+            prefs.edit().putString(KEY_SESSIONS, updatedArray.toString()).apply();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<TrainingSession> getTrainingSessions(Context context) {
+        SharedPreferences prefs =
+                context.getSharedPreferences(PREFS_SESSIONS, Context.MODE_PRIVATE);
+        JSONArray array = parseArray(prefs.getString(KEY_SESSIONS, "[]"));
+        List<TrainingSession> sessions = new ArrayList<>();
+
+        for (int i = 0; i < array.length(); i++) {
+            try {
+                JSONObject session = array.getJSONObject(i);
+                sessions.add(new TrainingSession(
+                        session.optString("sessionId"),
+                        session.optString("workoutType"),
+                        session.optString("timestamp"),
+                        session.optLong("durationMs", 0L)
+                ));
+            } catch (JSONException ignored) {
+            }
+        }
+        return sessions;
     }
 
     // Letztes Training für eine spezifische Übung abrufen
@@ -220,6 +291,104 @@ public class WorkoutStorage {
         return dailyWorkouts;
     }
 
+    // Verlaufseinträge nach Datum und Workout-Typ gruppieren.
+    public static List<DailyWorkout> getHistoryWorkouts(Context context, String type) {
+        List<DetailedWorkout> allWorkouts = new ArrayList<>();
+        List<CardioSession> cardioSessions = new ArrayList<>();
+
+        boolean allTypes = type == null || type.trim().isEmpty();
+        if (allTypes) {
+            String[] types = new String[]{TYPE_PUSH, TYPE_PULL, TYPE_LEG};
+            for (String workoutType : types) {
+                allWorkouts.addAll(getDetailedWorkouts(context, workoutType));
+                cardioSessions.addAll(getCardioSessions(context, workoutType));
+            }
+        } else {
+            allWorkouts.addAll(getDetailedWorkouts(context, type));
+            cardioSessions.addAll(getCardioSessions(context, type));
+        }
+
+        java.util.Map<String, DailyWorkout> historyMap = new java.util.HashMap<>();
+        for (DetailedWorkout workout : allWorkouts) {
+            String dateOnly = getDatePart(workout.timestamp);
+            if (dateOnly.isEmpty() || workout.workoutType == null || workout.workoutType.isEmpty()) {
+                continue;
+            }
+
+            String key = dateOnly + "|" + workout.workoutType;
+            DailyWorkout historyEntry = historyMap.get(key);
+            if (historyEntry == null) {
+                historyEntry = new DailyWorkout(
+                        dateOnly,
+                        workout.workoutType,
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                );
+                historyMap.put(key, historyEntry);
+            }
+            historyEntry.exercises.add(workout);
+        }
+
+        for (CardioSession session : cardioSessions) {
+            String dateOnly = getDatePart(session.timestamp);
+            if (dateOnly.isEmpty() || session.workoutType == null || session.workoutType.isEmpty()) {
+                continue;
+            }
+
+            String key = dateOnly + "|" + session.workoutType;
+            DailyWorkout historyEntry = historyMap.get(key);
+            if (historyEntry == null) {
+                historyEntry = new DailyWorkout(
+                        dateOnly,
+                        session.workoutType,
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                );
+                historyMap.put(key, historyEntry);
+            }
+            historyEntry.cardioSessions.add(session);
+        }
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        List<DailyWorkout> historyWorkouts = new ArrayList<>(historyMap.values());
+        historyWorkouts.sort((a, b) -> {
+            try {
+                Date dateA = dateFormat.parse(a.date);
+                Date dateB = dateFormat.parse(b.date);
+                int dateComparison = dateB.compareTo(dateA);
+                if (dateComparison != 0) {
+                    return dateComparison;
+                }
+            } catch (Exception ignored) {
+            }
+            return Integer.compare(
+                    getWorkoutTypeOrder(a.workoutType),
+                    getWorkoutTypeOrder(b.workoutType)
+            );
+        });
+        return historyWorkouts;
+    }
+
+    private static String getDatePart(String timestamp) {
+        if (timestamp == null || timestamp.trim().isEmpty()) {
+            return "";
+        }
+        return timestamp.trim().split("\\s+")[0];
+    }
+
+    private static int getWorkoutTypeOrder(String workoutType) {
+        if (TYPE_PUSH.equals(workoutType)) {
+            return 0;
+        }
+        if (TYPE_PULL.equals(workoutType)) {
+            return 1;
+        }
+        if (TYPE_LEG.equals(workoutType)) {
+            return 2;
+        }
+        return 3;
+    }
+
     // Alte Methode für Rückwärtskompatibilität
     public static void addWorkout(Context context, String type, String summary) {
         if (summary == null || summary.isEmpty()) {
@@ -268,10 +437,12 @@ public class WorkoutStorage {
         SharedPreferences prefsHistory = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences prefsDetailed = context.getSharedPreferences(PREFS_DETAILED, Context.MODE_PRIVATE);
         SharedPreferences prefsCardio = context.getSharedPreferences(PREFS_CARDIO, Context.MODE_PRIVATE);
+        SharedPreferences prefsSessions = context.getSharedPreferences(PREFS_SESSIONS, Context.MODE_PRIVATE);
         
         prefsHistory.edit().clear().apply();
         prefsDetailed.edit().clear().apply();
         prefsCardio.edit().clear().apply();
+        prefsSessions.edit().clear().apply();
         
         // Alle Exercise Settings löschen
         SharedPreferences prefsSettings = context.getSharedPreferences("ExerciseSettings", Context.MODE_PRIVATE);
@@ -319,15 +490,25 @@ public class WorkoutStorage {
 
     public static class DailyWorkout {
         public String date;
+        public String workoutType;
         public List<DetailedWorkout> exercises;
         public List<CardioSession> cardioSessions;
         
         public DailyWorkout(String date, List<DetailedWorkout> exercises) {
-            this(date, exercises, new ArrayList<>());
+            this(date, "", exercises, new ArrayList<>());
         }
 
         public DailyWorkout(String date, List<DetailedWorkout> exercises, List<CardioSession> cardioSessions) {
+            this(date, "", exercises, cardioSessions);
+        }
+
+        public DailyWorkout(
+                String date,
+                String workoutType,
+                List<DetailedWorkout> exercises,
+                List<CardioSession> cardioSessions) {
             this.date = date;
+            this.workoutType = workoutType;
             this.exercises = exercises;
             this.cardioSessions = cardioSessions;
         }
@@ -348,6 +529,24 @@ public class WorkoutStorage {
             this.minutes = minutes;
             this.timestamp = timestamp;
             this.workoutType = workoutType;
+        }
+    }
+
+    public static class TrainingSession {
+        public String sessionId;
+        public String workoutType;
+        public String timestamp;
+        public long durationMs;
+
+        public TrainingSession(
+                String sessionId,
+                String workoutType,
+                String timestamp,
+                long durationMs) {
+            this.sessionId = sessionId;
+            this.workoutType = workoutType;
+            this.timestamp = timestamp;
+            this.durationMs = durationMs;
         }
     }
 }

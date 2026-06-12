@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- stärkerer Schatten -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.28"
+        android:fillType="evenOdd"
+        android:pathData="M12.4,5.5c-5,0 -9,4.5 -10,7c1,2.5 5,7 10,7s9,-4.5 10,-7c-1,-2.5 -5,-7 -10,-7zM12.4,17.5a5,5 0,1 1,0 -10a5,5 0,1 1,0 10zM12.4,9.5a3,3 0,1 0,0 6a3,3 0,1 0,0 -6z" />
+
+    <!-- Auge metallic -->
+    <path
+        android:strokeColor="#6F4700"
+        android:strokeWidth="0.25"
+        android:fillType="evenOdd"
+        android:pathData="M12,5c-5,0 -9,4.5 -10,7c1,2.5 5,7 10,7s9,-4.5 10,-7c-1,-2.5 -5,-7 -10,-7zM12,17a5,5 0,1 1,0 -10a5,5 0,1 1,0 10zM12,9a3,3 0,1 0,0 6a3,3 0,1 0,0 -6z">
+
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="2"
+                android:startY="5"
+                android:endX="2"
+                android:endY="19">
+                <item android:offset="0.00" android:color="#FFF8CC" />
+                <item android:offset="0.16" android:color="#FFE47A" />
+                <item android:offset="0.34" android:color="#C9A961" />
+                <item android:offset="0.52" android:color="#9F8447" />
+                <item android:offset="0.72" android:color="#E2C98D" />
+                <item android:offset="1.00" android:color="#6E4600" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Iris dunkler metallic -->
+    <path
+        android:strokeColor="#5E3A00"
+        android:strokeWidth="0.15"
+        android:pathData="M12,9.6a2.4,2.4 0,1 0,0 4.8a2.4,2.4 0,1 0,0 -4.8z">
+
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="12"
+                android:startY="9.6"
+                android:endX="12"
+                android:endY="14.4">
+                <item android:offset="0.00" android:color="#E2C98D" />
+                <item android:offset="0.35" android:color="#C9A961" />
+                <item android:offset="0.65" android:color="#9F8447" />
+                <item android:offset="1.00" android:color="#6E4600" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- helle Glanzkante oben -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M5.9,10.2C7.25,8.35 9.35,6.95 12,6.75C14.65,6.95 16.75,8.35 18.1,10.2"
+        android:strokeColor="#80FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="0.75" />
+
+    <!-- dunkle Innenkante unten -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M6.4,13.7C7.75,15.35 9.65,16.85 12,16.9C14.35,16.85 16.25,15.35 17.6,13.7"
+        android:strokeColor="#5E3A00"
+        android:strokeAlpha="0.35"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="0.8" />
+
+    <!-- kleines Licht im Auge -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.65"
+        android:pathData="M11.2,10.3a0.6,0.6 0,1 0,0 1.2a0.6,0.6 0,1 0,0 -1.2z" />
+
+</vector>

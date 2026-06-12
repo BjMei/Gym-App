@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,14 +26,16 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.core.view.WindowInsetsCompat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
-public class PushActivity extends AppCompatActivity {
+public class PushActivity extends IronxActivity {
 
     private Spinner spinnerExercise;
     private Spinner spinnerExerciseSecond;
@@ -44,11 +47,11 @@ public class PushActivity extends AppCompatActivity {
     private EditText[] etReps;
     private EditText[] etSecondWeights;
     private EditText[] etSecondReps;
-    private ImageButton btnSave;
+    private TextView btnSave;
     private Spinner spinnerCardio;
     private EditText etCardioMinutes;
-    private ImageButton btnSaveCardio;
-    private ImageButton btnManageCardio;
+    private View btnSaveCardio;
+    private View btnManageCardio;
     private LinearLayout llEntries;
     private LinearLayout llLastWorkout;
     private TextView tvLastWorkoutData;
@@ -62,6 +65,10 @@ public class PushActivity extends AppCompatActivity {
     private long timerBaseMs = 0L;
     private long elapsedWhenPausedMs = 0L;
     private boolean timerRunning = false;
+    private String trainingSessionId;
+    private static final String STATE_SESSION_ID = "training_session_id";
+    private static final String STATE_TIMER_ELAPSED = "timer_elapsed";
+    private static final String STATE_TIMER_RUNNING = "timer_running";
     private final Runnable timerRunnable = new Runnable() {
         @Override
         public void run() {
@@ -89,7 +96,9 @@ public class PushActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_push);
+        configureSystemBars();
         applyWindowInsets();
+        restoreSessionState(savedInstanceState);
 
         // Views initialisieren
         spinnerExercise = findViewById(R.id.spinnerExercise);
@@ -119,11 +128,11 @@ public class PushActivity extends AppCompatActivity {
         setupStopwatch();
 
         setupExerciseSpinner();
-        setupSpinnerPicker(spinnerExercise, adapter, "Übung auswählen");
-        setupSpinnerPicker(spinnerExerciseSecond, adapter, "2. Übung auswählen");
+        setupSpinnerPicker(spinnerExercise, adapter, getString(R.string.training_select_exercise));
+        setupSpinnerPicker(spinnerExerciseSecond, adapter, getString(R.string.training_select_second_exercise));
 
         setupCardioSpinner();
-        setupSpinnerPicker(spinnerCardio, cardioAdapter, "Cardio-Übung auswählen");
+        setupSpinnerPicker(spinnerCardio, cardioAdapter, getString(R.string.training_select_cardio));
 
         // Arrays für die 4 Sätze initialisieren
         etWeights = new EditText[]{
@@ -153,6 +162,7 @@ public class PushActivity extends AppCompatActivity {
             findViewById(R.id.etReps3_2),
             findViewById(R.id.etReps4_2)
         };
+        configureWeightUnit();
 
         // Listen für Einträge initialisieren
         workoutEntries = new ArrayList<>();
@@ -167,7 +177,7 @@ public class PushActivity extends AppCompatActivity {
         btnManageExercises.setOnClickListener(v -> showManageExercisesDialog());
 
         // Button für gespeicherte Trainings
-        ImageButton btnViewHistory = findViewById(R.id.btnViewHistory);
+        View btnViewHistory = findViewById(R.id.btnViewHistory);
         btnViewHistory.setOnClickListener(v -> {
             Intent intent = new Intent(PushActivity.this, TrainingHistoryActivity.class);
             intent.putExtra(TrainingHistoryActivity.EXTRA_WORKOUT_TYPE, WORKOUT_TYPE);
@@ -213,7 +223,7 @@ public class PushActivity extends AppCompatActivity {
 
         llSecondExerciseSection.setVisibility(View.GONE);
         llLastWorkoutSecond.setVisibility(View.GONE);
-        ivAccordionArrow.setImageResource(android.R.drawable.arrow_down_float);
+        ivAccordionArrow.setImageResource(R.drawable.ic_ironx_chevron_down);
 
         // Initial die erste Übung laden
         if (spinnerExercise.getCount() > 0) {
@@ -222,6 +232,15 @@ public class PushActivity extends AppCompatActivity {
                 loadLastWorkoutSecond(spinnerExerciseSecond.getItemAtPosition(0).toString());
             }
         }
+    }
+
+    private void configureSystemBars() {
+        getWindow().setStatusBarColor(Color.BLACK);
+        getWindow().setNavigationBarColor(Color.BLACK);
+        WindowInsetsControllerCompat controller =
+                new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
+        controller.setAppearanceLightStatusBars(false);
+        controller.setAppearanceLightNavigationBars(false);
     }
 
     private void applyWindowInsets() {
@@ -245,17 +264,22 @@ public class PushActivity extends AppCompatActivity {
     }
 
     private void setupStopwatch() {
-        updateStopwatchText(0L);
+        updateStopwatchText(elapsedWhenPausedMs);
+        if (timerRunning) {
+            timerBaseMs = SystemClock.elapsedRealtime() - elapsedWhenPausedMs;
+            btnTimerStartPause.setImageResource(R.drawable.ic_ironx_pause);
+            timerHandler.post(timerRunnable);
+        }
         btnTimerStartPause.setOnClickListener(v -> {
             if (timerRunning) {
                 elapsedWhenPausedMs = SystemClock.elapsedRealtime() - timerBaseMs;
                 timerRunning = false;
                 timerHandler.removeCallbacks(timerRunnable);
-                btnTimerStartPause.setImageResource(android.R.drawable.ic_media_play);
+                btnTimerStartPause.setImageResource(R.drawable.ic_ironx_play);
             } else {
                 timerBaseMs = SystemClock.elapsedRealtime() - elapsedWhenPausedMs;
                 timerRunning = true;
-                btnTimerStartPause.setImageResource(android.R.drawable.ic_media_pause);
+                btnTimerStartPause.setImageResource(R.drawable.ic_ironx_pause);
                 timerHandler.post(timerRunnable);
             }
         });
@@ -266,7 +290,7 @@ public class PushActivity extends AppCompatActivity {
             timerBaseMs = 0L;
             elapsedWhenPausedMs = 0L;
             updateStopwatchText(0L);
-            btnTimerStartPause.setImageResource(android.R.drawable.ic_media_play);
+            btnTimerStartPause.setImageResource(R.drawable.ic_ironx_play);
         });
     }
 
@@ -277,14 +301,42 @@ public class PushActivity extends AppCompatActivity {
         tvStopwatch.setText(String.format(Locale.getDefault(), "%02d:%02d.%02d", minutes, seconds, centiseconds));
     }
 
+    private void restoreSessionState(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            trainingSessionId = UUID.randomUUID().toString();
+            return;
+        }
+        trainingSessionId = savedInstanceState.getString(
+                STATE_SESSION_ID,
+                UUID.randomUUID().toString()
+        );
+        elapsedWhenPausedMs = savedInstanceState.getLong(STATE_TIMER_ELAPSED, 0L);
+        timerRunning = savedInstanceState.getBoolean(STATE_TIMER_RUNNING, false);
+    }
+
+    private long getCurrentElapsedMs() {
+        return timerRunning
+                ? SystemClock.elapsedRealtime() - timerBaseMs
+                : elapsedWhenPausedMs;
+    }
+
+    private void saveCurrentTrainingDuration(long minimumDurationMs) {
+        WorkoutStorage.saveTrainingSession(
+                this,
+                trainingSessionId,
+                WORKOUT_TYPE,
+                Math.max(getCurrentElapsedMs(), minimumDurationMs)
+        );
+    }
+
     private void toggleSecondExerciseSection() {
         boolean isVisible = llSecondExerciseSection.getVisibility() == View.VISIBLE;
         if (isVisible) {
             llSecondExerciseSection.setVisibility(View.GONE);
-            ivAccordionArrow.setImageResource(android.R.drawable.arrow_down_float);
+            ivAccordionArrow.setImageResource(R.drawable.ic_ironx_chevron_down);
         } else {
             llSecondExerciseSection.setVisibility(View.VISIBLE);
-            ivAccordionArrow.setImageResource(android.R.drawable.arrow_up_float);
+            ivAccordionArrow.setImageResource(R.drawable.ic_ironx_chevron_up);
             Object secondSelected = spinnerExerciseSecond.getSelectedItem();
             if (secondSelected != null) {
                 loadLastWorkoutSecond(secondSelected.toString());
@@ -300,8 +352,12 @@ public class PushActivity extends AppCompatActivity {
             for (int i = 0; i < lastWorkout.sets.size(); i++) {
                 WorkoutStorage.WorkoutSet set = lastWorkout.sets.get(i);
                 sb.append("\n")
-                        .append(String.format(Locale.getDefault(), "• Satz %d: %.1f kg × %d",
-                                i + 1, set.weight, set.reps));
+                        .append(getString(
+                                R.string.training_set_summary,
+                                i + 1,
+                                AppSettings.formatWeight(this, set.weight, 1),
+                                set.reps
+                        ));
             }
             tvLastWorkoutData.setText(sb.toString());
             llLastWorkout.setVisibility(View.VISIBLE);
@@ -318,8 +374,12 @@ public class PushActivity extends AppCompatActivity {
             for (int i = 0; i < lastWorkout.sets.size(); i++) {
                 WorkoutStorage.WorkoutSet set = lastWorkout.sets.get(i);
                 sb.append("\n")
-                        .append(String.format(Locale.getDefault(), "• Satz %d: %.1f kg × %d",
-                                i + 1, set.weight, set.reps));
+                        .append(getString(
+                                R.string.training_set_summary,
+                                i + 1,
+                                AppSettings.formatWeight(this, set.weight, 1),
+                                set.reps
+                        ));
             }
             tvLastWorkoutDataSecond.setText(sb.toString());
             llLastWorkoutSecond.setVisibility(View.VISIBLE);
@@ -453,7 +513,7 @@ public class PushActivity extends AppCompatActivity {
         tv.setGravity(Gravity.CENTER);
         tv.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         tv.setMinHeight(minHeight);
-        tv.setBackground(getResources().getDrawable(R.drawable.rounded_input, null));
+        tv.setBackground(getResources().getDrawable(R.drawable.bg_dialog_list_item, null));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -579,7 +639,7 @@ public class PushActivity extends AppCompatActivity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setMinimumHeight(minHeight);
         row.setPadding(padStart, padTopBottom, padEnd, padTopBottom);
-        row.setBackground(getResources().getDrawable(R.drawable.rounded_input, null));
+        row.setBackground(getResources().getDrawable(R.drawable.bg_dialog_list_item, null));
 
         LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -602,11 +662,10 @@ public class PushActivity extends AppCompatActivity {
         ImageButton btnDelete = new ImageButton(this);
         LinearLayout.LayoutParams deleteParams = new LinearLayout.LayoutParams(deleteSize, deleteSize);
         btnDelete.setLayoutParams(deleteParams);
-        btnDelete.setBackground(getResources().getDrawable(R.drawable.rounded_input, null));
-        btnDelete.setImageResource(android.R.drawable.ic_menu_delete);
+        btnDelete.setBackground(getResources().getDrawable(R.drawable.bg_dialog_secondary_action, null));
+        btnDelete.setImageResource(R.drawable.ic_ironx_delete);
         btnDelete.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
         btnDelete.setPadding(deletePad, deletePad, deletePad, deletePad);
-        btnDelete.setColorFilter(getResources().getColor(R.color.gold_primary, null));
         btnDelete.setContentDescription("Löschen");
         row.addView(btnDelete);
 
@@ -750,14 +809,12 @@ public class PushActivity extends AppCompatActivity {
         if (secondHasInput && secondSets != null) {
             saveWorkoutExercise(secondExercise, secondSets);
         }
+        saveCurrentTrainingDuration(0L);
+
+        TrainingSaveFeedback.show(btnSave);
 
         clearInputFields();
         loadLastWorkout(exercise);
-
-        String message = secondHasInput
-                ? String.format("Übungen '%s' und '%s' gespeichert", exercise, secondExercise)
-                : String.format("Übung '%s' gespeichert", exercise);
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     private List<Set> parseSetsFromInputs(EditText[] weights, EditText[] reps, String label) {
@@ -772,7 +829,8 @@ public class PushActivity extends AppCompatActivity {
             }
 
             try {
-                double weight = Double.parseDouble(weightStr);
+                double displayedWeight = Double.parseDouble(weightStr.replace(',', '.'));
+                double weight = AppSettings.toStoredKg(this, displayedWeight);
                 int repsValue = Integer.parseInt(repsStr);
                 sets.add(new Set(weight, repsValue));
             } catch (NumberFormatException e) {
@@ -811,7 +869,12 @@ public class PushActivity extends AppCompatActivity {
         builder.append(exercise).append(": ");
         for (int i = 0; i < sets.size(); i++) {
             Set set = sets.get(i);
-            builder.append(String.format(Locale.getDefault(), "%.1f kg × %d", set.getWeight(), set.getReps()));
+            builder.append(String.format(
+                    Locale.getDefault(),
+                    "%s × %d",
+                    AppSettings.formatWeight(this, set.getWeight(), 1),
+                    set.getReps()
+            ));
             if (i < sets.size() - 1) {
                 builder.append(" | ");
             }
@@ -872,8 +935,12 @@ public class PushActivity extends AppCompatActivity {
         for (int i = 0; i < entry.getSets().size(); i++) {
             Set set = entry.getSets().get(i);
             TextView setView = new TextView(this);
-            setView.setText(String.format("Satz %d: %.1f kg × %d Wiederholungen", 
-                i + 1, set.getWeight(), set.getReps()));
+            setView.setText(getString(
+                    R.string.training_set_detail,
+                    i + 1,
+                    AppSettings.formatWeight(this, set.getWeight(), 1),
+                    set.getReps()
+            ));
             setView.setTextColor(getResources().getColor(R.color.text_secondary, null));
             setView.setTextSize(17);
             setView.setPadding(0, 10, 0, 10);
@@ -891,6 +958,17 @@ public class PushActivity extends AppCompatActivity {
 
         // Zur LinearLayout hinzufügen
         llEntries.addView(exerciseContainer);
+        TrainingSaveFeedback.revealSavedEntry(exerciseContainer);
+    }
+
+    private void configureWeightUnit() {
+        String unit = AppSettings.getWeightUnit(this);
+        for (EditText weightInput : etWeights) {
+            weightInput.setHint(unit);
+        }
+        for (EditText weightInput : etSecondWeights) {
+            weightInput.setHint(unit);
+        }
     }
 
     private void saveCardioEntry() {
@@ -921,6 +999,7 @@ public class PushActivity extends AppCompatActivity {
             CardioEntry entry = new CardioEntry(cardioExercise, minutes);
             cardioEntries.add(entry);
             WorkoutStorage.saveCardioSession(this, WORKOUT_TYPE, cardioExercise, minutes);
+            saveCurrentTrainingDuration(minutes * 60_000L);
 
             // Eintrag in der UI anzeigen
             addCardioEntryToView(entry);
@@ -972,7 +1051,7 @@ public class PushActivity extends AppCompatActivity {
 
         // Zeit anzeigen
         TextView timeView = new TextView(this);
-        timeView.setText(String.format("%d Minuten", entry.getMinutes()));
+        timeView.setText(getString(R.string.training_minutes_value, entry.getMinutes()));
         timeView.setTextColor(getResources().getColor(R.color.text_secondary, null));
         timeView.setTextSize(17);
         timeView.setPadding(0, 10, 0, 10);
@@ -997,6 +1076,14 @@ public class PushActivity extends AppCompatActivity {
         if (timerRunning) {
             timerHandler.post(timerRunnable);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(STATE_SESSION_ID, trainingSessionId);
+        outState.putLong(STATE_TIMER_ELAPSED, getCurrentElapsedMs());
+        outState.putBoolean(STATE_TIMER_RUNNING, timerRunning);
+        super.onSaveInstanceState(outState);
     }
 
     @Override

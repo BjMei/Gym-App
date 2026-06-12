@@ -1,5 +1,7 @@
 package com.example.gym_app;
 
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -7,7 +9,9 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -18,6 +22,7 @@ import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -31,69 +36,59 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
-public class FortschrittActivity extends AppCompatActivity {
+public class FortschrittActivity extends IronxActivity {
 
-    private static final int[] RANGE_DAYS = {7, 30, 90, 180, 365};
-    private static final String[] RANGE_LABELS = {"7T", "30T", "90T", "6M", "12M"};
+    private static final Integer[] RANGE_DAYS = {7, 30, 90, 180, 365, null};
+    private static final String[] RANGE_LABELS = {"7T", "30T", "90T", "6M", "12M", "Gesamt"};
+    private static final String[] WORKOUT_TYPES = {
+            WorkoutStorage.TYPE_PUSH,
+            WorkoutStorage.TYPE_PULL,
+            WorkoutStorage.TYPE_LEG
+    };
+    private static final String[] MUSCLE_GROUPS = {
+            "Brust", "Rücken", "Schultern", "Arme", "Core", "Beine"
+    };
+    private static final String PREFS_APP = "AppSettings";
+    private static final String PREFS_MUSCLES = "ExerciseMuscleMappings";
+    private static final String KEY_UNITS = "units";
+    private static final String KEY_PROFILE_WEIGHT = "profile_weight";
+    private static final String KEY_PROFILE_GOAL = "goal";
+    private static final String KEY_WEEKLY_GOAL = "training_goal_per_week";
+    private static final double KG_TO_LBS = 2.2046226218;
+    private static final DateTimeFormatter STORAGE_TIMESTAMP =
+            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm", Locale.GERMANY);
+    private static final DateTimeFormatter CHART_DATE =
+            DateTimeFormatter.ofPattern("dd.MM.", Locale.GERMANY);
+    private static final DateTimeFormatter DISPLAY_DATE =
+            DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.GERMANY);
+    private static final Map<String, List<String>> DEFAULT_MUSCLE_MAP =
+            createDefaultMuscleMap();
 
-    private static final String[] PUSH_EXERCISES = {"Flys", "Brustpresse", "Schrägbank", "Frontheben", "Seitheben", "Triceps"};
-    private static final String[] PULL_EXERCISES = {"Latzug eng", "Latzug breit", "Rudern", "Unterer Rücken", "Bizeps", "Hammer Curls", "Bauch", "Butterfly Reverse"};
-    private static final String[] LEG_EXERCISES = {"Beinbeuger", "Beine innen", "Waden sitzend", "Beinstrecker", "Beinpresse", "Hip Thrust", "Hyperextension"};
-
-    private static final Set<String> PUSH_SET = new HashSet<>(Arrays.asList(PUSH_EXERCISES));
-    private static final Set<String> LEG_SET = new HashSet<>(Arrays.asList(LEG_EXERCISES));
-
-    private static final Map<String, String> MUSCLE_MAP = new HashMap<>();
-
-    static {
-        for (String e : new String[]{"Flys", "Brustpresse", "Schrägbank"}) MUSCLE_MAP.put(e, "Brust");
-        for (String e : new String[]{"Frontheben", "Seitheben"}) MUSCLE_MAP.put(e, "Schultern");
-        MUSCLE_MAP.put("Triceps", "Arme");
-        for (String e : new String[]{"Latzug eng", "Latzug breit", "Rudern", "Butterfly Reverse"}) MUSCLE_MAP.put(e, "Rücken");
-        for (String e : new String[]{"Unterer Rücken", "Bauch"}) MUSCLE_MAP.put(e, "Core");
-        for (String e : new String[]{"Bizeps", "Hammer Curls"}) MUSCLE_MAP.put(e, "Arme");
-        for (String e : LEG_EXERCISES) MUSCLE_MAP.put(e, "Beine");
-    }
-
+    private Spinner spinnerRange;
     private Spinner spinnerExercise;
-    private Spinner spinnerRangeKraft;
-    private Spinner spinnerRangeMuskeln;
-    private Spinner spinnerRangeKonsistenz;
-
-    private LineChart chart1RM;
-    private LineChart chartMaxGewicht;
-    private LineChart chartVolumen;
-    private LineChart chartWiederholungen;
-
-    private BarChart chartMuskelVolumen;
-    private PieChart chartPushPull;
-    private PieChart chartOberUnter;
-    private TextView tvDysbalance;
-
-    private TextView tvStreak;
-    private TextView tvBestStreak;
-    private TextView tvBestStreakZeitraum;
-    private BarChart chartFreieTage;
-    private PieChart chartQuote;
-    private TextView tvQuoteProzent;
-    private TextView tvQuoteStatus;
+    private Spinner spinnerMuscleExercise;
+    private Spinner spinnerWeeklyGoal;
+    private ArrayAdapter<ExerciseOption> exerciseAdapter;
+    private ArrayAdapter<ExerciseOption> muscleExerciseAdapter;
 
     private LinearLayout tabKraft;
     private LinearLayout tabMuskeln;
@@ -101,62 +96,94 @@ public class FortschrittActivity extends AppCompatActivity {
     private View sectionKraft;
     private View sectionMuskeln;
     private View sectionKonsistenz;
+    private String currentTab = "kraft";
+
+    private View kpiBest1Rm;
+    private View kpiRelativeStrength;
+    private View kpiStrengthVolume;
+    private View kpiPrCount;
+    private TextView tvKraftComparisonPeriod;
+    private LineChart chart1RM;
+    private LineChart chartMaxGewicht;
+    private LineChart chartVolumen;
+    private LineChart chartWiederholungen;
+
+    private View kpiMuscleVolume;
+    private View kpiMuscleBalance;
+    private TextView tvMuscleComparison;
+    private TextView tvMuscleMapping;
+    private BarChart chartMuskelVolumen;
+    private PieChart chartPushPull;
+    private PieChart chartOberUnter;
+    private TextView tvDysbalance;
+
+    private View kpiCurrentStreak;
+    private View kpiBestStreak;
+    private View kpiWeeklyAverage;
+    private View kpiGoalAchievement;
+    private TextView tvConsistencyComparison;
+    private BarChart chartWeeklySessions;
+    private PieChart chartGoalAchievement;
+    private TextView tvGoalStatus;
+
+    private List<ExerciseOption> exerciseOptions = new ArrayList<>();
+    private SharedPreferences appPreferences;
+    private SharedPreferences musclePreferences;
+    private boolean displayLbs;
+    private String weightUnit;
+    private double weightFactor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fortschritt);
         applyWindowInsets();
+
+        appPreferences = getSharedPreferences(PREFS_APP, MODE_PRIVATE);
+        musclePreferences = getSharedPreferences(PREFS_MUSCLES, MODE_PRIVATE);
+        displayLbs = getString(R.string.settings_unit_lbs).equals(
+                appPreferences.getString(KEY_UNITS, getString(R.string.settings_unit_kg))
+        );
+        weightUnit = displayLbs ? "lbs" : "kg";
+        weightFactor = displayLbs ? KG_TO_LBS : 1.0;
+
         bindViews();
         setupTabs();
-        setupExerciseSpinner();
+        setupRangeSpinner();
+        setupExerciseSpinners();
+        setupWeeklyGoalSpinner();
+        setupMuscleMapping();
+        updateGoalSummary();
+
+        findViewById(R.id.btnBackFortschritt).setOnClickListener(v -> finish());
         showSection("kraft");
     }
 
-
     private void applyWindowInsets() {
         View rootLayout = findViewById(R.id.rootFortschrittLayout);
-        int basePaddingLeft = rootLayout.getPaddingLeft();
-        int basePaddingTop = rootLayout.getPaddingTop();
-        int basePaddingRight = rootLayout.getPaddingRight();
-        int basePaddingBottom = rootLayout.getPaddingBottom();
+        int left = rootLayout.getPaddingLeft();
+        int top = rootLayout.getPaddingTop();
+        int right = rootLayout.getPaddingRight();
+        int bottom = rootLayout.getPaddingBottom();
 
-        ViewCompat.setOnApplyWindowInsetsListener(rootLayout, (view, windowInsets) -> {
-            Insets systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+        ViewCompat.setOnApplyWindowInsetsListener(rootLayout, (view, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             view.setPadding(
-                    basePaddingLeft + systemBars.left,
-                    basePaddingTop + systemBars.top,
-                    basePaddingRight + systemBars.right,
-                    basePaddingBottom + systemBars.bottom
+                    left + systemBars.left,
+                    top + systemBars.top,
+                    right + systemBars.right,
+                    bottom + systemBars.bottom
             );
-            return windowInsets;
+            return insets;
         });
         ViewCompat.requestApplyInsets(rootLayout);
     }
 
     private void bindViews() {
+        spinnerRange = findViewById(R.id.spinnerProgressRange);
         spinnerExercise = findViewById(R.id.spinnerFortschrittExercise);
-        spinnerRangeKraft = findViewById(R.id.spinnerRangeKraft);
-        spinnerRangeMuskeln = findViewById(R.id.spinnerRangeMuskeln);
-        spinnerRangeKonsistenz = findViewById(R.id.spinnerRangeKonsistenz);
-
-        chart1RM = findViewById(R.id.chart1RM);
-        chartMaxGewicht = findViewById(R.id.chartMaxGewicht);
-        chartVolumen = findViewById(R.id.chartVolumen);
-        chartWiederholungen = findViewById(R.id.chartWiederholungen);
-
-        chartMuskelVolumen = findViewById(R.id.chartMuskelVolumen);
-        chartPushPull = findViewById(R.id.chartPushPull);
-        chartOberUnter = findViewById(R.id.chartOberUnter);
-        tvDysbalance = findViewById(R.id.tvDysbalance);
-
-        tvStreak = findViewById(R.id.tvStreak);
-        tvBestStreak = findViewById(R.id.tvBestStreak);
-        tvBestStreakZeitraum = findViewById(R.id.tvBestStreakZeitraum);
-        chartFreieTage = findViewById(R.id.chartFreieTage);
-        chartQuote = findViewById(R.id.chartQuote);
-        tvQuoteProzent = findViewById(R.id.tvQuoteProzent);
-        tvQuoteStatus = findViewById(R.id.tvQuoteStatus);
+        spinnerMuscleExercise = findViewById(R.id.spinnerMuscleExercise);
+        spinnerWeeklyGoal = findViewById(R.id.spinnerWeeklyGoal);
 
         tabKraft = findViewById(R.id.tabKraft);
         tabMuskeln = findViewById(R.id.tabMuskeln);
@@ -164,463 +191,943 @@ public class FortschrittActivity extends AppCompatActivity {
         sectionKraft = findViewById(R.id.sectionKraft);
         sectionMuskeln = findViewById(R.id.sectionMuskeln);
         sectionKonsistenz = findViewById(R.id.sectionKonsistenz);
+
+        kpiBest1Rm = findViewById(R.id.kpiBest1Rm);
+        kpiRelativeStrength = findViewById(R.id.kpiRelativeStrength);
+        kpiStrengthVolume = findViewById(R.id.kpiStrengthVolume);
+        kpiPrCount = findViewById(R.id.kpiPrCount);
+        tvKraftComparisonPeriod = findViewById(R.id.tvKraftComparisonPeriod);
+        chart1RM = findViewById(R.id.chart1RM);
+        chartMaxGewicht = findViewById(R.id.chartMaxGewicht);
+        chartVolumen = findViewById(R.id.chartVolumen);
+        chartWiederholungen = findViewById(R.id.chartWiederholungen);
+
+        kpiMuscleVolume = findViewById(R.id.kpiMuscleVolume);
+        kpiMuscleBalance = findViewById(R.id.kpiMuscleBalance);
+        tvMuscleComparison = findViewById(R.id.tvMuscleComparison);
+        tvMuscleMapping = findViewById(R.id.tvMuscleMapping);
+        chartMuskelVolumen = findViewById(R.id.chartMuskelVolumen);
+        chartPushPull = findViewById(R.id.chartPushPull);
+        chartOberUnter = findViewById(R.id.chartOberUnter);
+        tvDysbalance = findViewById(R.id.tvDysbalance);
+
+        kpiCurrentStreak = findViewById(R.id.kpiCurrentStreak);
+        kpiBestStreak = findViewById(R.id.kpiBestStreak);
+        kpiWeeklyAverage = findViewById(R.id.kpiWeeklyAverage);
+        kpiGoalAchievement = findViewById(R.id.kpiGoalAchievement);
+        tvConsistencyComparison = findViewById(R.id.tvConsistencyComparison);
+        chartWeeklySessions = findViewById(R.id.chartWeeklySessions);
+        chartGoalAchievement = findViewById(R.id.chartGoalAchievement);
+        tvGoalStatus = findViewById(R.id.tvGoalStatus);
     }
 
     private void setupTabs() {
+        ((TextView) tabKraft.getChildAt(0)).setText("Kraft");
+        ((TextView) tabMuskeln.getChildAt(0)).setText("Muskeln");
+        ((TextView) tabKonsistenz.getChildAt(0)).setText("Konsistenz");
+
         tabKraft.setOnClickListener(v -> showSection("kraft"));
         tabMuskeln.setOnClickListener(v -> showSection("muskeln"));
         tabKonsistenz.setOnClickListener(v -> showSection("konsistenz"));
     }
 
-    private void showSection(String tab) {
-        sectionKraft.setVisibility("kraft".equals(tab) ? View.VISIBLE : View.GONE);
-        sectionMuskeln.setVisibility("muskeln".equals(tab) ? View.VISIBLE : View.GONE);
-        sectionKonsistenz.setVisibility("konsistenz".equals(tab) ? View.VISIBLE : View.GONE);
-
-        int active = ContextCompat.getColor(this, R.color.gold_primary);
-        int inactive = ContextCompat.getColor(this, R.color.text_tertiary);
-
-        ((TextView) tabKraft.getChildAt(0)).setTextColor("kraft".equals(tab) ? active : inactive);
-        ((TextView) tabMuskeln.getChildAt(0)).setTextColor("muskeln".equals(tab) ? active : inactive);
-        ((TextView) tabKonsistenz.getChildAt(0)).setTextColor("konsistenz".equals(tab) ? active : inactive);
-
-        tabKraft.getChildAt(1).setVisibility("kraft".equals(tab) ? View.VISIBLE : View.INVISIBLE);
-        tabMuskeln.getChildAt(1).setVisibility("muskeln".equals(tab) ? View.VISIBLE : View.INVISIBLE);
-        tabKonsistenz.getChildAt(1).setVisibility("konsistenz".equals(tab) ? View.VISIBLE : View.INVISIBLE);
-
-        if ("kraft".equals(tab)) loadKraftData();
-        if ("muskeln".equals(tab)) loadMuskelData();
-        if ("konsistenz".equals(tab)) loadKonsistenzData();
+    private void setupRangeSpinner() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                R.layout.spinner_item_stats,
+                RANGE_LABELS
+        );
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_stats);
+        spinnerRange.setAdapter(adapter);
+        spinnerRange.setSelection(RANGE_LABELS.length - 1);
+        spinnerRange.setOnItemSelectedListener(new SimpleItemSelected() {
+            @Override
+            public void onItemSelected(
+                    AdapterView<?> parent,
+                    View view,
+                    int position,
+                    long id) {
+                loadCurrentSection();
+            }
+        });
     }
 
-    private void setupExerciseSpinner() {
-        List<String> all = new ArrayList<>();
-        all.addAll(Arrays.asList(PUSH_EXERCISES));
-        all.addAll(Arrays.asList(PULL_EXERCISES));
-        all.addAll(Arrays.asList(LEG_EXERCISES));
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item_white, all);
-        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
-        spinnerExercise.setAdapter(adapter);
+    private void setupExerciseSpinners() {
+        exerciseOptions = collectExerciseOptions();
+        exerciseAdapter = new ArrayAdapter<>(
+                this,
+                R.layout.spinner_item_stats,
+                exerciseOptions
+        );
+        exerciseAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_stats);
+        spinnerExercise.setAdapter(exerciseAdapter);
         spinnerExercise.setOnItemSelectedListener(new SimpleItemSelected() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                loadKraftData();
+            public void onItemSelected(
+                    AdapterView<?> parent,
+                    View view,
+                    int position,
+                    long id) {
+                if ("kraft".equals(currentTab)) {
+                    loadKraftData();
+                }
             }
         });
 
-        setupRangeSpinner(spinnerRangeKraft, this::loadKraftData);
-        setupRangeSpinner(spinnerRangeMuskeln, this::loadMuskelData);
-        setupRangeSpinner(spinnerRangeKonsistenz, this::loadKonsistenzData);
-    }
-
-    private void setupRangeSpinner(Spinner spinner, Runnable onChanged) {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item_white, RANGE_LABELS);
-        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
-        spinner.setAdapter(adapter);
-        spinner.setSelection(1);
-        spinner.setOnItemSelectedListener(new SimpleItemSelected() {
+        muscleExerciseAdapter = new ArrayAdapter<>(
+                this,
+                R.layout.spinner_item_stats,
+                exerciseOptions
+        );
+        muscleExerciseAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_stats);
+        spinnerMuscleExercise.setAdapter(muscleExerciseAdapter);
+        spinnerMuscleExercise.setOnItemSelectedListener(new SimpleItemSelected() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                onChanged.run();
+            public void onItemSelected(
+                    AdapterView<?> parent,
+                    View view,
+                    int position,
+                    long id) {
+                updateMuscleMappingText();
             }
         });
     }
 
-    private int getRangeFromSpinner(Spinner spinner) {
-        int pos = spinner.getSelectedItemPosition();
-        return (pos >= 0 && pos < RANGE_DAYS.length) ? RANGE_DAYS[pos] : 30;
+    private void setupWeeklyGoalSpinner() {
+        List<String> goals = new ArrayList<>();
+        for (int goal = 1; goal <= 7; goal++) {
+            goals.add(goal + (goal == 1 ? " Training/Woche" : " Trainings/Woche"));
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                R.layout.spinner_item_stats,
+                goals
+        );
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_stats);
+        spinnerWeeklyGoal.setAdapter(adapter);
+        int savedGoal = getWeeklyGoal();
+        spinnerWeeklyGoal.setSelection(savedGoal - 1);
+        spinnerWeeklyGoal.setOnItemSelectedListener(new SimpleItemSelected() {
+            @Override
+            public void onItemSelected(
+                    AdapterView<?> parent,
+                    View view,
+                    int position,
+                    long id) {
+                appPreferences.edit()
+                        .putInt(KEY_WEEKLY_GOAL, position + 1)
+                        .apply();
+                updateGoalSummary();
+                if ("konsistenz".equals(currentTab)) {
+                    loadKonsistenzData();
+                }
+            }
+        });
+    }
+
+    private void setupMuscleMapping() {
+        findViewById(R.id.btnEditMuscleMapping)
+                .setOnClickListener(v -> showMuscleMappingDialog());
+    }
+
+    private void showSection(String tab) {
+        currentTab = tab;
+        sectionKraft.setVisibility("kraft".equals(tab) ? View.VISIBLE : View.GONE);
+        sectionMuskeln.setVisibility("muskeln".equals(tab) ? View.VISIBLE : View.GONE);
+        sectionKonsistenz.setVisibility(
+                "konsistenz".equals(tab) ? View.VISIBLE : View.GONE
+        );
+
+        int active = ContextCompat.getColor(this, R.color.training_gold_highlight);
+        int inactive = ContextCompat.getColor(this, R.color.text_tertiary);
+        updateTab(tabKraft, "kraft".equals(tab), active, inactive);
+        updateTab(tabMuskeln, "muskeln".equals(tab), active, inactive);
+        updateTab(tabKonsistenz, "konsistenz".equals(tab), active, inactive);
+        loadCurrentSection();
+    }
+
+    private void updateTab(
+            LinearLayout tab,
+            boolean selected,
+            int activeColor,
+            int inactiveColor) {
+        ((TextView) tab.getChildAt(0)).setTextColor(
+                selected ? activeColor : inactiveColor
+        );
+        tab.getChildAt(1).setVisibility(selected ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    private void loadCurrentSection() {
+        if ("kraft".equals(currentTab)) {
+            loadKraftData();
+        } else if ("muskeln".equals(currentTab)) {
+            loadMuscleData();
+        } else {
+            loadKonsistenzData();
+        }
     }
 
     private void loadKraftData() {
-        if (spinnerExercise.getSelectedItem() == null) return;
-        String exercise = spinnerExercise.getSelectedItem().toString();
-        int days = getRangeFromSpinner(spinnerRangeKraft);
-
-        String type = PUSH_SET.contains(exercise) ? WorkoutStorage.TYPE_PUSH
-                : LEG_SET.contains(exercise) ? WorkoutStorage.TYPE_LEG
-                : WorkoutStorage.TYPE_PULL;
-
-        List<WorkoutStorage.DetailedWorkout> raw = WorkoutStorage.getDetailedWorkouts(this, type);
-        Date cutoff = getDaysAgo(days);
-
-        SimpleDateFormat parseFull = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
-        SimpleDateFormat dayKeyFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        SimpleDateFormat labelFormat = new SimpleDateFormat("dd.MM.", Locale.getDefault());
-
-        Map<String, float[]> dayMap = new TreeMap<>();
-        Map<String, String> dayLabels = new HashMap<>();
-
-        for (WorkoutStorage.DetailedWorkout workout : raw) {
-            if (!exercise.equals(workout.exercise) || workout.sets == null) continue;
-            try {
-                Date date = parseFull.parse(workout.timestamp);
-                if (date == null || date.before(cutoff)) continue;
-
-                String key = dayKeyFormat.format(date);
-                dayLabels.put(key, labelFormat.format(date));
-
-                double maxWeight = 0;
-                double volume = 0;
-                double reps = 0;
-                double best1RM = 0;
-                for (WorkoutStorage.WorkoutSet set : workout.sets) {
-                    double estRm = set.weight * (1 + set.reps / 30.0);
-                    best1RM = Math.max(best1RM, estRm);
-                    maxWeight = Math.max(maxWeight, set.weight);
-                    volume += set.weight * set.reps;
-                    reps += set.reps;
-                }
-                float avgReps = workout.sets.isEmpty() ? 0 : (float) (reps / workout.sets.size());
-
-                float[] existing = dayMap.get(key);
-                if (existing == null) {
-                    dayMap.put(key, new float[]{(float) best1RM, (float) maxWeight, (float) volume, avgReps});
-                } else {
-                    existing[0] = Math.max(existing[0], (float) best1RM);
-                    existing[1] = Math.max(existing[1], (float) maxWeight);
-                    existing[2] += (float) volume;
-                    existing[3] = (existing[3] + avgReps) / 2f;
-                }
-            } catch (Exception ignored) {
-            }
+        ExerciseOption option = getSelectedExercise(spinnerExercise);
+        if (option == null) {
+            clearStrengthCharts();
+            return;
         }
 
-        List<String> keys = new ArrayList<>(dayMap.keySet());
+        List<WorkoutRecord> allRecords = getWorkoutRecords(
+                option.workoutType,
+                option.exercise
+        );
+        LocalDate today = LocalDate.now();
+        LocalDate start = getPeriodStart(extractDates(allRecords), today);
+        TreeMap<LocalDate, DayMetric> allDays = aggregateStrength(
+                allRecords,
+                null,
+                today
+        );
+        TreeMap<LocalDate, DayMetric> selectedDays = aggregateStrength(
+                allRecords,
+                start,
+                today
+        );
+
+        ProgressCalculator.Period comparisonCurrent =
+                getComparisonCurrentPeriod(start, today);
+        ProgressCalculator.Period previous = ProgressCalculator.previousPeriod(
+                comparisonCurrent.start,
+                comparisonCurrent.end
+        );
+        StrengthSummary selectedSummary = summarizeStrength(selectedDays);
+        StrengthSummary comparisonSummary = summarizeStrength(aggregateStrength(
+                allRecords,
+                comparisonCurrent.start,
+                comparisonCurrent.end
+        ));
+        StrengthSummary previousSummary = summarizeStrength(aggregateStrength(
+                allRecords,
+                previous.start,
+                previous.end
+        ));
+
+        Set<LocalDate> oneRmPrDays = detectPrDays(allDays, MetricType.ONE_RM);
+        Set<LocalDate> weightPrDays = detectPrDays(allDays, MetricType.MAX_WEIGHT);
+        Set<LocalDate> volumePrDays = detectPrDays(allDays, MetricType.VOLUME);
+        Set<LocalDate> repsPrDays = detectPrDays(allDays, MetricType.AVG_REPS);
+        Set<LocalDate> selectedPrDays = new LinkedHashSet<>(oneRmPrDays);
+        selectedPrDays.addAll(weightPrDays);
+        selectedPrDays.retainAll(selectedDays.keySet());
+
+        double bodyWeight = getProfileWeightKg();
+        setKpi(
+                kpiBest1Rm,
+                "BESTES 1RM",
+                formatWeight(selectedSummary.bestOneRm),
+                comparisonTrend(
+                        comparisonSummary.bestOneRm,
+                        previousSummary.bestOneRm
+                )
+        );
+        setKpi(
+                kpiRelativeStrength,
+                "RELATIVE KRAFT",
+                bodyWeight > 0
+                        ? String.format(
+                                Locale.GERMANY,
+                                "%.2fx",
+                                selectedSummary.bestOneRm / bodyWeight
+                        )
+                        : "–",
+                bodyWeight > 0
+                        ? String.format(
+                                Locale.GERMANY,
+                                "1RM im Verhältnis zu %.1f kg",
+                                bodyWeight
+                        )
+                        : "Körpergewicht im Profil ergänzen"
+        );
+        setKpi(
+                kpiStrengthVolume,
+                "GESAMTVOLUMEN",
+                formatVolume(selectedSummary.totalVolume),
+                comparisonTrend(
+                        comparisonSummary.totalVolume,
+                        previousSummary.totalVolume
+                )
+        );
+        setKpi(
+                kpiPrCount,
+                "ECHTE PRs",
+                String.valueOf(selectedPrDays.size()),
+                "Allzeit-Rekorde im Zeitraum"
+        );
+        tvKraftComparisonPeriod.setText(getComparisonLabel());
+
         List<String> labels = new ArrayList<>();
-        List<Entry> e1RM = new ArrayList<>();
-        List<Entry> eMax = new ArrayList<>();
-        List<Entry> eVol = new ArrayList<>();
-        List<Entry> eReps = new ArrayList<>();
+        List<Entry> oneRmEntries = new ArrayList<>();
+        List<Entry> maxWeightEntries = new ArrayList<>();
+        List<Entry> volumeEntries = new ArrayList<>();
+        List<Entry> repsEntries = new ArrayList<>();
+        List<Entry> oneRmPrEntries = new ArrayList<>();
+        List<Entry> weightPrEntries = new ArrayList<>();
+        List<Entry> volumePrEntries = new ArrayList<>();
+        List<Entry> repsPrEntries = new ArrayList<>();
 
-        int i = 0;
-        for (String key : keys) {
-            float[] v = dayMap.get(key);
-            labels.add(dayLabels.getOrDefault(key, key));
-            e1RM.add(new Entry(i, v[0]));
-            eMax.add(new Entry(i, v[1]));
-            eVol.add(new Entry(i, v[2]));
-            eReps.add(new Entry(i, v[3]));
-            i++;
+        int index = 0;
+        for (Map.Entry<LocalDate, DayMetric> entry : selectedDays.entrySet()) {
+            LocalDate date = entry.getKey();
+            DayMetric metric = entry.getValue();
+            labels.add(date.format(CHART_DATE));
+            addChartEntry(oneRmEntries, oneRmPrEntries, index,
+                    metric.bestOneRm * weightFactor, oneRmPrDays.contains(date));
+            addChartEntry(maxWeightEntries, weightPrEntries, index,
+                    metric.maxWeight * weightFactor, weightPrDays.contains(date));
+            addChartEntry(volumeEntries, volumePrEntries, index,
+                    metric.volume * weightFactor, volumePrDays.contains(date));
+            addChartEntry(repsEntries, repsPrEntries, index,
+                    metric.averageReps(), repsPrDays.contains(date));
+            index++;
         }
 
-        buildLineChart(chart1RM, e1RM, labels, "Gesch. 1RM", "kg");
-        buildLineChart(chartMaxGewicht, eMax, labels, "Max Gewicht", "kg");
-        buildLineChart(chartVolumen, eVol, labels, "Volumen", "kg");
-        buildLineChart(chartWiederholungen, eReps, labels, "Ø Wdh.", "");
+        buildLineChart(
+                chart1RM,
+                oneRmEntries,
+                oneRmPrEntries,
+                labels,
+                weightUnit
+        );
+        buildLineChart(
+                chartMaxGewicht,
+                maxWeightEntries,
+                weightPrEntries,
+                labels,
+                weightUnit
+        );
+        buildLineChart(
+                chartVolumen,
+                volumeEntries,
+                volumePrEntries,
+                labels,
+                weightUnit
+        );
+        buildLineChart(
+                chartWiederholungen,
+                repsEntries,
+                repsPrEntries,
+                labels,
+                "Wdh."
+        );
     }
 
-    private void loadMuskelData() {
-        int days = getRangeFromSpinner(spinnerRangeMuskeln);
-        Date cutoff = getDaysAgo(days);
-        SimpleDateFormat parseFull = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
+    private void loadMuscleData() {
+        List<WorkoutRecord> records = getWorkoutRecords(null, null);
+        LocalDate today = LocalDate.now();
+        LocalDate start = getPeriodStart(extractDates(records), today);
+        ProgressCalculator.Period comparisonCurrent =
+                getComparisonCurrentPeriod(start, today);
+        ProgressCalculator.Period previous = ProgressCalculator.previousPeriod(
+                comparisonCurrent.start,
+                comparisonCurrent.end
+        );
 
-        Map<String, Float> muscleVol = new LinkedHashMap<>();
-        float pushVol = 0, pullVol = 0, upperVol = 0, lowerVol = 0;
+        MuscleSummary selected = summarizeMuscles(records, start, today);
+        MuscleSummary comparison = summarizeMuscles(
+                records,
+                comparisonCurrent.start,
+                comparisonCurrent.end
+        );
+        MuscleSummary previousSummary = summarizeMuscles(
+                records,
+                previous.start,
+                previous.end
+        );
 
-        for (String wType : new String[]{WorkoutStorage.TYPE_PUSH, WorkoutStorage.TYPE_PULL, WorkoutStorage.TYPE_LEG}) {
-            for (WorkoutStorage.DetailedWorkout workout : WorkoutStorage.getDetailedWorkouts(this, wType)) {
-                if (workout.sets == null) continue;
-                try {
-                    Date date = parseFull.parse(workout.timestamp);
-                    if (date == null || date.before(cutoff)) continue;
-                } catch (Exception e) {
-                    continue;
-                }
+        setKpi(
+                kpiMuscleVolume,
+                "GESAMTVOLUMEN",
+                formatVolume(selected.totalVolume),
+                comparisonTrend(
+                        comparison.totalVolume,
+                        previousSummary.totalVolume
+                )
+        );
 
-                float vol = 0;
-                for (WorkoutStorage.WorkoutSet set : workout.sets) vol += (float) (set.weight * set.reps);
+        double pushPullTotal = selected.pushVolume + selected.pullVolume;
+        double pushPercent = pushPullTotal > 0
+                ? selected.pushVolume * 100.0 / pushPullTotal
+                : 0;
+        double pullPercent = pushPullTotal > 0 ? 100.0 - pushPercent : 0;
+        setKpi(
+                kpiMuscleBalance,
+                "PUSH / PULL",
+                String.format(
+                        Locale.GERMANY,
+                        "%.0f / %.0f",
+                        pushPercent,
+                        pullPercent
+                ),
+                "Anteil am Oberkörpervolumen"
+        );
+        tvMuscleComparison.setText(getComparisonLabel());
 
-                String muscle = MUSCLE_MAP.getOrDefault(workout.exercise, "Sonstige");
-                muscleVol.put(muscle, muscleVol.getOrDefault(muscle, 0f) + vol);
-
-                boolean isPush = PUSH_SET.contains(workout.exercise);
-                boolean isLeg = LEG_SET.contains(workout.exercise);
-                if (isPush) {
-                    pushVol += vol;
-                    upperVol += vol;
-                } else if (isLeg) {
-                    lowerVol += vol;
-                } else {
-                    pullVol += vol;
-                    upperVol += vol;
-                }
-            }
+        List<BarEntry> muscleEntries = new ArrayList<>();
+        List<String> muscleLabels = new ArrayList<>();
+        int index = 0;
+        for (Map.Entry<String, Double> entry : selected.muscleVolume.entrySet()) {
+            muscleEntries.add(new BarEntry(
+                    index++,
+                    (float) (entry.getValue() * weightFactor)
+            ));
+            muscleLabels.add(entry.getKey());
         }
-
-        List<BarEntry> barEntries = new ArrayList<>();
-        List<String> barLabels = new ArrayList<>();
-        int idx = 0;
-        for (Map.Entry<String, Float> entry : muscleVol.entrySet()) {
-            barEntries.add(new BarEntry(idx++, entry.getValue()));
-            barLabels.add(entry.getKey());
-        }
-        buildBarChart(chartMuskelVolumen, barEntries, barLabels, "Volumen (kg)");
-
-        buildPieChart(chartPushPull,
+        buildBarChart(
+                chartMuskelVolumen,
+                muscleEntries,
+                muscleLabels,
+                weightUnit,
+                null
+        );
+        buildPieChart(
+                chartPushPull,
                 new String[]{"Push", "Pull"},
-                new float[]{pushVol, pullVol},
-                new int[]{R.color.gold_primary, R.color.card_background_light});
-
-        buildPieChart(chartOberUnter,
+                new float[]{
+                        (float) selected.pushVolume,
+                        (float) selected.pullVolume
+                },
+                new int[]{R.color.training_gold, R.color.card_background_light}
+        );
+        buildPieChart(
+                chartOberUnter,
                 new String[]{"Oberkörper", "Unterkörper"},
-                new float[]{upperVol, lowerVol},
-                new int[]{R.color.gold_secondary, R.color.gold_dark});
-
-        StringBuilder dysbalance = new StringBuilder();
-        float totalPP = pushVol + pullVol;
-        if (totalPP > 0) {
-            float pushPct = (pushVol / totalPP) * 100f;
-            float pullPct = 100f - pushPct;
-            if (pushPct > 65f) dysbalance.append(String.format(Locale.getDefault(), "⚠️ Push überwiegt Pull um %.0f%%\n", pushPct - pullPct));
-            if (pullPct > 65f) dysbalance.append(String.format(Locale.getDefault(), "⚠️ Pull überwiegt Push um %.0f%%\n", pullPct - pushPct));
-        }
-        float totalBody = upperVol + lowerVol;
-        if (totalBody > 0) {
-            float upperPct = (upperVol / totalBody) * 100f;
-            float lowerPct = 100f - upperPct;
-            if (upperPct > 65f) dysbalance.append(String.format(Locale.getDefault(), "⚠️ Oberkörper überwiegt Unterkörper um %.0f%%", upperPct - lowerPct));
-            if (lowerPct > 65f) dysbalance.append(String.format(Locale.getDefault(), "⚠️ Unterkörper überwiegt Oberkörper um %.0f%%", lowerPct - upperPct));
-        }
-
-        if (dysbalance.length() > 0) {
-            tvDysbalance.setText(dysbalance.toString().trim());
-            tvDysbalance.setVisibility(View.VISIBLE);
-        } else {
-            tvDysbalance.setVisibility(View.GONE);
-        }
+                new float[]{
+                        (float) selected.upperVolume,
+                        (float) selected.lowerVolume
+                },
+                new int[]{R.color.training_gold_highlight, R.color.training_gold_pressed}
+        );
+        updateDysbalance(selected);
+        updateMuscleMappingText();
     }
 
     private void loadKonsistenzData() {
-        int days = getRangeFromSpinner(spinnerRangeKonsistenz);
-        SimpleDateFormat parseFull = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
-        SimpleDateFormat dayFmt = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        Set<LocalDate> activeDays = getAllActiveDays();
+        LocalDate today = LocalDate.now();
+        LocalDate start = getPeriodStart(activeDays, today);
+        List<LocalDate> filtered = ProgressCalculator.filterDates(
+                activeDays,
+                start,
+                today
+        );
+        Set<LocalDate> filteredSet = new LinkedHashSet<>(filtered);
+        ProgressCalculator.StreakStats streaks =
+                ProgressCalculator.calculateStreaks(
+                        activeDays,
+                        start,
+                        today,
+                        today
+                );
+        List<ProgressCalculator.WeekSummary> weeks =
+                ProgressCalculator.buildWeeklySummaries(
+                        activeDays,
+                        start,
+                        today
+                );
 
-        Set<String> trainedDays = new TreeSet<>();
-        for (String type : new String[]{WorkoutStorage.TYPE_PUSH, WorkoutStorage.TYPE_PULL, WorkoutStorage.TYPE_LEG}) {
-            for (WorkoutStorage.DetailedWorkout workout : WorkoutStorage.getDetailedWorkouts(this, type)) {
-                try {
-                    Date date = parseFull.parse(workout.timestamp);
-                    if (date != null) trainedDays.add(dayFmt.format(date));
-                } catch (Exception ignored) {
-                }
-            }
+        int goal = getWeeklyGoal();
+        double average = ProgressCalculator.weeklyAverage(
+                filtered.size(),
+                start,
+                today
+        );
+        int achievement = ProgressCalculator.goalAchievement(average, goal);
+
+        ProgressCalculator.Period comparisonCurrent =
+                getComparisonCurrentPeriod(start, today);
+        ProgressCalculator.Period previous = ProgressCalculator.previousPeriod(
+                comparisonCurrent.start,
+                comparisonCurrent.end
+        );
+        int currentComparisonCount = ProgressCalculator.filterDates(
+                activeDays,
+                comparisonCurrent.start,
+                comparisonCurrent.end
+        ).size();
+        int previousComparisonCount = ProgressCalculator.filterDates(
+                activeDays,
+                previous.start,
+                previous.end
+        ).size();
+        double currentAverage = ProgressCalculator.weeklyAverage(
+                currentComparisonCount,
+                comparisonCurrent.start,
+                comparisonCurrent.end
+        );
+        double previousAverage = ProgressCalculator.weeklyAverage(
+                previousComparisonCount,
+                previous.start,
+                previous.end
+        );
+
+        setKpi(
+                kpiCurrentStreak,
+                "AKTUELLE SERIE",
+                streaks.currentStreak + " Tage",
+                "Heute oder gestern fortgeführt"
+        );
+        setKpi(
+                kpiBestStreak,
+                "BESTE SERIE",
+                streaks.bestStreak + " Tage",
+                formatStreakPeriod(streaks)
+        );
+        setKpi(
+                kpiWeeklyAverage,
+                "Ø PRO WOCHE",
+                String.format(Locale.GERMANY, "%.1fx", average),
+                comparisonTrend(currentAverage, previousAverage)
+        );
+        setKpi(
+                kpiGoalAchievement,
+                "ZIELERREICHUNG",
+                achievement + "%",
+                goal + " Trainings pro Woche"
+        );
+        tvConsistencyComparison.setText(getComparisonLabel());
+
+        List<BarEntry> entries = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        int index = 0;
+        for (ProgressCalculator.WeekSummary week : weeks) {
+            entries.add(new BarEntry(index++, week.sessionDays));
+            labels.add(week.label);
         }
-
-        int streak = 0;
-        Calendar cal = Calendar.getInstance();
-        while (trainedDays.contains(dayFmt.format(cal.getTime()))) {
-            streak++;
-            cal.add(Calendar.DAY_OF_YEAR, -1);
-        }
-        tvStreak.setText(streak + " Tage");
-
-        List<String> sorted = new ArrayList<>(trainedDays);
-        Collections.sort(sorted);
-        int bestStreak = sorted.isEmpty() ? 0 : 1;
-        int curStreak = sorted.isEmpty() ? 0 : 1;
-        String bestStart = sorted.isEmpty() ? "" : sorted.get(0);
-        String bestEnd = bestStart;
-        String curStart = bestStart;
-
-        SimpleDateFormat sortParse = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-        for (int i = 1; i < sorted.size(); i++) {
-            try {
-                Date prev = sortParse.parse(sorted.get(i - 1));
-                Date curr = sortParse.parse(sorted.get(i));
-                long diff = (curr.getTime() - prev.getTime()) / 86400000L;
-                if (diff == 1) {
-                    curStreak++;
-                    if (curStreak > bestStreak) {
-                        bestStreak = curStreak;
-                        bestStart = curStart;
-                        bestEnd = sorted.get(i);
-                    }
-                } else {
-                    curStreak = 1;
-                    curStart = sorted.get(i);
-                }
-            } catch (Exception ignored) {
-            }
-        }
-
-        tvBestStreak.setText(bestStreak + " Tage");
-        tvBestStreakZeitraum.setText(bestStart.isEmpty() ? "–" : bestStart + " – " + bestEnd);
-
-        Map<String, int[]> weekMap = new LinkedHashMap<>();
-        SimpleDateFormat weekFmt = new SimpleDateFormat("'KW'ww", Locale.getDefault());
-        Calendar iter = Calendar.getInstance();
-        iter.add(Calendar.DAY_OF_YEAR, -days);
-        Calendar today = Calendar.getInstance();
-        while (!iter.after(today)) {
-            String week = weekFmt.format(iter.getTime());
-            String dayKey = dayFmt.format(iter.getTime());
-            if (!weekMap.containsKey(week)) weekMap.put(week, new int[]{0, 0});
-            weekMap.get(week)[1]++;
-            if (!trainedDays.contains(dayKey)) weekMap.get(week)[0]++;
-            iter.add(Calendar.DAY_OF_YEAR, 1);
-        }
-
-        List<BarEntry> freeEntries = new ArrayList<>();
-        List<String> weekLabels = new ArrayList<>();
-        int w = 0;
-        for (Map.Entry<String, int[]> e : weekMap.entrySet()) {
-            freeEntries.add(new BarEntry(w++, e.getValue()[0]));
-            weekLabels.add(e.getKey());
-        }
-        buildBarChart(chartFreieTage, freeEntries, weekLabels, "Freie Tage");
-
-        Date cutoff = getDaysAgo(days);
-        int trained = 0;
-        for (String day : trainedDays) {
-            try {
-                Date date = sortParse.parse(day);
-                if (date != null && !date.before(cutoff)) trained++;
-            } catch (Exception ignored) {
-            }
-        }
-
-        int quote = days > 0 ? Math.round((trained * 100f) / days) : 0;
-        tvQuoteProzent.setText(quote + "%");
-
-        int quoteColor;
-        String status;
-        if (quote > 80) {
-            quoteColor = R.color.success;
-            status = "🟢 Ausgezeichnet";
-        } else if (quote >= 50) {
-            quoteColor = R.color.gold_primary;
-            status = "🟡 Gut – weiter so";
-        } else {
-            quoteColor = R.color.error;
-            status = "🔴 Mehr Training nötig";
-        }
-        tvQuoteProzent.setTextColor(ContextCompat.getColor(this, quoteColor));
-        tvQuoteStatus.setText(status);
-
-        buildDonutChart(chartQuote, quote, quoteColor);
+        buildBarChart(
+                chartWeeklySessions,
+                entries,
+                labels,
+                "x",
+                (float) goal
+        );
+        buildDonutChart(chartGoalAchievement, achievement);
+        updateGoalStatus(achievement, filteredSet.size(), goal);
     }
 
-    private void buildLineChart(LineChart chart, List<Entry> entries, List<String> labels, String label, String unit) {
-        int gold = ContextCompat.getColor(this, R.color.gold_primary);
-        int bg = ContextCompat.getColor(this, R.color.card_background);
+    private TreeMap<LocalDate, DayMetric> aggregateStrength(
+            List<WorkoutRecord> records,
+            LocalDate start,
+            LocalDate end) {
+        TreeMap<LocalDate, DayMetric> result = new TreeMap<>();
+        for (WorkoutRecord record : records) {
+            if (!isWithin(record.date, start, end)) {
+                continue;
+            }
+            DayMetric day = result.computeIfAbsent(
+                    record.date,
+                    ignored -> new DayMetric()
+            );
+            for (WorkoutStorage.WorkoutSet set : record.sets) {
+                double estimatedOneRm = set.weight * (1.0 + set.reps / 30.0);
+                day.bestOneRm = Math.max(day.bestOneRm, estimatedOneRm);
+                day.maxWeight = Math.max(day.maxWeight, set.weight);
+                day.volume += set.weight * set.reps;
+                day.totalReps += set.reps;
+                day.setCount++;
+            }
+        }
+        return result;
+    }
 
-        chart.setBackgroundColor(bg);
+    private StrengthSummary summarizeStrength(
+            TreeMap<LocalDate, DayMetric> days) {
+        StrengthSummary result = new StrengthSummary();
+        for (DayMetric day : days.values()) {
+            result.bestOneRm = Math.max(result.bestOneRm, day.bestOneRm);
+            result.maxWeight = Math.max(result.maxWeight, day.maxWeight);
+            result.totalVolume += day.volume;
+            result.totalReps += day.totalReps;
+            result.totalSets += day.setCount;
+        }
+        return result;
+    }
+
+    private MuscleSummary summarizeMuscles(
+            List<WorkoutRecord> records,
+            LocalDate start,
+            LocalDate end) {
+        MuscleSummary result = new MuscleSummary();
+        for (WorkoutRecord record : records) {
+            if (!isWithin(record.date, start, end)) {
+                continue;
+            }
+            double volume = 0;
+            for (WorkoutStorage.WorkoutSet set : record.sets) {
+                volume += set.weight * set.reps;
+            }
+            result.totalVolume += volume;
+
+            if (WorkoutStorage.TYPE_PUSH.equals(record.workoutType)) {
+                result.pushVolume += volume;
+                result.upperVolume += volume;
+            } else if (WorkoutStorage.TYPE_PULL.equals(record.workoutType)) {
+                result.pullVolume += volume;
+                result.upperVolume += volume;
+            } else if (WorkoutStorage.TYPE_LEG.equals(record.workoutType)) {
+                result.lowerVolume += volume;
+            }
+
+            List<String> groups = getMuscleGroups(
+                    record.workoutType,
+                    record.exercise
+            );
+            if (groups.isEmpty()) {
+                groups = Collections.singletonList("Nicht zugeordnet");
+            }
+            double allocatedVolume = volume / groups.size();
+            for (String group : groups) {
+                result.muscleVolume.put(
+                        group,
+                        result.muscleVolume.getOrDefault(group, 0.0)
+                                + allocatedVolume
+                );
+            }
+        }
+        return result;
+    }
+
+    private Set<LocalDate> detectPrDays(
+            TreeMap<LocalDate, DayMetric> days,
+            MetricType metricType) {
+        Set<LocalDate> result = new LinkedHashSet<>();
+        double record = Double.NEGATIVE_INFINITY;
+        for (Map.Entry<LocalDate, DayMetric> entry : days.entrySet()) {
+            double value = getMetricValue(entry.getValue(), metricType);
+            if (value > 0 && value > record) {
+                result.add(entry.getKey());
+                record = value;
+            }
+        }
+        return result;
+    }
+
+    private double getMetricValue(DayMetric metric, MetricType type) {
+        switch (type) {
+            case ONE_RM:
+                return metric.bestOneRm;
+            case MAX_WEIGHT:
+                return metric.maxWeight;
+            case VOLUME:
+                return metric.volume;
+            case AVG_REPS:
+                return metric.averageReps();
+            default:
+                return 0;
+        }
+    }
+
+    private void addChartEntry(
+            List<Entry> entries,
+            List<Entry> prEntries,
+            int index,
+            double value,
+            boolean isPr) {
+        Entry entry = new Entry(index, (float) value);
+        entries.add(entry);
+        if (isPr) {
+            prEntries.add(new Entry(index, (float) value));
+        }
+    }
+
+    private void updateDysbalance(MuscleSummary summary) {
+        List<String> messages = new ArrayList<>();
+        double pushPull = summary.pushVolume + summary.pullVolume;
+        if (pushPull > 0) {
+            double push = summary.pushVolume * 100.0 / pushPull;
+            double pull = 100.0 - push;
+            if (push > 65) {
+                messages.add(String.format(
+                        Locale.GERMANY,
+                        "Push überwiegt Pull um %.0f Prozentpunkte.",
+                        push - pull
+                ));
+            } else if (pull > 65) {
+                messages.add(String.format(
+                        Locale.GERMANY,
+                        "Pull überwiegt Push um %.0f Prozentpunkte.",
+                        pull - push
+                ));
+            }
+        }
+
+        double body = summary.upperVolume + summary.lowerVolume;
+        if (body > 0) {
+            double upper = summary.upperVolume * 100.0 / body;
+            double lower = 100.0 - upper;
+            if (upper > 65) {
+                messages.add(String.format(
+                        Locale.GERMANY,
+                        "Oberkörper überwiegt Unterkörper um %.0f Prozentpunkte.",
+                        upper - lower
+                ));
+            } else if (lower > 65) {
+                messages.add(String.format(
+                        Locale.GERMANY,
+                        "Unterkörper überwiegt Oberkörper um %.0f Prozentpunkte.",
+                        lower - upper
+                ));
+            }
+        }
+
+        if (messages.isEmpty()) {
+            tvDysbalance.setVisibility(View.GONE);
+        } else {
+            tvDysbalance.setText(String.join("\n", messages));
+            tvDysbalance.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showMuscleMappingDialog() {
+        ExerciseOption option = getSelectedExercise(spinnerMuscleExercise);
+        if (option == null) {
+            return;
+        }
+        List<String> current = getMuscleGroups(
+                option.workoutType,
+                option.exercise
+        );
+        boolean[] checked = new boolean[MUSCLE_GROUPS.length];
+        for (int i = 0; i < MUSCLE_GROUPS.length; i++) {
+            checked[i] = current.contains(MUSCLE_GROUPS[i]);
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(option.exercise)
+                .setMultiChoiceItems(
+                        MUSCLE_GROUPS,
+                        checked,
+                        (dialog, which, isChecked) -> checked[which] = isChecked
+                )
+                .setNegativeButton("Abbrechen", null)
+                .setPositiveButton("Speichern", (dialog, which) -> {
+                    List<String> selected = new ArrayList<>();
+                    for (int i = 0; i < MUSCLE_GROUPS.length; i++) {
+                        if (checked[i]) {
+                            selected.add(MUSCLE_GROUPS[i]);
+                        }
+                    }
+                    if (selected.isEmpty()) {
+                        Toast.makeText(
+                                this,
+                                "Mindestens eine Muskelgruppe auswählen",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                        return;
+                    }
+                    musclePreferences.edit()
+                            .putString(
+                                    getMusclePreferenceKey(option),
+                                    String.join("|", selected)
+                            )
+                            .apply();
+                    updateMuscleMappingText();
+                    loadMuscleData();
+                })
+                .show();
+    }
+
+    private void updateMuscleMappingText() {
+        ExerciseOption option = getSelectedExercise(spinnerMuscleExercise);
+        if (option == null || tvMuscleMapping == null) {
+            return;
+        }
+        List<String> groups = getMuscleGroups(
+                option.workoutType,
+                option.exercise
+        );
+        tvMuscleMapping.setText(
+                groups.isEmpty()
+                        ? "Noch keine Muskelgruppe zugeordnet"
+                        : String.join(" · ", groups)
+        );
+    }
+
+    private List<String> getMuscleGroups(String workoutType, String exercise) {
+        ExerciseOption option = new ExerciseOption(exercise, workoutType);
+        String stored = musclePreferences.getString(
+                getMusclePreferenceKey(option),
+                null
+        );
+        if (stored != null) {
+            List<String> result = new ArrayList<>();
+            for (String item : stored.split("\\|")) {
+                if (!item.trim().isEmpty()) {
+                    result.add(item.trim());
+                }
+            }
+            return result;
+        }
+        List<String> defaults = DEFAULT_MUSCLE_MAP.get(exercise);
+        return defaults == null
+                ? Collections.emptyList()
+                : new ArrayList<>(defaults);
+    }
+
+    private String getMusclePreferenceKey(ExerciseOption option) {
+        return option.workoutType + "|" + option.exercise;
+    }
+
+    private void buildLineChart(
+            LineChart chart,
+            List<Entry> entries,
+            List<Entry> prEntries,
+            List<String> labels,
+            String unit) {
+        int gold = ContextCompat.getColor(this, R.color.training_gold);
+        int highlight = ContextCompat.getColor(
+                this,
+                R.color.training_gold_highlight
+        );
+        int background = ContextCompat.getColor(this, R.color.primary);
+
+        chart.setBackgroundResource(R.drawable.bg_home_metric);
         chart.getDescription().setEnabled(false);
         chart.getLegend().setEnabled(false);
         chart.setTouchEnabled(true);
         chart.setDragEnabled(true);
         chart.setScaleEnabled(false);
+        chart.setHighlightPerTapEnabled(true);
 
         if (entries.isEmpty()) {
-            chart.setNoDataText("Noch keine Daten");
-            chart.setNoDataTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
-            chart.clear();
+            setNoData(chart);
             return;
         }
 
-        LineDataSet dataSet = new LineDataSet(entries, label);
-        dataSet.setColor(gold);
-        dataSet.setCircleColor(gold);
-        dataSet.setCircleHoleColor(bg);
-        dataSet.setLineWidth(2f);
-        dataSet.setCircleRadius(3f);
-        dataSet.setDrawValues(false);
-        dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        dataSet.setDrawFilled(true);
-        dataSet.setFillAlpha(30);
-        dataSet.setFillColor(gold);
-        dataSet.setHighLightColor(ContextCompat.getColor(this, R.color.gold_light));
+        LineDataSet values = new LineDataSet(entries, "Werte");
+        values.setColor(gold);
+        values.setCircleColor(gold);
+        values.setCircleHoleColor(background);
+        values.setLineWidth(2f);
+        values.setCircleRadius(3f);
+        values.setDrawValues(false);
+        values.setMode(LineDataSet.Mode.LINEAR);
+        values.setDrawFilled(true);
+        values.setFillColor(gold);
+        values.setFillAlpha(24);
+        values.setHighLightColor(highlight);
 
-        chart.setData(new LineData(dataSet));
-
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
-        xAxis.setGridColor(ContextCompat.getColor(this, R.color.divider));
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
-        xAxis.setGranularity(1f);
-        xAxis.setLabelCount(Math.min(labels.size(), 5), false);
-        xAxis.setDrawAxisLine(false);
-
-        YAxis left = chart.getAxisLeft();
-        left.setTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
-        left.setGridColor(ContextCompat.getColor(this, R.color.divider));
-        left.setDrawAxisLine(false);
-        left.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                return (int) value + unit;
-            }
-        });
-
+        LineData data = new LineData(values);
+        if (!prEntries.isEmpty()) {
+            LineDataSet prs = new LineDataSet(prEntries, "PR");
+            prs.setColor(Color.TRANSPARENT);
+            prs.setCircleColor(highlight);
+            prs.setCircleHoleColor(background);
+            prs.setCircleRadius(6f);
+            prs.setCircleHoleRadius(2.5f);
+            prs.setLineWidth(0f);
+            prs.setDrawValues(false);
+            prs.setDrawFilled(false);
+            prs.setHighLightColor(highlight);
+            data.addDataSet(prs);
+        }
+        chart.setData(data);
+        styleXAxis(chart.getXAxis(), labels);
+        styleYAxis(chart.getAxisLeft(), unit);
         chart.getAxisRight().setEnabled(false);
-        chart.animateX(600);
+        Set<Integer> prIndexes = new LinkedHashSet<>();
+        for (Entry prEntry : prEntries) {
+            prIndexes.add(Math.round(prEntry.getX()));
+        }
+        chart.setOnChartValueSelectedListener(
+                createIndexedChartListener(labels, unit, prIndexes)
+        );
+        if (AppSettings.animationsEnabled(this)) {
+            chart.animateX(450);
+        }
         chart.invalidate();
     }
 
-    private void buildBarChart(BarChart chart, List<BarEntry> entries, List<String> labels, String yLabel) {
-        int gold = ContextCompat.getColor(this, R.color.gold_primary);
-        int bg = ContextCompat.getColor(this, R.color.card_background);
-
-        chart.setBackgroundColor(bg);
+    private void buildBarChart(
+            BarChart chart,
+            List<BarEntry> entries,
+            List<String> labels,
+            String unit,
+            Float target) {
+        int gold = ContextCompat.getColor(this, R.color.training_gold);
+        chart.setBackgroundResource(R.drawable.bg_home_metric);
         chart.getDescription().setEnabled(false);
         chart.getLegend().setEnabled(false);
         chart.setTouchEnabled(true);
+        chart.setHighlightPerTapEnabled(true);
 
         if (entries.isEmpty()) {
-            chart.setNoDataText("Noch keine Daten");
-            chart.setNoDataTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
-            chart.clear();
+            setNoData(chart);
             return;
         }
 
-        BarDataSet dataSet = new BarDataSet(entries, yLabel);
+        BarDataSet dataSet = new BarDataSet(entries, "");
         dataSet.setColor(gold);
         dataSet.setDrawValues(false);
-
         chart.setData(new BarData(dataSet));
-        chart.getBarData().setBarWidth(0.6f);
-
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
-        xAxis.setGridColor(ContextCompat.getColor(this, R.color.divider));
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
-        xAxis.setGranularity(1f);
-        xAxis.setLabelCount(Math.min(labels.size(), 6), false);
-        xAxis.setDrawAxisLine(false);
-
-        YAxis left = chart.getAxisLeft();
-        left.setTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
-        left.setGridColor(ContextCompat.getColor(this, R.color.divider));
-        left.setDrawAxisLine(false);
+        chart.getBarData().setBarWidth(0.58f);
+        styleXAxis(chart.getXAxis(), labels);
+        styleYAxis(chart.getAxisLeft(), unit);
+        chart.getAxisLeft().removeAllLimitLines();
+        if (target != null) {
+            LimitLine goalLine = new LimitLine(target, "Ziel");
+            goalLine.setLineColor(ContextCompat.getColor(
+                    this,
+                    R.color.training_gold_highlight
+            ));
+            goalLine.setTextColor(ContextCompat.getColor(
+                    this,
+                    R.color.text_secondary
+            ));
+            goalLine.setLineWidth(1.2f);
+            chart.getAxisLeft().addLimitLine(goalLine);
+        }
         chart.getAxisRight().setEnabled(false);
-        chart.animateY(600);
+        chart.setOnChartValueSelectedListener(
+                createIndexedChartListener(
+                        labels,
+                        unit,
+                        Collections.emptySet()
+                )
+        );
+        if (AppSettings.animationsEnabled(this)) {
+            chart.animateY(450);
+        }
         chart.invalidate();
     }
 
-    private void buildPieChart(PieChart chart, String[] labels, float[] values, int[] colorRes) {
-        chart.setBackgroundColor(ContextCompat.getColor(this, R.color.card_background));
+    private void buildPieChart(
+            PieChart chart,
+            String[] labels,
+            float[] values,
+            int[] colorResources) {
+        chart.setBackgroundResource(R.drawable.bg_home_metric);
         chart.getDescription().setEnabled(false);
-        chart.setDrawHoleEnabled(false);
+        chart.setDrawHoleEnabled(true);
+        chart.setHoleRadius(48f);
+        chart.setHoleColor(ContextCompat.getColor(this, R.color.primary));
         chart.setUsePercentValues(true);
-        chart.setEntryLabelColor(ContextCompat.getColor(this, R.color.black));
         chart.setEntryLabelTextSize(11f);
+        chart.setEntryLabelColor(ContextCompat.getColor(this, R.color.text_primary));
+        chart.setTouchEnabled(true);
+        chart.setHighlightPerTapEnabled(true);
 
         List<PieEntry> entries = new ArrayList<>();
         List<Integer> colors = new ArrayList<>();
+        float total = 0;
         for (int i = 0; i < labels.length; i++) {
+            total += values[i];
             if (values[i] > 0) {
                 entries.add(new PieEntry(values[i], labels[i]));
-                colors.add(ContextCompat.getColor(this, colorRes[i]));
+                colors.add(ContextCompat.getColor(
+                        this,
+                        colorResources[Math.min(i, colorResources.length - 1)]
+                ));
             }
         }
-
         if (entries.isEmpty()) {
-            chart.setNoDataText("Noch keine Daten");
-            chart.setNoDataTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
-            chart.clear();
+            setNoData(chart);
             return;
         }
 
@@ -632,54 +1139,565 @@ public class FortschrittActivity extends AppCompatActivity {
         dataSet.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
-                return String.format(Locale.getDefault(), "%.0f%%", value);
+                return String.format(Locale.GERMANY, "%.0f%%", value);
             }
         });
-
         Legend legend = chart.getLegend();
         legend.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
         legend.setTextSize(11f);
-
         chart.setData(new PieData(dataSet));
-        chart.animateY(700);
+        final float totalValue = total;
+        chart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry entry, Highlight highlight) {
+                if (entry instanceof PieEntry) {
+                    PieEntry pieEntry = (PieEntry) entry;
+                    float percentage = totalValue > 0
+                            ? pieEntry.getValue() * 100f / totalValue
+                            : 0;
+                    showChartDetail(String.format(
+                            Locale.GERMANY,
+                            "%s: %.0f%%",
+                            pieEntry.getLabel(),
+                            percentage
+                    ));
+                }
+            }
+
+            @Override
+            public void onNothingSelected() {
+            }
+        });
+        if (AppSettings.animationsEnabled(this)) {
+            chart.animateY(500);
+        }
         chart.invalidate();
     }
 
-    private void buildDonutChart(PieChart chart, int quotePct, int colorRes) {
-        chart.setBackgroundColor(ContextCompat.getColor(this, R.color.card_background));
+    private void buildDonutChart(PieChart chart, int achievement) {
+        int capped = Math.max(0, Math.min(100, achievement));
+        int color = achievement >= 100
+                ? R.color.success
+                : achievement >= 75
+                ? R.color.training_gold
+                : R.color.error;
+
+        chart.setBackgroundResource(R.drawable.bg_home_metric);
         chart.getDescription().setEnabled(false);
         chart.setDrawHoleEnabled(true);
-        chart.setHoleRadius(55f);
-        chart.setTransparentCircleRadius(60f);
-        chart.setHoleColor(ContextCompat.getColor(this, R.color.card_background));
-        chart.setDrawCenterText(false);
+        chart.setHoleRadius(58f);
+        chart.setTransparentCircleRadius(62f);
+        chart.setHoleColor(ContextCompat.getColor(this, R.color.primary));
+        chart.setDrawCenterText(true);
+        chart.setCenterText(achievement + "%");
+        chart.setCenterTextColor(ContextCompat.getColor(this, color));
+        chart.setCenterTextSize(23f);
         chart.getLegend().setEnabled(false);
-        chart.setEntryLabelColor(android.graphics.Color.TRANSPARENT);
+        chart.setEntryLabelColor(Color.TRANSPARENT);
+        chart.setTouchEnabled(true);
+        chart.setHighlightPerTapEnabled(true);
 
-        List<PieEntry> entries = new ArrayList<>();
-        entries.add(new PieEntry(quotePct, ""));
-        entries.add(new PieEntry(100 - quotePct, ""));
-
+        List<PieEntry> entries = Arrays.asList(
+                new PieEntry(capped, ""),
+                new PieEntry(100 - capped, "")
+        );
         PieDataSet dataSet = new PieDataSet(entries, "");
-        dataSet.setColors(new int[]{
-                ContextCompat.getColor(this, colorRes),
+        dataSet.setColors(
+                ContextCompat.getColor(this, color),
                 ContextCompat.getColor(this, R.color.divider)
-        });
+        );
         dataSet.setDrawValues(false);
         dataSet.setSliceSpace(1f);
-
         chart.setData(new PieData(dataSet));
-        chart.animateY(700);
+        chart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry entry, Highlight highlight) {
+                showChartDetail("Zielerreichung: " + achievement + "%");
+            }
+
+            @Override
+            public void onNothingSelected() {
+            }
+        });
+        if (AppSettings.animationsEnabled(this)) {
+            chart.animateY(500);
+        }
         chart.invalidate();
     }
 
-    private Date getDaysAgo(int days) {
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_YEAR, -days);
-        return c.getTime();
+    private OnChartValueSelectedListener createIndexedChartListener(
+            List<String> labels,
+            String unit,
+            Set<Integer> prIndexes) {
+        return new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry entry, Highlight highlight) {
+                int index = Math.round(entry.getX());
+                String label = index >= 0 && index < labels.size()
+                        ? labels.get(index)
+                        : "";
+                String suffix = unit == null || unit.isEmpty()
+                        ? ""
+                        : " " + unit;
+                boolean isPr = prIndexes.contains(index);
+                showChartDetail(String.format(
+                        Locale.GERMANY,
+                        "%s: %.1f%s%s",
+                        label,
+                        entry.getY(),
+                        suffix,
+                        isPr ? " · PR" : ""
+                ));
+            }
+
+            @Override
+            public void onNothingSelected() {
+            }
+        };
     }
 
-    private abstract static class SimpleItemSelected implements AdapterView.OnItemSelectedListener {
+    private void styleXAxis(XAxis axis, List<String> labels) {
+        axis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        axis.setTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
+        axis.setGridColor(ContextCompat.getColor(this, R.color.divider));
+        axis.setDrawAxisLine(false);
+        axis.setValueFormatter(new IndexAxisValueFormatter(labels));
+        axis.setGranularity(1f);
+        axis.setLabelCount(Math.min(labels.size(), 6), false);
+    }
+
+    private void styleYAxis(YAxis axis, String unit) {
+        axis.setTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
+        axis.setGridColor(ContextCompat.getColor(this, R.color.divider));
+        axis.setDrawAxisLine(false);
+        axis.setAxisMinimum(0f);
+        axis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                String formatted = Math.abs(value - Math.round(value)) < 0.05f
+                        ? String.valueOf(Math.round(value))
+                        : String.format(Locale.GERMANY, "%.1f", value);
+                return unit == null || unit.isEmpty()
+                        ? formatted
+                        : formatted + " " + unit;
+            }
+        });
+    }
+
+    private void setNoData(com.github.mikephil.charting.charts.Chart<?> chart) {
+        chart.setNoDataText("Noch keine Daten");
+        chart.setNoDataTextColor(ContextCompat.getColor(
+                this,
+                R.color.text_tertiary
+        ));
+        chart.clear();
+        chart.invalidate();
+    }
+
+    private void clearStrengthCharts() {
+        setNoData(chart1RM);
+        setNoData(chartMaxGewicht);
+        setNoData(chartVolumen);
+        setNoData(chartWiederholungen);
+    }
+
+    private List<ExerciseOption> collectExerciseOptions() {
+        Map<String, ExerciseOption> options = new LinkedHashMap<>();
+        addCatalogExercises(
+                options,
+                WorkoutStorage.TYPE_PUSH,
+                R.array.push_exercises
+        );
+        addCatalogExercises(
+                options,
+                WorkoutStorage.TYPE_PULL,
+                R.array.pull_exercises
+        );
+        addCatalogExercises(
+                options,
+                WorkoutStorage.TYPE_LEG,
+                R.array.leg_exercises
+        );
+        for (String type : WORKOUT_TYPES) {
+            for (WorkoutStorage.DetailedWorkout workout
+                    : WorkoutStorage.getDetailedWorkouts(this, type)) {
+                addExerciseOption(options, workout.exercise, workout.workoutType);
+            }
+        }
+        return new ArrayList<>(options.values());
+    }
+
+    private void addCatalogExercises(
+            Map<String, ExerciseOption> options,
+            String type,
+            int defaultArray) {
+        for (String exercise : ExerciseCatalog.getExercises(
+                this,
+                defaultArray,
+                type
+        )) {
+            addExerciseOption(options, exercise, type);
+        }
+    }
+
+    private void addExerciseOption(
+            Map<String, ExerciseOption> options,
+            String exercise,
+            String type) {
+        if (exercise == null || exercise.trim().isEmpty()) {
+            return;
+        }
+        String safeType = isKnownType(type) ? type : "";
+        String key = safeType + "|" + exercise.trim().toLowerCase(Locale.ROOT);
+        options.putIfAbsent(key, new ExerciseOption(exercise.trim(), safeType));
+    }
+
+    private List<WorkoutRecord> getWorkoutRecords(
+            String requiredType,
+            String requiredExercise) {
+        List<WorkoutRecord> records = new ArrayList<>();
+        for (String type : WORKOUT_TYPES) {
+            for (WorkoutStorage.DetailedWorkout workout
+                    : WorkoutStorage.getDetailedWorkouts(this, type)) {
+                String storedType = isKnownType(workout.workoutType)
+                        ? workout.workoutType
+                        : type;
+                if (requiredType != null && !requiredType.equals(storedType)) {
+                    continue;
+                }
+                if (requiredExercise != null
+                        && !requiredExercise.equals(workout.exercise)) {
+                    continue;
+                }
+                LocalDate date = parseDate(workout.timestamp);
+                if (date != null && workout.sets != null) {
+                    records.add(new WorkoutRecord(
+                            date,
+                            storedType,
+                            workout.exercise,
+                            workout.sets
+                    ));
+                }
+            }
+        }
+        records.sort(Comparator.comparing(record -> record.date));
+        return records;
+    }
+
+    private Set<LocalDate> getAllActiveDays() {
+        Set<LocalDate> result = new LinkedHashSet<>();
+        for (String type : WORKOUT_TYPES) {
+            for (WorkoutStorage.DetailedWorkout workout
+                    : WorkoutStorage.getDetailedWorkouts(this, type)) {
+                LocalDate date = parseDate(workout.timestamp);
+                if (date != null) {
+                    result.add(date);
+                }
+            }
+            for (WorkoutStorage.CardioSession session
+                    : WorkoutStorage.getCardioSessions(this, type)) {
+                LocalDate date = parseDate(session.timestamp);
+                if (date != null) {
+                    result.add(date);
+                }
+            }
+        }
+        return result;
+    }
+
+    private Set<LocalDate> extractDates(List<WorkoutRecord> records) {
+        Set<LocalDate> result = new LinkedHashSet<>();
+        for (WorkoutRecord record : records) {
+            result.add(record.date);
+        }
+        return result;
+    }
+
+    private LocalDate getPeriodStart(
+            Set<LocalDate> availableDates,
+            LocalDate end) {
+        Integer days = getSelectedDays();
+        if (days != null) {
+            return end.minusDays(days - 1L);
+        }
+        return availableDates.stream()
+                .min(LocalDate::compareTo)
+                .orElse(end);
+    }
+
+    private Integer getSelectedDays() {
+        int position = spinnerRange.getSelectedItemPosition();
+        return position >= 0 && position < RANGE_DAYS.length
+                ? RANGE_DAYS[position]
+                : null;
+    }
+
+    private ProgressCalculator.Period getComparisonCurrentPeriod(
+            LocalDate selectedStart,
+            LocalDate end) {
+        if (getSelectedDays() == null) {
+            return new ProgressCalculator.Period(end.minusDays(29), end);
+        }
+        return new ProgressCalculator.Period(selectedStart, end);
+    }
+
+    private String getComparisonLabel() {
+        return getSelectedDays() == null
+                ? "Vergleich: letzte 30 Tage gegenüber den 30 Tagen davor"
+                : "Vergleich: gewählter Zeitraum gegenüber dem Vorzeitraum";
+    }
+
+    private ExerciseOption getSelectedExercise(Spinner spinner) {
+        Object selected = spinner.getSelectedItem();
+        return selected instanceof ExerciseOption
+                ? (ExerciseOption) selected
+                : null;
+    }
+
+    private LocalDate parseDate(String timestamp) {
+        if (timestamp == null) {
+            return null;
+        }
+        try {
+            return LocalDateTime.parse(timestamp, STORAGE_TIMESTAMP).toLocalDate();
+        } catch (DateTimeParseException ignored) {
+            return null;
+        }
+    }
+
+    private boolean isWithin(
+            LocalDate date,
+            LocalDate start,
+            LocalDate end) {
+        return (start == null || !date.isBefore(start))
+                && (end == null || !date.isAfter(end));
+    }
+
+    private boolean isKnownType(String type) {
+        return WorkoutStorage.TYPE_PUSH.equals(type)
+                || WorkoutStorage.TYPE_PULL.equals(type)
+                || WorkoutStorage.TYPE_LEG.equals(type);
+    }
+
+    private int getWeeklyGoal() {
+        return Math.max(1, Math.min(
+                7,
+                appPreferences.getInt(KEY_WEEKLY_GOAL, 3)
+        ));
+    }
+
+    private double getProfileWeightKg() {
+        String value = appPreferences.getString(KEY_PROFILE_WEIGHT, "");
+        try {
+            return value == null ? 0 : Double.parseDouble(value.replace(',', '.'));
+        } catch (NumberFormatException ignored) {
+            return 0;
+        }
+    }
+
+    private void updateGoalSummary() {
+        TextView summary = findViewById(R.id.tvProgressGoalSummary);
+        String profileGoal = appPreferences.getString(
+                KEY_PROFILE_GOAL,
+                getString(R.string.settings_goal_muscle)
+        );
+        summary.setText(String.format(
+                Locale.GERMANY,
+                "%s · %d Trainings pro Woche",
+                profileGoal,
+                getWeeklyGoal()
+        ));
+    }
+
+    private String comparisonTrend(double current, double previous) {
+        return getComparisonLabel().startsWith("Vergleich: letzte")
+                ? "30T ggü. davor " + StatisticsCalculator.formatChange(
+                        current,
+                        previous
+                )
+                : "Zum Vorzeitraum " + StatisticsCalculator.formatChange(
+                        current,
+                        previous
+                );
+    }
+
+    private String formatWeight(double kilograms) {
+        return String.format(
+                Locale.GERMANY,
+                "%.1f %s",
+                kilograms * weightFactor,
+                weightUnit
+        );
+    }
+
+    private String formatVolume(double kilogramVolume) {
+        return String.format(
+                Locale.GERMANY,
+                "%.0f %s",
+                kilogramVolume * weightFactor,
+                weightUnit
+        );
+    }
+
+    private String formatStreakPeriod(
+            ProgressCalculator.StreakStats streaks) {
+        if (streaks.bestStart == null || streaks.bestEnd == null) {
+            return "Noch keine Trainingstage";
+        }
+        return streaks.bestStart.format(DISPLAY_DATE)
+                + " – "
+                + streaks.bestEnd.format(DISPLAY_DATE);
+    }
+
+    private void updateGoalStatus(
+            int achievement,
+            int sessionDays,
+            int goal) {
+        if (sessionDays == 0) {
+            tvGoalStatus.setText("Noch keine Trainingstage im Zeitraum");
+        } else if (achievement >= 100) {
+            tvGoalStatus.setText(
+                    "Wochenziel erreicht · Regeneration bleibt eingeplant"
+            );
+        } else if (achievement >= 75) {
+            tvGoalStatus.setText(
+                    "Knapp am Ziel · " + goal + " Trainings pro Woche angestrebt"
+            );
+        } else {
+            tvGoalStatus.setText(
+                    "Unter deinem Wochenziel von " + goal + " Trainings"
+            );
+        }
+    }
+
+    private void setKpi(
+            View card,
+            String label,
+            String value,
+            String trend) {
+        ((TextView) card.findViewById(R.id.kpiLabel)).setText(label);
+        ((TextView) card.findViewById(R.id.kpiValue)).setText(value);
+        ((TextView) card.findViewById(R.id.kpiTrend)).setText(trend);
+    }
+
+    private void showChartDetail(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
+
+    private static Map<String, List<String>> createDefaultMuscleMap() {
+        Map<String, List<String>> result = new LinkedHashMap<>();
+        putMuscles(result, "Flys", "Brust");
+        putMuscles(result, "Brustpresse", "Brust", "Schultern", "Arme");
+        putMuscles(result, "Schrägbank", "Brust", "Schultern", "Arme");
+        putMuscles(result, "Frontheben", "Schultern");
+        putMuscles(result, "Seitheben", "Schultern");
+        putMuscles(result, "Triceps", "Arme");
+        putMuscles(result, "Latzug eng", "Rücken", "Arme");
+        putMuscles(result, "Latzug breit", "Rücken", "Arme");
+        putMuscles(result, "Rudern", "Rücken", "Arme");
+        putMuscles(result, "Unterer Rücken", "Rücken", "Core");
+        putMuscles(result, "Bizeps", "Arme");
+        putMuscles(result, "Hammer Curls", "Arme");
+        putMuscles(result, "Bauch", "Core");
+        putMuscles(result, "Butterfly Reverse", "Rücken", "Schultern");
+        putMuscles(result, "Beinbeuger", "Beine");
+        putMuscles(result, "Beine innen", "Beine");
+        putMuscles(result, "Waden sitzend", "Beine");
+        putMuscles(result, "Beinstrecker", "Beine");
+        putMuscles(result, "Beinpresse", "Beine");
+        putMuscles(result, "Hip Thrust", "Beine", "Core");
+        putMuscles(result, "Hyperextension", "Beine", "Rücken", "Core");
+        return result;
+    }
+
+    private static void putMuscles(
+            Map<String, List<String>> map,
+            String exercise,
+            String... groups) {
+        map.put(exercise, Arrays.asList(groups));
+    }
+
+    private enum MetricType {
+        ONE_RM,
+        MAX_WEIGHT,
+        VOLUME,
+        AVG_REPS
+    }
+
+    private static final class ExerciseOption {
+        final String exercise;
+        final String workoutType;
+
+        ExerciseOption(String exercise, String workoutType) {
+            this.exercise = exercise;
+            this.workoutType = workoutType;
+        }
+
+        @Override
+        public String toString() {
+            String typeLabel;
+            if (WorkoutStorage.TYPE_PUSH.equals(workoutType)) {
+                typeLabel = "Push";
+            } else if (WorkoutStorage.TYPE_PULL.equals(workoutType)) {
+                typeLabel = "Pull";
+            } else if (WorkoutStorage.TYPE_LEG.equals(workoutType)) {
+                typeLabel = "Leg";
+            } else {
+                typeLabel = "Sonstige";
+            }
+            return exercise + " · " + typeLabel;
+        }
+    }
+
+    private static final class WorkoutRecord {
+        final LocalDate date;
+        final String workoutType;
+        final String exercise;
+        final List<WorkoutStorage.WorkoutSet> sets;
+
+        WorkoutRecord(
+                LocalDate date,
+                String workoutType,
+                String exercise,
+                List<WorkoutStorage.WorkoutSet> sets) {
+            this.date = date;
+            this.workoutType = workoutType;
+            this.exercise = exercise;
+            this.sets = sets;
+        }
+    }
+
+    private static final class DayMetric {
+        double bestOneRm;
+        double maxWeight;
+        double volume;
+        double totalReps;
+        int setCount;
+
+        double averageReps() {
+            return setCount == 0 ? 0 : totalReps / setCount;
+        }
+    }
+
+    private static final class StrengthSummary {
+        double bestOneRm;
+        double maxWeight;
+        double totalVolume;
+        double totalReps;
+        int totalSets;
+    }
+
+    private static final class MuscleSummary {
+        final Map<String, Double> muscleVolume = new LinkedHashMap<>();
+        double totalVolume;
+        double pushVolume;
+        double pullVolume;
+        double upperVolume;
+        double lowerVolume;
+    }
+
+    private abstract static class SimpleItemSelected
+            implements AdapterView.OnItemSelectedListener {
         @Override
         public void onNothingSelected(AdapterView<?> parent) {
         }

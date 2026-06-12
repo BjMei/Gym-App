@@ -1,91 +1,259 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootProfileGoalsLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary_dark"
-    android:padding="20dp">
+    android:background="@drawable/bg_home_background"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="64dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="18dp">
+
+        <ImageButton
+            android:id="@+id/btnBackProfileGoals"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_burger_button"
+            android:contentDescription="@string/back"
+            android:padding="10dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@null" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.16"
+                android:text="@string/app_name"
+                android:textColor="@color/gold_light"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.08"
+                android:text="@string/profile_section"
+                android:textColor="@color/text_tertiary"
+                android:textSize="9sp" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_profile_goals"
-            android:textColor="@color/gold_primary"
-            android:textStyle="bold"
-            android:textSize="30sp"
-            android:layout_marginBottom="8dp" />
+            android:layout_height="30dp"
+            android:background="@drawable/bg_home_chip"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:letterSpacing="0.08"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/goals_chip"
+            android:textColor="@color/gold_light"
+            android:textSize="9sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/profile_goals_subtitle"
-            android:textColor="@color/text_tertiary"
-            android:textSize="14sp"
-            android:layout_marginBottom="16dp" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="28dp"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_main_card"
-            android:padding="16dp"
-            android:layout_marginBottom="16dp">
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/etProfileName"
+            <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_height="132dp"
+                android:background="@drawable/bg_home_hero"
+                android:elevation="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_home_chip"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.1"
+                        android:paddingStart="9dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="9dp"
+                        android:paddingBottom="4dp"
+                        android:text="@string/profile_focus_chip"
+                        android:textColor="@color/gold_dark"
+                        android:textSize="8sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="9dp"
+                        android:fontFamily="sans-serif-black"
+                        android:text="@string/settings_profile_goals"
+                        android:textColor="@color/text_primary"
+                        android:textSize="25sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="@string/profile_goals_hero_subtitle"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="@string/settings_name"
-                android:inputType="textPersonName"
+                android:layout_marginTop="22dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.08"
+                android:text="@string/profile_personal_data"
                 android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_tertiary"
-                android:background="@drawable/bg_input_compact"
-                android:padding="10dp"
-                android:layout_marginBottom="8dp" />
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/etProfileWeight"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/settings_weight"
-                android:inputType="numberDecimal"
+                android:background="@drawable/bg_main_card"
+                android:elevation="5dp"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    style="@style/ProfileFieldLabel"
+                    android:text="@string/profile_name_label" />
+
+                <EditText
+                    android:id="@+id/etProfileName"
+                    style="@style/ProfileInput"
+                    android:hint="@string/profile_name_hint"
+                    android:imeOptions="actionNext"
+                    android:inputType="textCapWords|textPersonName" />
+
+                <TextView
+                    style="@style/ProfileFieldLabel"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/profile_weight_label" />
+
+                <EditText
+                    android:id="@+id/etProfileWeight"
+                    style="@style/ProfileInput"
+                    android:hint="@string/profile_weight_hint"
+                    android:imeOptions="actionNext"
+                    android:inputType="numberDecimal" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.08"
+                android:text="@string/profile_training_goal"
                 android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_tertiary"
-                android:background="@drawable/bg_input_compact"
-                android:padding="10dp"
-                android:layout_marginBottom="8dp" />
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-            <Spinner
-                android:id="@+id/spinnerGoal"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/spinner_background"
-                android:layout_marginBottom="8dp" />
+                android:background="@drawable/bg_main_card"
+                android:elevation="5dp"
+                android:orientation="vertical"
+                android:padding="18dp">
 
-            <EditText
-                android:id="@+id/etCalorieGoal"
+                <TextView
+                    style="@style/ProfileFieldLabel"
+                    android:text="@string/profile_primary_goal" />
+
+                <Spinner
+                    android:id="@+id/spinnerGoal"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:background="@drawable/spinner_background"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="12dp"
+                    android:popupBackground="@color/card_background" />
+
+                <TextView
+                    style="@style/ProfileFieldLabel"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/profile_weekly_training_goal_label" />
+
+                <EditText
+                    android:id="@+id/etTrainingGoalPerWeek"
+                    style="@style/ProfileInput"
+                    android:hint="@string/profile_weekly_training_goal_hint"
+                    android:imeOptions="actionNext"
+                    android:inputType="number"
+                    android:maxLength="1" />
+
+                <TextView
+                    style="@style/ProfileFieldLabel"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/profile_calorie_goal_label" />
+
+                <EditText
+                    android:id="@+id/etCalorieGoal"
+                    style="@style/ProfileInput"
+                    android:hint="@string/profile_calorie_hint"
+                    android:imeOptions="actionDone"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/btnSaveProfileGoals"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/settings_calorie_goal"
-                android:inputType="number"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_tertiary"
-                android:background="@drawable/bg_input_compact"
-                android:padding="10dp" />
+                android:layout_height="56dp"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_training_primary_action"
+                android:clickable="true"
+                android:elevation="4dp"
+                android:focusable="true"
+                android:fontFamily="sans-serif-black"
+                android:gravity="center"
+                android:letterSpacing="0.08"
+                android:text="@string/profile_save"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
-
-        <Button
-            android:id="@+id/btnSaveProfileGoals"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_save"
-            android:background="@drawable/gradient_button"
-            android:textColor="@android:color/white"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>

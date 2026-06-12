@@ -1,221 +1,291 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootFortschrittLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/primary_dark">
+    android:background="@drawable/bg_home_background"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_height="64dp"
         android:gravity="center_vertical"
-        android:padding="16dp"
-        android:background="@drawable/gradient_header">
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="18dp">
 
-        <TextView
+        <ImageButton
+            android:id="@+id/btnBackFortschritt"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_burger_button"
+            android:contentDescription="@string/back"
+            android:padding="10dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@null" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.16"
+                android:text="@string/app_name"
+                android:textColor="@color/gold_light"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.08"
+                android:text="PERFORMANCE"
+                android:textColor="@color/text_tertiary"
+                android:textSize="9sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="122dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_home_hero"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="18dp"
+        android:paddingEnd="14dp">
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="FORTSCHRITT"
-            android:textColor="@color/gold_primary"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.08" />
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="PERFORMANCE ANALYTICS"
-            android:textColor="@color/text_tertiary"
-            android:textSize="10sp"
-            android:letterSpacing="0.05" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_home_chip"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.1"
+                android:paddingStart="9dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="9dp"
+                android:paddingBottom="4dp"
+                android:text="DEINE ENTWICKLUNG"
+                android:textColor="@color/gold_dark"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:fontFamily="sans-serif-black"
+                android:text="FORTSCHRITT"
+                android:textColor="@color/text_primary"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvProgressGoalSummary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:textColor="@color/text_tertiary"
+                android:textSize="10sp" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@color/primary">
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/bg_screen_tabs"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-        <LinearLayout
+        <include
             android:id="@+id/tabKraft"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="12dp"
-            android:clickable="true"
-            android:focusable="true">
+            layout="@layout/tab_item" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Kraft"
-                android:textColor="@color/gold_primary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginTop="6dp"
-                android:background="@color/gold_primary" />
-        </LinearLayout>
-
-        <LinearLayout
+        <include
             android:id="@+id/tabMuskeln"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="12dp"
-            android:clickable="true"
-            android:focusable="true">
+            layout="@layout/tab_item" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Muskeln"
-                android:textColor="@color/text_tertiary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginTop="6dp"
-                android:background="@color/gold_primary"
-                android:visibility="invisible" />
-        </LinearLayout>
-
-        <LinearLayout
+        <include
             android:id="@+id/tabKonsistenz"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="12dp"
-            android:clickable="true"
-            android:focusable="true">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Konsistenz"
-                android:textColor="@color/text_tertiary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginTop="6dp"
-                android:background="@color/gold_primary"
-                android:visibility="invisible" />
-        </LinearLayout>
+            layout="@layout/tab_item" />
     </LinearLayout>
 
-    <View
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider" />
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.08"
+            android:text="ZEITRAUM"
+            android:textColor="@color/text_tertiary"
+            android:textSize="9sp" />
+
+        <Spinner
+            android:id="@+id/spinnerProgressRange"
+            android:layout_width="120dp"
+            android:layout_height="44dp"
+            android:background="@drawable/spinner_background"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="28dp">
 
             <LinearLayout
                 android:id="@+id/sectionKraft"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="visible">
+                android:orientation="vertical">
+
+                <Spinner
+                    android:id="@+id/spinnerFortschrittExercise"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="14dp"
+                    android:background="@drawable/spinner_background"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
 
-                    <Spinner
-                        android:id="@+id/spinnerFortschrittExercise"
+                    <include
+                        android:id="@+id/kpiBest1Rm"
+                        layout="@layout/kpi_card"
                         android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="8dp"
-                        android:background="@drawable/spinner_background"
-                        android:paddingStart="12dp" />
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1" />
 
-                    <Spinner
-                        android:id="@+id/spinnerRangeKraft"
-                        android:layout_width="90dp"
-                        android:layout_height="48dp"
-                        android:background="@drawable/spinner_background"
-                        android:paddingStart="8dp" />
+                    <include
+                        android:id="@+id/kpiRelativeStrength"
+                        layout="@layout/kpi_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
+
+                    <include
+                        android:id="@+id/kpiStrengthVolume"
+                        layout="@layout/kpi_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1" />
+
+                    <include
+                        android:id="@+id/kpiPrCount"
+                        layout="@layout/kpi_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1" />
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/tvKraftComparisonPeriod"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/bg_home_metric"
+                    android:fontFamily="sans-serif-medium"
+                    android:padding="14dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+
+                <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="GESCHÄTZTES 1RM" 
-                android:layout_width="wrap_content" 
-                android:layout_height="wrap_content" />
+                    android:text="GESCHÄTZTES 1RM · PR-MARKER" />
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/chart1RM"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_height="220dp"
+                    android:layout_marginBottom="14dp" />
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="MAX GEWICHT" 
-                android:layout_width="wrap_content" 
-                android:layout_height="wrap_content" />
+                    android:text="MAXIMALES GEWICHT · PR-MARKER" />
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/chartMaxGewicht"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_height="220dp"
+                    android:layout_marginBottom="14dp" />
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="VOLUMEN" 
-                android:layout_width="wrap_content" 
-                android:layout_height="wrap_content" />
+                    android:text="VOLUMENENTWICKLUNG" />
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/chartVolumen"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_height="220dp"
+                    android:layout_marginBottom="14dp" />
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="Ø WIEDERHOLUNGEN" 
-                android:layout_width="wrap_content" 
-                android:layout_height="wrap_content" />
+                    android:text="Ø WIEDERHOLUNGEN PRO SATZ" />
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/chartWiederholungen"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_height="220dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -225,80 +295,124 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <Spinner
-                    android:id="@+id/spinnerRangeMuskeln"
-                    android:layout_width="120dp"
-                    android:layout_height="48dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@drawable/spinner_background"
-                    android:paddingStart="8dp" />
-
                 <TextView
-                    style="@style/ChartSectionLabel"
-                    android:text="VOLUMEN JE MUSKELGRUPPE" 
-                android:layout_width="wrap_content" 
-                android:layout_height="wrap_content" />
-
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/chartMuskelVolumen"
-                    android:layout_width="match_parent"
-                    android:layout_height="240dp"
-                    android:layout_marginBottom="12dp" />
+                    style="@style/SectionLabel"
+                    android:text="MUSKELZUORDNUNG" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    android:background="@drawable/bg_home_metric"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <Spinner
+                        android:id="@+id/spinnerMuscleExercise"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/spinner_background"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp" />
+
+                    <TextView
+                        android:id="@+id/tvMuscleMapping"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/btnEditMuscleMapping"
+                        android:layout_width="match_parent"
+                        android:layout_height="46dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_training_primary_action"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="sans-serif-black"
+                        android:gravity="center"
+                        android:letterSpacing="0.08"
+                        android:text="MUSKELGRUPPEN BEARBEITEN"
+                        android:textColor="@color/black"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:orientation="horizontal">
 
-                    <LinearLayout
+                    <include
+                        android:id="@+id/kpiMuscleVolume"
+                        layout="@layout/kpi_card"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginEnd="6dp">
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1" />
 
-                        <TextView
-                            style="@style/ChartSectionLabel"
-                            android:text="PUSH VS PULL" 
-                android:layout_width="wrap_content" 
-                android:layout_height="wrap_content" />
-
-                        <com.github.mikephil.charting.charts.PieChart
-                            android:id="@+id/chartPushPull"
-                            android:layout_width="match_parent"
-                            android:layout_height="200dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
+                    <include
+                        android:id="@+id/kpiMuscleBalance"
+                        layout="@layout/kpi_card"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="6dp">
-
-                        <TextView
-                            style="@style/ChartSectionLabel"
-                            android:text="OBER VS UNTERKÖRPER" 
-                android:layout_width="wrap_content" 
-                android:layout_height="wrap_content" />
-
-                        <com.github.mikephil.charting.charts.PieChart
-                            android:id="@+id/chartOberUnter"
-                            android:layout_width="match_parent"
-                            android:layout_height="200dp" />
-                    </LinearLayout>
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1" />
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvMuscleComparison"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/bg_home_metric"
+                    android:fontFamily="sans-serif-medium"
+                    android:padding="14dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    style="@style/ChartSectionLabel"
+                    android:text="VOLUMEN JE MUSKELGRUPPE" />
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/chartMuskelVolumen"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp"
+                    android:layout_marginBottom="14dp" />
+
+                <TextView
+                    style="@style/ChartSectionLabel"
+                    android:text="PUSH VS PULL" />
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/chartPushPull"
+                    android:layout_width="match_parent"
+                    android:layout_height="230dp"
+                    android:layout_marginBottom="14dp" />
+
+                <TextView
+                    style="@style/ChartSectionLabel"
+                    android:text="OBERKÖRPER VS UNTERKÖRPER" />
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/chartOberUnter"
+                    android:layout_width="match_parent"
+                    android:layout_height="230dp" />
 
                 <TextView
                     android:id="@+id/tvDysbalance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:padding="14dp"
-                    android:background="@drawable/card_border_gold"
-                    android:textColor="#F5A623"
-                    android:textSize="13sp"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_home_metric"
                     android:lineSpacingExtra="4dp"
+                    android:padding="15dp"
+                    android:textColor="@color/training_gold_highlight"
+                    android:textSize="12sp"
                     android:visibility="gone" />
             </LinearLayout>
 
@@ -309,149 +423,113 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
+                <TextView
+                    style="@style/SectionLabel"
+                    android:text="PERSÖNLICHES WOCHENZIEL" />
+
                 <Spinner
-                    android:id="@+id/spinnerRangeKonsistenz"
-                    android:layout_width="120dp"
+                    android:id="@+id/spinnerWeeklyGoal"
+                    android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="14dp"
                     android:background="@drawable/spinner_background"
-                    android:paddingStart="8dp" />
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
 
-                    <LinearLayout
+                    <include
+                        android:id="@+id/kpiCurrentStreak"
+                        layout="@layout/kpi_card"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_marginEnd="6dp"
-                        android:orientation="vertical"
-                        android:padding="16dp"
-                        android:background="@drawable/card_border_gold">
+                        android:layout_weight="1" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="STREAK"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="10sp"
-                            android:letterSpacing="0.08" />
-
-                        <TextView
-                            android:id="@+id/tvStreak"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0 Tage"
-                            android:textColor="@color/gold_primary"
-                            android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="4dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Aktuell"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="11sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
+                    <include
+                        android:id="@+id/kpiBestStreak"
+                        layout="@layout/kpi_card"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_marginStart="6dp"
-                        android:orientation="vertical"
-                        android:padding="16dp"
-                        android:background="@drawable/card_border_gold">
+                        android:layout_weight="1" />
+                </LinearLayout>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="BESTE SERIE"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="10sp"
-                            android:letterSpacing="0.08" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
 
-                        <TextView
-                            android:id="@+id/tvBestStreak"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0 Tage"
-                            android:textColor="@color/gold_secondary"
-                            android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="4dp" />
+                    <include
+                        android:id="@+id/kpiWeeklyAverage"
+                        layout="@layout/kpi_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1" />
 
-                        <TextView
-                            android:id="@+id/tvBestStreakZeitraum"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="–"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="11sp" />
-                    </LinearLayout>
+                    <include
+                        android:id="@+id/kpiGoalAchievement"
+                        layout="@layout/kpi_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1" />
                 </LinearLayout>
 
                 <TextView
-                    style="@style/ChartSectionLabel"
-                    android:text="TRAININGSFREIE TAGE JE WOCHE" 
-                android:layout_width="wrap_content" 
-                android:layout_height="wrap_content" />
-
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/chartFreieTage"
+                    android:id="@+id/tvConsistencyComparison"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/bg_home_metric"
+                    android:fontFamily="sans-serif-medium"
+                    android:padding="14dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="TRAININGSQUOTE" 
-                android:layout_width="wrap_content" 
-                android:layout_height="wrap_content" />
+                    android:text="TRAININGSTAGE JE KALENDERWOCHE" />
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/chartWeeklySessions"
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    android:layout_marginBottom="14dp" />
+
+                <TextView
+                    style="@style/ChartSectionLabel"
+                    android:text="ERREICHUNG DEINES WOCHENZIELS" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                    android:background="@drawable/bg_home_metric"
                     android:gravity="center_vertical"
-                    android:padding="16dp"
-                    android:background="@drawable/card_border_gold">
+                    android:orientation="horizontal"
+                    android:padding="15dp">
 
                     <com.github.mikephil.charting.charts.PieChart
-                        android:id="@+id/chartQuote"
-                        android:layout_width="140dp"
-                        android:layout_height="140dp" />
+                        android:id="@+id/chartGoalAchievement"
+                        android:layout_width="145dp"
+                        android:layout_height="145dp" />
 
-                    <LinearLayout
+                    <TextView
+                        android:id="@+id/tvGoalStatus"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:layout_marginStart="16dp">
-
-                        <TextView
-                            android:id="@+id/tvQuoteProzent"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0%"
-                            android:textColor="@color/gold_primary"
-                            android:textSize="40sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvQuoteStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="–"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
+                        android:fontFamily="sans-serif-medium"
+                        android:lineSpacingExtra="3dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

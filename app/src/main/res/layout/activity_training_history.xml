@@ -1,62 +1,191 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootHistoryLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/primary_dark">
-    android:background="@color/primary_dark"
-    android:paddingStart="24dp"
-    android:paddingTop="48dp"
-    android:paddingEnd="24dp"
-    android:paddingBottom="32dp">
+    android:background="@drawable/bg_home_background"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tvHistoryTitle"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/primary_dark"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="18dp">
+
+        <ImageButton
+            android:id="@+id/btnBackHistory"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_burger_button"
+            android:contentDescription="@string/back"
+            android:padding="10dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@null" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.16"
+                android:text="@string/app_name"
+                android:textColor="@color/gold_light"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.08"
+                android:text="@string/history_section"
+                android:textColor="@color/text_tertiary"
+                android:textSize="9sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:background="@drawable/bg_home_chip"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:letterSpacing="0.08"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/history_archive_chip"
+            android:textColor="@color/gold_light"
+            android:textSize="9sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="116dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_home_hero"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_home_chip"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.1"
+                android:paddingStart="9dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="9dp"
+                android:paddingBottom="4dp"
+                android:text="@string/history_review_chip"
+                android:textColor="@color/gold_dark"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvHistoryTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:fontFamily="sans-serif-black"
+                android:maxLines="1"
+                android:text="@string/history_title"
+                android:textColor="@color/text_primary"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/history_hero_subtitle"
+                android:textColor="@color/text_tertiary"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Trainingsverlauf"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:fontFamily="sans-serif-black"
-        android:letterSpacing="0.05"
-        android:paddingBottom="12dp" />
-    android:paddingBottom="16dp" />
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="DEINE GESPEICHERTEN ÜBUNGEN"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_tertiary"
-        android:fontFamily="sans-serif-medium"
-        android:letterSpacing="0.08"
-        android:paddingBottom="8dp" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.08"
+            android:text="@string/history_saved_sessions"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvHistorySessionCount"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:background="@drawable/bg_home_chip"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:letterSpacing="0.06"
+            android:minWidth="84dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="0 EINHEITEN"
+            android:textColor="@color/training_gold_highlight"
+            android:textSize="8sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvEmptyState"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Noch keine Trainings gespeichert"
-        android:textSize="16sp"
-        android:textColor="@color/text_secondary"
-        android:paddingTop="24dp"
+        android:layout_height="96dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/bg_home_metric"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
         android:padding="20dp"
-        android:background="@drawable/rounded_card"
-        android:layout_marginTop="8dp"
+        android:text="@string/history_empty"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
         android:visibility="gone" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:clipToPadding="false"
         android:fillViewport="true"
-        android:paddingTop="16dp">
-        android:paddingTop="12dp"
-        android:paddingBottom="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="32dp"
         android:scrollbars="none">
 
         <LinearLayout
@@ -65,5 +194,4 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
     </ScrollView>
-
 </LinearLayout>

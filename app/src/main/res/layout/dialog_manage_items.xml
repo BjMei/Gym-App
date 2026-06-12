@@ -1,52 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_surface"
     android:orientation="vertical"
-    android:background="@drawable/rounded_card"
     android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_home_chip"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.1"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="5dp"
+        android:text="@string/dialog_catalog_chip"
+        android:textColor="@color/gold_dark"
+        android:textSize="8sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvManageTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Verwalten"
-        android:textColor="@color/text_primary"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:layout_marginTop="13dp"
         android:fontFamily="sans-serif-black"
-        android:layout_marginBottom="16dp" />
+        android:text="@string/dialog_manage_title"
+        android:textColor="@color/text_primary"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="18dp"
+        android:text="@string/dialog_manage_subtitle"
+        android:textColor="@color/text_tertiary"
+        android:textSize="11sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal">
 
         <EditText
             android:id="@+id/etNewItem"
             android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1"
+            android:layout_height="54dp"
             android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_training_input_compact"
             android:gravity="center_vertical|start"
-            android:hint="Neuen Eintrag eingeben"
+            android:hint="@string/dialog_new_entry_hint"
+            android:imeOptions="actionDone"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
             android:textColor="@color/text_primary"
-            android:textColorHint="@color/text_secondary"
-            android:background="@drawable/rounded_input"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+            android:textColorHint="@color/text_tertiary"
+            android:textSize="14sp" />
 
         <ImageButton
             android:id="@+id/btnAddItem"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:background="@drawable/rounded_input"
-            android:src="@android:drawable/ic_input_add"
-            android:tint="@color/gold_primary"
-            android:contentDescription="Hinzufügen"
-            android:padding="12dp" />
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:background="@drawable/bg_training_primary_action"
+            android:contentDescription="@string/add"
+            android:padding="14dp"
+            android:src="@drawable/ic_ironx_add"
+            app:tint="@color/black" />
     </LinearLayout>
 
     <ScrollView
@@ -54,7 +80,9 @@
         android:layout_width="match_parent"
         android:layout_height="320dp"
         android:layout_marginBottom="16dp"
-        android:fillViewport="true">
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:id="@+id/llManageItems"
@@ -66,11 +94,14 @@
     <Button
         android:id="@+id/btnCloseManageDialog"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
-        android:text="Schließen"
+        android:layout_height="52dp"
+        android:background="@drawable/bg_dialog_secondary_action"
+        android:backgroundTint="@null"
+        android:fontFamily="sans-serif-black"
+        android:letterSpacing="0.06"
+        android:text="@string/close"
         android:textAllCaps="false"
-        android:textColor="@color/primary_dark"
-        android:textStyle="bold"
-        android:background="@drawable/rounded_button" />
-
+        android:textColor="@color/text_primary"
+        android:textSize="11sp"
+        app:backgroundTint="@null" />
 </LinearLayout>

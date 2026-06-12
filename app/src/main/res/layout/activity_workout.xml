@@ -1,121 +1,353 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootWorkoutLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/primary_dark"
-    android:paddingTop="12dp"
-    android:paddingBottom="20dp">
+    android:background="@drawable/bg_home_background"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="48dp"
-        android:paddingBottom="20dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:background="@drawable/gradient_header"
-        android:elevation="12dp">
+        android:layout_height="64dp"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="18dp">
+
+        <ImageButton
+            android:id="@+id/btnBackWorkout"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_burger_button"
+            android:contentDescription="@string/back"
+            android:padding="10dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@null" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.16"
+                android:text="IRONX"
+                android:textColor="@color/gold_light"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.08"
+                android:text="@string/training_section"
+                android:textColor="@color/text_tertiary"
+                android:textSize="9sp" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="WORKOUT AUSWÄHLEN"
-            android:textSize="42sp"
-            android:textStyle="bold"
-            android:textColor="@color/gold_primary"
-            android:layout_gravity="start"
-            android:letterSpacing="0.05"
-            android:fontFamily="sans-serif-black"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="4dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Wähle deinen Split für das heutige Training"
-            android:textSize="12sp"
-            android:textColor="@color/text_tertiary"
-            android:layout_gravity="start"
-            android:fontFamily="sans-serif"
-            android:textStyle="italic" />
+            android:layout_height="30dp"
+            android:background="@drawable/bg_home_chip"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:letterSpacing="0.08"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/workout_split_chip"
+            android:textColor="@color/gold_light"
+            android:textSize="9sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:clipToPadding="false"
         android:fillViewport="true"
-        android:paddingTop="14dp"
-        android:paddingBottom="24dp"
-        android:paddingStart="14dp"
-        android:paddingEnd="14dp"
-        android:clipToPadding="false">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="28dp"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_home_hero"
+                android:elevation="8dp"
+                android:gravity="center_vertical"
+                android:minHeight="154dp"
+                android:orientation="horizontal"
+                android:paddingStart="20dp"
+                android:paddingTop="18dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="18dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="13dp"
+                        android:fontFamily="sans-serif-black"
+                        android:lineSpacingExtra="-2dp"
+                        android:text="@string/workout_choose_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="27sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.08"
+                android:text="@string/workout_your_training"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
                 android:id="@+id/pushCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp"
-                android:background="@drawable/bg_main_card"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_workout_card"
                 android:clickable="true"
+                android:elevation="5dp"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
-                android:gravity="center"
-                android:minHeight="88dp"
-                android:padding="20dp"
-                android:text="PUSH DAY"
-                android:textColor="@color/gold_primary"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-black"
-                android:letterSpacing="0.04" />
+                android:gravity="center_vertical"
+                android:minHeight="108dp"
+                android:orientation="horizontal"
+                android:padding="16dp">
 
-            <TextView
+                <FrameLayout
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:background="@drawable/bg_icon_circle"
+                    android:padding="7dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="Push Day"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/workout_push_realistic" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.08"
+                        android:text="@string/workout_push_muscles"
+                        android:textColor="@color/gold_dark"
+                        android:textSize="9sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="sans-serif-black"
+                        android:text="PUSH DAY"
+                        android:textColor="@color/gold_light"
+                        android:textSize="21sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="@string/workout_push_description"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@string/open"
+                    android:src="@drawable/ic_chevron_home" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/pullCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp"
-                android:background="@drawable/bg_main_card"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_workout_card"
                 android:clickable="true"
+                android:elevation="5dp"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
-                android:gravity="center"
-                android:minHeight="88dp"
-                android:padding="20dp"
-                android:text="PULL DAY"
-                android:textColor="@color/gold_primary"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-black"
-                android:letterSpacing="0.04" />
+                android:gravity="center_vertical"
+                android:minHeight="108dp"
+                android:orientation="horizontal"
+                android:padding="16dp">
 
-            <TextView
+                <FrameLayout
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:background="@drawable/bg_icon_circle"
+                    android:padding="7dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="Pull Day"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/workout_pull_realistic" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.08"
+                        android:text="@string/workout_pull_muscles"
+                        android:textColor="@color/gold_dark"
+                        android:textSize="9sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="sans-serif-black"
+                        android:text="PULL DAY"
+                        android:textColor="@color/gold_light"
+                        android:textSize="21sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="@string/workout_pull_description"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@string/open"
+                    android:src="@drawable/ic_chevron_home" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/legCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_main_card"
+                android:background="@drawable/bg_workout_card"
                 android:clickable="true"
+                android:elevation="5dp"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
-                android:gravity="center"
-                android:minHeight="88dp"
-                android:padding="20dp"
-                android:text="LEG DAY"
-                android:textColor="@color/gold_primary"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-black"
-                android:letterSpacing="0.04" />
+                android:gravity="center_vertical"
+                android:minHeight="108dp"
+                android:orientation="horizontal"
+                android:padding="16dp">
 
+                <FrameLayout
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:background="@drawable/bg_icon_circle"
+                    android:padding="7dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="Leg Day"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/workout_leg_realistic" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.08"
+                        android:text="@string/workout_leg_muscles"
+                        android:textColor="@color/gold_dark"
+                        android:textSize="9sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="sans-serif-black"
+                        android:text="LEG DAY"
+                        android:textColor="@color/gold_light"
+                        android:textSize="21sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="@string/workout_leg_description"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@string/open"
+                    android:src="@drawable/ic_chevron_home" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>

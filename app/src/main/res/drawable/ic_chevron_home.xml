@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- leichter Schatten -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9.3,5.4 L16.3,12.4 L9.3,19.4"
+        android:strokeColor="#33000000"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="2.8" />
+
+    <!-- dunkle Außenkante -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9,5 L16,12 L9,19"
+        android:strokeColor="#9F8447"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="2.8" />
+
+    <!-- Hauptfarbe -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9,5 L16,12 L9,19"
+        android:strokeColor="#C9A961"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="2.2" />
+
+    <!-- heller Metallic-Kern -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9,5 L16,12 L9,19"
+        android:strokeColor="#E2C98D"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.2" />
+
+    <!-- dezenter Glanz -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9.8,6 L14.9,11.1"
+        android:strokeColor="#66FFF7E6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="0.7" />
+
+</vector>

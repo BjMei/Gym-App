@@ -36,6 +36,27 @@
         <item>Hyperextension</item>
     </string-array>
     <string name="home_logo_description">IRONX Logo</string>
+    <string name="home_dashboard_chip">DEIN DASHBOARD</string>
+    <string name="home_ready">Bereit für dein Training?</string>
+    <string name="home_greeting">Willkommen zurück,\n%1$s</string>
+    <string name="home_motto">Stärker als gestern. Satz für Satz.</string>
+    <string name="home_week">DEINE WOCHE</string>
+    <string name="home_trainings">TRAININGS</string>
+    <string name="home_streak_days">TAGE SERIE</string>
+    <string name="home_volume">VOLUMEN</string>
+    <string name="home_training_section">TRAINING</string>
+    <string name="home_today">HEUTE</string>
+    <string name="home_start_workout">WORKOUT STARTEN</string>
+    <string name="home_workout_types">Push · Pull · Legs</string>
+    <string name="home_statistics">STATISTIK</string>
+    <string name="home_statistics_subtitle">Kennzahlen und Auswertung</string>
+    <string name="home_progress">FORTSCHRITT</string>
+    <string name="home_progress_subtitle">Trends, PRs und Balance</string>
+    <string name="home_next_workout">NÄCHSTES TRAINING</string>
+    <string name="home_next_workout_value">%1$s DAY · ALS NÄCHSTES DRAN</string>
+    <string name="drawer_subtitle">Dein Trainingszentrum</string>
+    <string name="drawer_history">Trainingshistorie</string>
+    <string name="drawer_profile">Profil &amp; Ziele</string>
     <string name="drawer_open">Menü öffnen</string>
     <string name="nav_workout_emoji">Workout</string>
     <string name="nav_history_emoji">Trainingshistorie</string>
@@ -55,12 +76,155 @@
     <string name="settings_saved">Einstellungen gespeichert</string>
     <string name="profile_goals_subtitle">Verwalte hier Name, Gewicht, Ziel und Kalorienziel.</string>
     <string name="profile_goals_saved">Profil und Ziele gespeichert</string>
+    <string name="back">Zurück</string>
+    <string name="profile_section">PROFIL</string>
+    <string name="goals_chip">ZIELE</string>
+    <string name="profile_focus_chip">DEIN FOKUS</string>
+    <string name="profile_goals_hero_subtitle">Persönliche Daten und Trainingsfokus festlegen</string>
+    <string name="profile_personal_data">DEINE DATEN</string>
+    <string name="profile_name_label">NAME</string>
+    <string name="profile_name_hint">Dein Name</string>
+    <string name="profile_weight_label">GEWICHT</string>
+    <string name="profile_weight_hint">Gewicht in kg</string>
+    <string name="profile_training_goal">TRAININGSZIEL</string>
+    <string name="profile_primary_goal">PRIMÄRES ZIEL</string>
+    <string name="profile_weekly_training_goal_label">TRAININGS PRO WOCHE</string>
+    <string name="profile_weekly_training_goal_hint">Persönliches Wochenziel (1–7)</string>
+    <string name="profile_calorie_goal_label">KALORIEN PRO TAG</string>
+    <string name="profile_calorie_hint">Tagesziel in kcal</string>
+    <string name="profile_save">PROFIL SPEICHERN</string>
+
+    <string name="settings_section">SYSTEM</string>
+    <string name="settings_system_chip">SETUP</string>
+    <string name="settings_control_chip">DEINE APP</string>
+    <string name="settings_hero_subtitle">Darstellung, Einheiten und Verhalten der App konfigurieren</string>
+    <string name="settings_icon_description">App-Einstellungen</string>
+    <string name="settings_app_configuration">APP-KONFIGURATION</string>
+    <string name="settings_theme_label">DARSTELLUNG</string>
+    <string name="settings_units_label">EINHEITEN</string>
+    <string name="settings_language_label">SPRACHE</string>
+    <string name="settings_text_size_label">TEXTGRÖSSE</string>
+    <string name="settings_behavior_section">BEDIENUNG &amp; TRAINING</string>
+    <string name="settings_animations">Animationen verwenden</string>
+    <string name="settings_keep_screen_on">Bildschirm beim Training aktiv halten</string>
+    <string name="settings_history_expanded">Trainingsverlauf standardmäßig aufklappen</string>
+    <string name="settings_haptics">Haptisches Feedback verwenden</string>
+    <string name="settings_save_action">EINSTELLUNGEN SPEICHERN</string>
+
+    <string name="app_info_title">App-Informationen</string>
+    <string name="app_info_section">SYSTEMINFO</string>
+    <string name="app_info_header_chip">INFO</string>
+    <string name="app_info_hero_chip">APP-DETAILS</string>
+    <string name="app_info_hero_subtitle">Version, System und Datenspeicherung im Überblick</string>
+    <string name="app_info_logo_description">IRONX App-Symbol</string>
+    <string name="app_info_app_section">APP &amp; BUILD</string>
+    <string name="app_info_installation_section">INSTALLATION</string>
+    <string name="app_info_device_section">GERÄT &amp; KOMPATIBILITÄT</string>
+    <string name="app_info_data_section">DATEN &amp; DATENSCHUTZ</string>
+
+    <string name="history_section">VERLAUF</string>
+    <string name="history_archive_chip">ARCHIV</string>
+    <string name="history_review_chip">RÜCKBLICK</string>
+    <string name="history_title">Trainingsverlauf</string>
+    <string name="history_hero_subtitle">Gespeicherte Einheiten und Leistungen im Überblick</string>
+    <string name="history_saved_sessions">GESPEICHERTE EINHEITEN</string>
+    <string name="history_empty">Noch keine Trainings gespeichert</string>
+    <string name="history_default_title">Trainingsverlauf</string>
+    <string name="history_expand_session">Trainingseinheit ausklappen</string>
+    <string name="history_collapse_session">Trainingseinheit einklappen</string>
+    <string name="history_header_show_details">%1$s, %2$s, %3$s. Zum Anzeigen der Details antippen.</string>
+    <string name="history_header_hide_details">%1$s, %2$s, %3$s. Zum Schließen der Details antippen.</string>
+    <string name="history_no_set_data">Keine Satzdaten gespeichert</string>
+    <string name="history_set_label">SATZ</string>
+    <string name="history_weight_label">GEWICHT</string>
+    <string name="history_reps_label">WDHL.</string>
+    <string name="history_day_summary">%1$s · %2$s</string>
+    <string name="history_cardio_count"> · %1$d Cardio</string>
+    <string name="history_minutes_short">%1$d MIN</string>
+    <plurals name="history_session_count">
+        <item quantity="one">%1$d EINHEIT</item>
+        <item quantity="other">%1$d EINHEITEN</item>
+    </plurals>
+    <plurals name="history_exercise_count">
+        <item quantity="one">%1$d Übung</item>
+        <item quantity="other">%1$d Übungen</item>
+    </plurals>
+    <plurals name="history_set_count">
+        <item quantity="one">%1$d Satz</item>
+        <item quantity="other">%1$d Sätze</item>
+    </plurals>
+    <plurals name="history_set_count_upper">
+        <item quantity="one">%1$d SATZ</item>
+        <item quantity="other">%1$d SÄTZE</item>
+    </plurals>
+
+    <string name="training_section">TRAINING</string>
+    <string name="workout_split_chip">SPLIT</string>
+    <string name="workout_choose_title">Wähle deinen\nWorkout-Split</string>
+    <string name="workout_your_training">DEIN TRAINING</string>
+    <string name="workout_push_muscles">BRUST · SCHULTER · TRIZEPS</string>
+    <string name="workout_push_description">Drückbewegungen und Oberkörperkraft</string>
+    <string name="workout_pull_muscles">RÜCKEN · BIZEPS · CORE</string>
+    <string name="workout_pull_description">Zugbewegungen und starke Rückenkette</string>
+    <string name="workout_leg_muscles">BEINE · GLUTEUS · WADEN</string>
+    <string name="workout_leg_description">Unterkörperkraft und stabile Basis</string>
+    <string name="open">Öffnen</string>
+
+    <string name="training_timer">TIMER</string>
+    <string name="training_reset">Zurücksetzen</string>
+    <string name="training_push_description">Drückbewegungen. Satz für Satz stärker.</string>
+    <string name="training_pull_description">Starke Rückenkette. Saubere Zugbewegungen.</string>
+    <string name="training_leg_description">Stabile Basis. Kontrollierte Beinkraft.</string>
+    <string name="training_select_exercise">ÜBUNG AUSWÄHLEN</string>
+    <string name="training_select_second_exercise">2. Übung auswählen</string>
+    <string name="training_settings">Einstellungen</string>
+    <string name="training_manage_exercises">Übungen verwalten</string>
+    <string name="training_last_workout">LETZTES TRAINING</string>
+    <string name="training_weight">GEWICHT</string>
+    <string name="training_reps">WDHL.</string>
+    <string name="training_save_workout">TRAINING SPEICHERN</string>
+    <string name="training_second_exercise">2. Übung</string>
+    <string name="training_cardio">CARDIO</string>
+    <string name="training_select_cardio">Cardio-Übung auswählen</string>
+    <string name="training_time_minutes">Zeit in Minuten</string>
+    <string name="training_minutes">Minuten</string>
+    <string name="training_save_cardio">Cardio speichern</string>
+    <string name="training_edit_cardio">Cardio bearbeiten</string>
+    <string name="training_save">SPEICHERN</string>
+    <string name="training_edit">BEARBEITEN</string>
+    <string name="training_history">TRAININGSHISTORIE</string>
+    <string name="training_saved_exercises">GESPEICHERTE ÜBUNGEN</string>
+    <string name="training_saved_confirmation">Training gespeichert</string>
+    <string name="training_set_summary">• Satz %1$d: %2$s × %3$d</string>
+    <string name="training_set_detail">Satz %1$d: %2$s × %3$d Wiederholungen</string>
+    <string name="training_minutes_value">%1$d Minuten</string>
+    <string name="dialog_security_chip">SICHERHEIT</string>
+    <string name="dialog_exercise_chip">ÜBUNGSPROFIL</string>
+    <string name="dialog_exercise_subtitle">Gerätepositionen und persönliche Werte hinterlegen</string>
+    <string name="dialog_seat_positions">SITZ- UND GERÄTEPOSITIONEN</string>
+    <string name="dialog_seat_hint">z. B. Sitz 3, Lehne 5</string>
+    <string name="dialog_catalog_chip">KATALOG</string>
+    <string name="dialog_manage_title">Einträge verwalten</string>
+    <string name="dialog_manage_subtitle">Eigene Übungen oder Cardioarten hinzufügen und entfernen</string>
+    <string name="dialog_new_entry_hint">Neuen Eintrag eingeben</string>
+    <string name="dialog_selection_chip">AUSWAHL</string>
+    <string name="dialog_select_title">Eintrag auswählen</string>
+    <string name="dialog_select_subtitle">Wähle den passenden Eintrag für dein Training</string>
+    <string name="delete_entry_title">Eintrag löschen?</string>
+    <string name="cancel">ABBRECHEN</string>
+    <string name="delete">LÖSCHEN</string>
+    <string name="dialog_save">SPEICHERN</string>
+    <string name="close">SCHLIESSEN</string>
+    <string name="add">Hinzufügen</string>
 
     <string name="settings_goal_muscle">Muskelaufbau</string>
     <string name="settings_goal_weight_loss">Abnehmen</string>
 
-    <string name="settings_theme_dark">Dark</string>
-    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Standard Dark</string>
+    <string name="settings_theme_light">OLED Black</string>
+    <string name="settings_text_compact">Kompakt</string>
+    <string name="settings_text_standard">Standard</string>
+    <string name="settings_text_large">Groß</string>
 
     <string name="settings_unit_kg">kg</string>
     <string name="settings_unit_lbs">lbs</string>
@@ -86,6 +250,12 @@
     <string-array name="settings_language_options">
         <item>@string/settings_language_german</item>
         <item>@string/settings_language_english</item>
+    </string-array>
+
+    <string-array name="settings_text_size_options">
+        <item>@string/settings_text_compact</item>
+        <item>@string/settings_text_standard</item>
+        <item>@string/settings_text_large</item>
     </string-array>
 
 </resources>

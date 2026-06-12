@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- stärkerer Schatten -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.28"
+        android:pathData="M12.4,5.5c3.87,0 7,3.13 7,7s-3.13,7 -7,7c-3.23,0 -5.95,-2.19 -6.75,-5.17h2.1c0.73,1.85 2.53,3.17 4.65,3.17c2.76,0 5,-2.24 5,-5s-2.24,-5 -5,-5c-1.57,0 -2.97,0.73 -3.88,1.88l2.88,2.72H4.4v-7l2.7,2.7c1.3,-1.66 3.22,-2.7 5.3,-2.7z" />
+
+    <!-- dunkle Außenkante + Metallic-Füllung -->
+    <path
+        android:strokeColor="#6F4700"
+        android:strokeWidth="0.25"
+        android:pathData="M12,5c3.87,0 7,3.13 7,7s-3.13,7 -7,7c-3.23,0 -5.95,-2.19 -6.75,-5.17h2.1C8.08,15.68 9.88,17 12,17c2.76,0 5,-2.24 5,-5s-2.24,-5 -5,-5c-1.57,0 -2.97,0.73 -3.88,1.88L11,12H4V5l2.7,2.7C8,6.04 9.92,5 12,5z">
+
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="4"
+                android:startY="5"
+                android:endX="4"
+                android:endY="19">
+                <item android:offset="0.00" android:color="#FFF8CC" />
+                <item android:offset="0.16" android:color="#FFE47A" />
+                <item android:offset="0.34" android:color="#C9A961" />
+                <item android:offset="0.52" android:color="#9F8447" />
+                <item android:offset="0.72" android:color="#E2C98D" />
+                <item android:offset="1.00" android:color="#6E4600" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- helle Glanzkante oben -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M8.4,7.5C9.45,6.65 10.7,6.25 12.1,6.25C14.4,6.25 16.35,7.4 17.45,9.05"
+        android:strokeColor="#80FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="0.75" />
+
+    <!-- Glanz auf dem Pfeilkopf -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.35"
+        android:pathData="M4.75,5.7v4.35l1.35,-1.35V6.95z" />
+
+    <!-- dunkle Innenkante unten -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M7.3,14.7C8.25,16.45 10,17.45 12,17.45C14.95,17.45 17.45,15.05 17.45,12.1"
+        android:strokeColor="#5E3A00"
+        android:strokeAlpha="0.35"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="0.8" />
+
+</vector>

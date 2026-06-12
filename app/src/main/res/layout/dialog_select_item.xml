@@ -1,28 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_surface"
     android:orientation="vertical"
-    android:background="@drawable/rounded_card"
-    android:padding="22dp">
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_home_chip"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.1"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="5dp"
+        android:text="@string/dialog_selection_chip"
+        android:textColor="@color/gold_dark"
+        android:textSize="8sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvSelectTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Auswählen"
+        android:layout_marginTop="13dp"
+        android:fontFamily="sans-serif-black"
+        android:text="@string/dialog_select_title"
         android:textColor="@color/text_primary"
         android:textSize="22sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-black"
-        android:layout_marginBottom="14dp" />
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/dialog_select_subtitle"
+        android:textColor="@color/text_tertiary"
+        android:textSize="11sp" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="320dp"
-        android:layout_marginBottom="14dp"
-        android:fillViewport="true">
+        android:layout_marginBottom="16dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:id="@+id/llSelectItems"
@@ -35,10 +61,13 @@
         android:id="@+id/btnCloseSelectDialog"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:text="Schließen"
+        android:background="@drawable/bg_dialog_secondary_action"
+        android:backgroundTint="@null"
+        android:fontFamily="sans-serif-black"
+        android:letterSpacing="0.06"
+        android:text="@string/close"
         android:textAllCaps="false"
-        android:textColor="@color/primary_dark"
-        android:textStyle="bold"
-        android:background="@drawable/rounded_button" />
-
+        android:textColor="@color/text_primary"
+        android:textSize="11sp"
+        app:backgroundTint="@null" />
 </LinearLayout>

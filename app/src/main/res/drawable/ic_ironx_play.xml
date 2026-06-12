@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- stärkerer Schlagschatten -->
+    <path
+        android:fillColor="#55000000"
+        android:pathData="M8.8,6.4v13l10,-6.5z" />
+
+    <!-- Hauptsymbol -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M8,5.5v13l10,-6.5z" />
+
+</vector>

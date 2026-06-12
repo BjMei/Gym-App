@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".IronxApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -11,6 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GymApp">
+        <activity
+            android:name=".AppInfoActivity"
+            android:exported="false" />
         <activity
             android:name=".SettingsActivity"
             android:exported="false" />
@@ -34,7 +38,7 @@
             android:exported="false" />
         <activity
             android:name=".StatistikActivity"
-            android:label="Statistik"
+            android:label="@string/home_statistics"
             android:theme="@style/Theme.GymApp"
             android:exported="false" />
         <activity

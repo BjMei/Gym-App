@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Schatten obere Leiste -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.24"
+        android:pathData="M4.8,7.7h7.4c0.5,0 0.9,0.4 0.9,0.9v0.2c0,0.5 -0.4,0.9 -0.9,0.9H4.8c-0.5,0 -0.9,-0.4 -0.9,-0.9V8.6c0,-0.5 0.4,-0.9 0.9,-0.9z" />
+
+    <!-- Obere Leiste links metallic -->
+    <path
+        android:strokeColor="#7F6938"
+        android:strokeWidth="0.15"
+        android:pathData="M4.7,7h7.5c0.5,0 0.9,0.4 0.9,0.9v0.2c0,0.5 -0.4,0.9 -0.9,0.9H4.7c-0.5,0 -0.9,-0.4 -0.9,-0.9V7.9C3.8,7.4 4.2,7 4.7,7z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="4"
+                android:startY="7"
+                android:endX="4"
+                android:endY="9">
+                <item android:offset="0.00" android:color="#FFF7E6" />
+                <item android:offset="0.22" android:color="#E2C98D" />
+                <item android:offset="0.45" android:color="#C9A961" />
+                <item android:offset="0.65" android:color="#9F8447" />
+                <item android:offset="0.82" android:color="#D8BD7C" />
+                <item android:offset="1.00" android:color="#6F5A2E" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Obere Leiste rechts metallic -->
+    <path
+        android:strokeColor="#7F6938"
+        android:strokeWidth="0.15"
+        android:pathData="M17.8,7h1.8c0.5,0 0.9,0.4 0.9,0.9v0.2c0,0.5 -0.4,0.9 -0.9,0.9h-1.8c-0.5,0 -0.9,-0.4 -0.9,-0.9V7.9C16.9,7.4 17.3,7 17.8,7z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="17"
+                android:startY="7"
+                android:endX="17"
+                android:endY="9">
+                <item android:offset="0.00" android:color="#FFF7E6" />
+                <item android:offset="0.22" android:color="#E2C98D" />
+                <item android:offset="0.45" android:color="#C9A961" />
+                <item android:offset="0.65" android:color="#9F8447" />
+                <item android:offset="0.82" android:color="#D8BD7C" />
+                <item android:offset="1.00" android:color="#6F5A2E" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Schatten oberer Regler -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.30"
+        android:pathData="M14,5.6h2.8c0.7,0 1.2,0.5 1.2,1.2v3.7c0,0.7 -0.5,1.2 -1.2,1.2H14c-0.7,0 -1.2,-0.5 -1.2,-1.2V6.8c0,-0.7 0.5,-1.2 1.2,-1.2z" />
+
+    <!-- Oberer Regler metallic -->
+    <path
+        android:strokeColor="#6F5A2E"
+        android:strokeWidth="0.25"
+        android:pathData="M13.7,5h2.9c0.7,0 1.2,0.5 1.2,1.2v3.6c0,0.7 -0.5,1.2 -1.2,1.2h-2.9c-0.7,0 -1.2,-0.5 -1.2,-1.2V6.2c0,-0.7 0.5,-1.2 1.2,-1.2z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="13"
+                android:startY="5"
+                android:endX="13"
+                android:endY="11">
+                <item android:offset="0.00" android:color="#FFF7E6" />
+                <item android:offset="0.18" android:color="#E2C98D" />
+                <item android:offset="0.38" android:color="#C9A961" />
+                <item android:offset="0.56" android:color="#9F8447" />
+                <item android:offset="0.74" android:color="#D8BD7C" />
+                <item android:offset="1.00" android:color="#6F5A2E" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Glanzkante oberer Regler -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.42"
+        android:pathData="M14,5.5h2.2c0.3,0 0.5,0.2 0.5,0.5v0.15c0,0.3 -0.2,0.5 -0.5,0.5H14c-0.3,0 -0.5,-0.2 -0.5,-0.5V6c0,-0.3 0.2,-0.5 0.5,-0.5z" />
+
+    <!-- dunkle Innenkante oberer Regler -->
+    <path
+        android:fillColor="#5F4D27"
+        android:fillAlpha="0.35"
+        android:pathData="M13.2,9.9h3.8c0.2,0 0.4,0.2 0.4,0.4v0.1c0,0.2 -0.2,0.4 -0.4,0.4h-3.8c-0.2,0 -0.4,-0.2 -0.4,-0.4v-0.1c0,-0.2 0.2,-0.4 0.4,-0.4z" />
+
+    <!-- Schatten untere Leiste -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.24"
+        android:pathData="M11.8,15.7h7.5c0.5,0 0.9,0.4 0.9,0.9v0.2c0,0.5 -0.4,0.9 -0.9,0.9h-7.5c-0.5,0 -0.9,-0.4 -0.9,-0.9v-0.2c0,-0.5 0.4,-0.9 0.9,-0.9z" />
+
+    <!-- Untere Leiste links metallic -->
+    <path
+        android:strokeColor="#7F6938"
+        android:strokeWidth="0.15"
+        android:pathData="M4.7,15h1.8c0.5,0 0.9,0.4 0.9,0.9v0.2c0,0.5 -0.4,0.9 -0.9,0.9H4.7c-0.5,0 -0.9,-0.4 -0.9,-0.9v-0.2c0,-0.5 0.4,-0.9 0.9,-0.9z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="4"
+                android:startY="15"
+                android:endX="4"
+                android:endY="17">
+                <item android:offset="0.00" android:color="#FFF7E6" />
+                <item android:offset="0.22" android:color="#E2C98D" />
+                <item android:offset="0.45" android:color="#C9A961" />
+                <item android:offset="0.65" android:color="#9F8447" />
+                <item android:offset="0.82" android:color="#D8BD7C" />
+                <item android:offset="1.00" android:color="#6F5A2E" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Untere Leiste rechts metallic -->
+    <path
+        android:strokeColor="#7F6938"
+        android:strokeWidth="0.15"
+        android:pathData="M11.7,15h7.6c0.5,0 0.9,0.4 0.9,0.9v0.2c0,0.5 -0.4,0.9 -0.9,0.9h-7.6c-0.5,0 -0.9,-0.4 -0.9,-0.9v-0.2c0,-0.5 0.4,-0.9 0.9,-0.9z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="11"
+                android:startY="15"
+                android:endX="11"
+                android:endY="17">
+                <item android:offset="0.00" android:color="#FFF7E6" />
+                <item android:offset="0.22" android:color="#E2C98D" />
+                <item android:offset="0.45" android:color="#C9A961" />
+                <item android:offset="0.65" android:color="#9F8447" />
+                <item android:offset="0.82" android:color="#D8BD7C" />
+                <item android:offset="1.00" android:color="#6F5A2E" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Schatten unterer Regler -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.30"
+        android:pathData="M8,13.6h2.8c0.7,0 1.2,0.5 1.2,1.2v3.7c0,0.7 -0.5,1.2 -1.2,1.2H8c-0.7,0 -1.2,-0.5 -1.2,-1.2v-3.7c0,-0.7 0.5,-1.2 1.2,-1.2z" />
+
+    <!-- Unterer Regler metallic -->
+    <path
+        android:strokeColor="#6F5A2E"
+        android:strokeWidth="0.25"
+        android:pathData="M7.7,13h2.9c0.7,0 1.2,0.5 1.2,1.2v3.6c0,0.7 -0.5,1.2 -1.2,1.2H7.7c-0.7,0 -1.2,-0.5 -1.2,-1.2v-3.6c0,-0.7 0.5,-1.2 1.2,-1.2z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="7"
+                android:startY="13"
+                android:endX="7"
+                android:endY="19">
+                <item android:offset="0.00" android:color="#FFF7E6" />
+                <item android:offset="0.18" android:color="#E2C98D" />
+                <item android:offset="0.38" android:color="#C9A961" />
+                <item android:offset="0.56" android:color="#9F8447" />
+                <item android:offset="0.74" android:color="#D8BD7C" />
+                <item android:offset="1.00" android:color="#6F5A2E" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Glanzkante unterer Regler -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.42"
+        android:pathData="M8,13.5h2.2c0.3,0 0.5,0.2 0.5,0.5v0.15c0,0.3 -0.2,0.5 -0.5,0.5H8c-0.3,0 -0.5,-0.2 -0.5,-0.5V14c0,-0.3 0.2,-0.5 0.5,-0.5z" />
+
+    <!-- dunkle Innenkante unterer Regler -->
+    <path
+        android:fillColor="#5F4D27"
+        android:fillAlpha="0.35"
+        android:pathData="M7.2,17.9H11c0.2,0 0.4,0.2 0.4,0.4v0.1c0,0.2 -0.2,0.4 -0.4,0.4H7.2c-0.2,0 -0.4,-0.2 -0.4,-0.4v-0.1c0,-0.2 0.2,-0.4 0.4,-0.4z" />
+
+</vector>

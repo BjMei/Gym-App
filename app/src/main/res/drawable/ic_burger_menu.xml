@@ -4,7 +4,30 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
+
+    <!-- Schatten -->
     <path
-        android:fillColor="#FFD700"
+        android:fillColor="#33000000"
+        android:pathData="M4.3,6.4h16v2H4.3zM4.3,11.4h16v2H4.3zM4.3,16.4h16v2H4.3z" />
+
+    <!-- dunkle Außenbasis -->
+    <path
+        android:fillColor="#9F8447"
         android:pathData="M4,6h16v2H4zM4,11h16v2H4zM4,16h16v2H4z" />
+
+    <!-- Hauptfarbe -->
+    <path
+        android:fillColor="#C9A961"
+        android:pathData="M4.1,6.1h15.8v1.8H4.1zM4.1,11.1h15.8v1.8H4.1zM4.1,16.1h15.8v1.8H4.1z" />
+
+    <!-- heller Metallic-Kern -->
+    <path
+        android:fillColor="#E2C98D"
+        android:pathData="M4.3,6.35h15.4v0.55H4.3zM4.3,11.35h15.4v0.55H4.3zM4.3,16.35h15.4v0.55H4.3z" />
+
+    <!-- dezenter Glanz -->
+    <path
+        android:fillColor="#66FFF7E6"
+        android:pathData="M4.5,6.2h8.5v0.22H4.5zM4.5,11.2h8.5v0.22H4.5zM4.5,16.2h8.5v0.22H4.5z" />
+
 </vector>

@@ -3,69 +3,121 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_surface"
+    android:elevation="16dp"
     android:orientation="vertical"
-    android:padding="28dp"
-    android:background="@drawable/rounded_card"
-    android:elevation="16dp">
+    android:padding="24dp">
 
     <TextView
-        android:id="@+id/tvDialogTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Einstellungen"
-        android:textColor="@color/text_primary"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="20dp"
-        android:fontFamily="sans-serif-black"
-        android:letterSpacing="0.05"/>
-
-    <EditText
-        android:id="@+id/etSeatPositions"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:hint="z.B. 3,5"
-        android:textColor="@color/text_primary"
-        android:textColorHint="@color/text_secondary"
-        android:background="@drawable/rounded_input"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:textSize="16sp"
-        android:inputType="text"
-        android:layout_marginBottom="24dp"/>
+        android:background="@drawable/bg_home_chip"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.1"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="5dp"
+        android:text="@string/dialog_exercise_chip"
+        android:textColor="@color/gold_dark"
+        android:textSize="8sp"
+        android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="58dp"
+            android:layout_height="58dp"
+            android:background="@drawable/bg_circle_dark"
+            android:padding="14dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/settings_title"
+                android:src="@drawable/ic_ironx_settings"
+                app:tint="@null" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvDialogTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:maxLines="2"
+                android:text="@string/settings_title"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="@string/dialog_exercise_subtitle"
+                android:textColor="@color/text_tertiary"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        style="@style/ProfileFieldLabel"
+        android:layout_marginTop="20dp"
+        android:text="@string/dialog_seat_positions" />
+
+    <EditText
+        android:id="@+id/etSeatPositions"
+        style="@style/ProfileInput"
+        android:hint="@string/dialog_seat_hint"
+        android:inputType="text"
+        android:imeOptions="actionDone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/btnCancel"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="6dp"
             android:layout_weight="1"
-            android:text="ABBRECHEN"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_secondary"
-            android:background="@drawable/rounded_input"
+            android:background="@drawable/bg_dialog_secondary_action"
             android:backgroundTint="@null"
-            app:backgroundTint="@null"
-            android:layout_marginEnd="8dp"/>
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.05"
+            android:text="@string/cancel"
+            android:textColor="@color/text_primary"
+            android:textSize="11sp"
+            app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/btnSaveSettings"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="6dp"
             android:layout_weight="1"
-            android:text="SPEICHERN"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:background="@drawable/gradient_button"
+            android:background="@drawable/bg_training_primary_action"
             android:backgroundTint="@null"
-            app:backgroundTint="@null"
-            android:layout_marginStart="8dp"/>
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.05"
+            android:text="@string/dialog_save"
+            android:textColor="@color/black"
+            android:textSize="11sp"
+            app:backgroundTint="@null" />
     </LinearLayout>
 </LinearLayout>
-

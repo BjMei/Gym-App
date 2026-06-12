@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- leichter Schatten -->
+    <path
+        android:fillColor="#33000000"
+        android:pathData="M4.4,16.9V20.4h3.5L18.6,9.7l-3.5,-3.5zM21.1,7.2c0.4,-0.4 0.4,-1 0,-1.4L19,3.7c-0.4,-0.4 -1,-0.4 -1.4,0L16,5.3l3.5,3.5z" />
+
+    <!-- dunkle Außenbasis -->
+    <path
+        android:fillColor="#9F8447"
+        android:pathData="M4,16.5V20h3.5L18.2,9.3l-3.5,-3.5zM20.7,6.8c0.4,-0.4 0.4,-1 0,-1.4l-2.1,-2.1c-0.4,-0.4 -1,-0.4 -1.4,0l-1.6,1.6l3.5,3.5z" />
+
+    <!-- Hauptfarbe -->
+    <path
+        android:fillColor="#C9A961"
+        android:pathData="M4.35,16.8V19.65h2.85L17.55,9.3l-2.85,-2.85zM20.05,6.8c0.23,-0.23 0.23,-0.6 0,-0.83l-1.72,-1.72c-0.23,-0.23 -0.6,-0.23 -0.83,0l-1.35,1.35l2.55,2.55z" />
+
+    <!-- heller Metallic-Kern -->
+    <path
+        android:fillColor="#E2C98D"
+        android:pathData="M5.05,17.15V18.95h1.8L16.55,9.25l-1.8,-1.8zM19.3,6.75c0.14,-0.14 0.14,-0.36 0,-0.5l-1.23,-1.23c-0.14,-0.14 -0.36,-0.14 -0.5,0l-0.95,0.95l1.73,1.73z" />
+
+    <!-- dezenter Glanz auf dem Stift -->
+    <path
+        android:fillColor="#66FFF7E6"
+        android:pathData="M15.15,7.1l1.25,1.25l-7.15,7.15h-0.9v-0.9z" />
+
+</vector>

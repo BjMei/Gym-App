@@ -11,49 +11,117 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/primary_dark"
-    android:paddingTop="12dp"
-    android:paddingBottom="20dp">
+    android:background="@drawable/bg_home_background">
 
     <!-- ═══════════════════════════════════════════
          HEADER
     ═══════════════════════════════════════════════ -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="48dp"
-        android:paddingBottom="20dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:background="@drawable/gradient_header"
-        android:elevation="12dp">
+        android:layout_height="64dp"
+        android:background="@color/primary_dark"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp">
 
-        <!-- Titel -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.16"
+                android:text="IRONX"
+                android:textColor="@color/gold_light"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.08"
+                android:text="@string/training_section"
+                android:textColor="@color/text_tertiary"
+                android:textSize="9sp" />
+        </LinearLayout>
+
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="LEG DAY"
-            android:textSize="48sp"
-            android:textStyle="bold"
-            android:textColor="@color/gold_primary"
-            android:layout_gravity="start"
-            android:letterSpacing="0.05"
-            android:fontFamily="sans-serif-black"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="4dp"/>
-
-        <!-- Untertitel -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Wenn du noch laufen kannst, war's Cardio"
-            android:textSize="12sp"
-            android:textColor="@color/text_tertiary"
-            android:layout_gravity="start"
-            android:fontFamily="sans-serif"
-            android:textStyle="italic"/>
+            android:layout_height="30dp"
+            android:background="@drawable/bg_home_chip"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:letterSpacing="0.08"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="LEGS"
+            android:textColor="@color/gold_light"
+            android:textSize="9sp"
+            android:textStyle="bold" />
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_home_hero"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="18dp"
+        android:paddingEnd="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_home_chip"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.1"
+                android:paddingStart="9dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="9dp"
+                android:paddingBottom="4dp"
+                android:text="@string/workout_leg_muscles"
+                android:textColor="@color/gold_dark"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="11dp"
+                android:fontFamily="sans-serif-black"
+                android:text="LEG DAY"
+                android:textColor="@color/text_primary"
+                android:textSize="29sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/training_leg_description"
+                android:textColor="@color/text_tertiary"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <include layout="@layout/layout_training_timer" />
 
     <!-- ═══════════════════════════════════════════
          SCROLLABLE CONTENT
@@ -63,85 +131,17 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:fillViewport="true"
-        android:paddingTop="14dp"
+        android:paddingTop="0dp"
         android:paddingBottom="24dp"
-        android:paddingStart="14dp"
-        android:paddingEnd="14dp"
-        android:clipToPadding="false">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:clipToPadding="false"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <!-- ─────────────────────────────────
-                 STOPPUHR CARD
-                 IDs: tvStopwatch, btnStartStop, btnReset
-                 WICHTIG: Codex → prüfe die exakten IDs in der
-                 originalen activity_leg.xml und übernehme sie hier.
-            ───────────────────────────────────── -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="64dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_stopwatch_card"
-                android:paddingStart="18dp"
-                android:paddingEnd="14dp"
-                android:layout_marginBottom="14dp"
-                android:elevation="4dp">
-
-                <!-- Timer-Label (vertikal) -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TIMER"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="8sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.18"
-                    android:fontFamily="sans-serif-medium"
-                    android:rotation="270"
-                    android:layout_marginEnd="10dp"/>
-
-                <!-- Zeit-Anzeige -->
-                <TextView
-                    android:id="@+id/tvStopwatch"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="00:00.00"
-                    android:textColor="@color/gold_primary"
-                    android:textSize="26sp"
-                    android:textStyle="bold"
-                    android:fontFamily="monospace"
-                    android:letterSpacing="0.03"/>
-
-                <!-- Play/Stop Button -->
-                <ImageButton
-                    android:id="@+id/btnStartStop"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="@drawable/bg_save_circle"
-                    android:src="@android:drawable/ic_media_play"
-                    android:scaleType="centerInside"
-                    android:padding="8dp"
-                    app:tint="@color/black"
-                    android:contentDescription="Start/Stop"
-                    android:layout_marginEnd="8dp"/>
-
-                <!-- Reset Button -->
-                <ImageButton
-                    android:id="@+id/btnReset"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="@drawable/bg_circle_dark"
-                    android:src="@android:drawable/ic_menu_revert"
-                    android:scaleType="centerInside"
-                    android:padding="8dp"
-                    app:tint="@color/text_tertiary"
-                    android:contentDescription="Zurücksetzen"/>
-            </LinearLayout>
 
             <!-- ─────────────────────────────────
                  EINGABE-CARD (Übung + Sätze + Speichern)
@@ -158,7 +158,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ÜBUNG AUSWÄHLEN"
+                    android:text="@string/training_select_exercise"
                     android:textColor="@color/text_tertiary"
                     android:textSize="9sp"
                     android:textStyle="bold"
@@ -192,26 +192,25 @@
 
                     <ImageButton
                         android:id="@+id/btnExerciseSettings"
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_marginEnd="8dp"
-                        android:background="@drawable/rounded_input"
-                        android:src="@android:drawable/ic_menu_preferences"
-                        android:contentDescription="Einstellungen"
+                        android:background="@drawable/bg_circle_dark"
+                        android:src="@drawable/ic_ironx_settings"
+                        android:contentDescription="@string/training_settings"
                         android:scaleType="centerInside"
-                        android:padding="12dp"
-                        app:tint="@color/gold_primary"/>
+                        android:padding="12dp"/>
 
                     <ImageButton
                         android:id="@+id/btnManageExercises"
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:background="@drawable/rounded_input"
-                        android:src="@android:drawable/ic_input_add"
-                        android:contentDescription="Übungen verwalten"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_training_primary_action"
+                        android:src="@drawable/ic_ironx_add"
+                        android:contentDescription="@string/training_manage_exercises"
                         android:scaleType="centerInside"
                         android:padding="12dp"
-                        app:tint="@color/gold_primary"/>
+                        app:tint="@color/black"/>
                 </LinearLayout>
 
                 <!-- LETZTES TRAINING (visibility="gone" by default, Java setzt es) -->
@@ -240,7 +239,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="LETZTES TRAINING"
+                            android:text="@string/training_last_workout"
                             android:textColor="@color/gold_dark"
                             android:textSize="9sp"
                             android:textStyle="bold"
@@ -268,7 +267,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#222222"
+                    android:background="@color/divider"
                     android:layout_marginStart="14dp"
                     android:layout_marginEnd="14dp"
                     android:layout_marginBottom="4dp"/>
@@ -289,7 +288,7 @@
                         android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:text="1"
-                        android:textColor="#26FFD700"
+                        android:textColor="@color/training_gold"
                         android:textSize="22sp"
                         android:textStyle="bold"
                         android:fontFamily="sans-serif-black"
@@ -299,7 +298,7 @@
                     <View
                         android:layout_width="1dp"
                         android:layout_height="36dp"
-                        android:background="#222222"
+                        android:background="@color/divider"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"/>
 
@@ -314,7 +313,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="GEWICHT"
+                            android:text="@string/training_weight"
                             android:textColor="@color/text_tertiary"
                             android:textSize="8sp"
                             android:textStyle="bold"
@@ -329,7 +328,7 @@
                             android:hint="kg"
                             android:textColor="@color/text_primary"
                             android:textColorHint="@color/text_tertiary"
-                            android:background="@drawable/bg_input_compact"
+                            android:background="@drawable/bg_training_input_compact"
                             android:paddingStart="10dp"
                             android:paddingEnd="10dp"
                             android:textSize="14sp"
@@ -341,7 +340,7 @@
                     <View
                         android:layout_width="1dp"
                         android:layout_height="36dp"
-                        android:background="#222222"
+                        android:background="@color/divider"
                         android:layout_marginEnd="10dp"/>
 
                     <!-- Wiederholungen -->
@@ -354,7 +353,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="WDHL."
+                            android:text="@string/training_reps"
                             android:textColor="@color/text_tertiary"
                             android:textSize="8sp"
                             android:textStyle="bold"
@@ -369,7 +368,7 @@
                             android:hint="—"
                             android:textColor="@color/text_primary"
                             android:textColorHint="@color/text_tertiary"
-                            android:background="@drawable/bg_input_compact"
+                            android:background="@drawable/bg_training_input_compact"
                             android:paddingStart="10dp"
                             android:paddingEnd="10dp"
                             android:textSize="14sp"
@@ -378,7 +377,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A1A1A" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
 
                 <!-- ── SATZ 2 ── -->
                 <LinearLayout
@@ -395,28 +394,28 @@
                         android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:text="2"
-                        android:textColor="#26FFD700"
+                        android:textColor="@color/training_gold"
                         android:textSize="22sp"
                         android:textStyle="bold"
                         android:fontFamily="sans-serif-black"
                         android:gravity="center"/>
 
-                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
+                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
 
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="GEWICHT" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                        <EditText android:id="@+id/etWeight2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_weight" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                        <EditText android:id="@+id/etWeight2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
                     </LinearLayout>
 
-                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginEnd="10dp"/>
+                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginEnd="10dp"/>
 
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WDHL." android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                        <EditText android:id="@+id/etReps2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_reps" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                        <EditText android:id="@+id/etReps2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
                     </LinearLayout>
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A1A1A" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
 
                 <!-- ── SATZ 3 ── -->
                 <LinearLayout
@@ -429,20 +428,20 @@
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp">
 
-                    <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="3" android:textColor="#26FFD700" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
-                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
+                    <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="3" android:textColor="@color/training_gold" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
+                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="GEWICHT" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                        <EditText android:id="@+id/etWeight3" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_weight" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                        <EditText android:id="@+id/etWeight3" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
                     </LinearLayout>
-                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginEnd="10dp"/>
+                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginEnd="10dp"/>
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WDHL." android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                        <EditText android:id="@+id/etReps3" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_reps" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                        <EditText android:id="@+id/etReps3" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
                     </LinearLayout>
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A1A1A" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
 
                 <!-- ── SATZ 4 ── -->
                 <LinearLayout
@@ -455,38 +454,37 @@
                     android:paddingTop="8dp"
                     android:paddingBottom="16dp">
 
-                    <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="4" android:textColor="#26FFD700" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
-                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
+                    <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="4" android:textColor="@color/training_gold" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
+                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="GEWICHT" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                        <EditText android:id="@+id/etWeight4" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_weight" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                        <EditText android:id="@+id/etWeight4" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
                     </LinearLayout>
-                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginEnd="10dp"/>
+                    <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginEnd="10dp"/>
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WDHL." android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                        <EditText android:id="@+id/etReps4" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_reps" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                        <EditText android:id="@+id/etReps4" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- SPEICHERN BUTTON (rund, gold) -->
-                <LinearLayout
+                <TextView
+                    android:id="@+id/btnSave"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="54dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_training_primary_action"
+                    android:clickable="true"
+                    android:elevation="3dp"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-black"
                     android:gravity="center"
-                    android:paddingBottom="16dp">
-
-                    <ImageButton
-                        android:id="@+id/btnSave"
-                        android:layout_width="58dp"
-                        android:layout_height="58dp"
-                        android:background="@drawable/bg_save_circle"
-                        android:src="@android:drawable/ic_menu_save"
-                        android:contentDescription="Speichern"
-                        android:scaleType="centerInside"
-                        android:padding="14dp"
-                        app:tint="@color/black"
-                        android:elevation="8dp"/>
-                </LinearLayout>
+                    android:letterSpacing="0.08"
+                    android:text="@string/training_save_workout"
+                    android:textColor="@color/black"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <!-- ─────────────────────────────────
@@ -523,7 +521,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="2. Übung"
+                        android:text="@string/training_second_exercise"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:textStyle="bold"
@@ -534,8 +532,8 @@
                         android:id="@+id/ivAccordionArrow"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@android:drawable/arrow_down_float"
-                        app:tint="@color/gold_primary"/>
+                        android:src="@drawable/ic_ironx_chevron_down"
+                        app:tint="@color/training_gold"/>
                 </LinearLayout>
 
                 <!-- Akkordeon-Body (sichtbar/versteckt per Java) -->
@@ -546,13 +544,13 @@
                     android:orientation="vertical"
                     android:visibility="gone">
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#222222"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider"/>
 
                     <!-- Sektion Label -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ÜBUNG AUSWÄHLEN"
+                        android:text="@string/training_select_exercise"
                         android:textColor="@color/text_tertiary"
                         android:textSize="9sp"
                         android:textStyle="bold"
@@ -598,7 +596,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="LETZTES TRAINING"
+                            android:text="@string/training_last_workout"
                             android:textColor="@color/gold_dark"
                             android:textSize="9sp"
                             android:textStyle="bold"
@@ -616,69 +614,69 @@
                             android:fontFamily="monospace"/>
                     </LinearLayout>
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#222222" android:layout_marginStart="14dp" android:layout_marginEnd="14dp" android:layout_marginBottom="4dp"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" android:layout_marginStart="14dp" android:layout_marginEnd="14dp" android:layout_marginBottom="4dp"/>
 
                     <!-- Satz 1-4 für 2. Übung (selbe Struktur) -->
                     <!-- SATZ 1 -->
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="14dp" android:paddingEnd="14dp" android:paddingTop="8dp" android:paddingBottom="8dp">
-                        <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="1" android:textColor="#26FFD700" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
-                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
+                        <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="1" android:textColor="@color/training_gold" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
+                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="GEWICHT" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                            <EditText android:id="@+id/etWeight1_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_weight" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                            <EditText android:id="@+id/etWeight1_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
                         </LinearLayout>
-                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginEnd="10dp"/>
+                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WDHL." android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                            <EditText android:id="@+id/etReps1_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_reps" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                            <EditText android:id="@+id/etReps1_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
                         </LinearLayout>
                     </LinearLayout>
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A1A1A" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
 
                     <!-- SATZ 2 -->
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="14dp" android:paddingEnd="14dp" android:paddingTop="8dp" android:paddingBottom="8dp">
-                        <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="2" android:textColor="#26FFD700" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
-                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
+                        <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="2" android:textColor="@color/training_gold" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
+                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="GEWICHT" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                            <EditText android:id="@+id/etWeight2_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_weight" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                            <EditText android:id="@+id/etWeight2_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
                         </LinearLayout>
-                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginEnd="10dp"/>
+                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WDHL." android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                            <EditText android:id="@+id/etReps2_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_reps" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                            <EditText android:id="@+id/etReps2_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
                         </LinearLayout>
                     </LinearLayout>
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A1A1A" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
 
                     <!-- SATZ 3 -->
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="14dp" android:paddingEnd="14dp" android:paddingTop="8dp" android:paddingBottom="8dp">
-                        <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="3" android:textColor="#26FFD700" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
-                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
+                        <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="3" android:textColor="@color/training_gold" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
+                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="GEWICHT" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                            <EditText android:id="@+id/etWeight3_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_weight" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                            <EditText android:id="@+id/etWeight3_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
                         </LinearLayout>
-                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginEnd="10dp"/>
+                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WDHL." android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                            <EditText android:id="@+id/etReps3_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_reps" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                            <EditText android:id="@+id/etReps3_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
                         </LinearLayout>
                     </LinearLayout>
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A1A1A" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" android:layout_marginStart="52dp" android:layout_marginEnd="14dp"/>
 
                     <!-- SATZ 4 -->
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="14dp" android:paddingEnd="14dp" android:paddingTop="8dp" android:paddingBottom="16dp">
-                        <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="4" android:textColor="#26FFD700" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
-                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
+                        <TextView android:layout_width="28dp" android:layout_height="wrap_content" android:text="4" android:textColor="@color/training_gold" android:textSize="22sp" android:textStyle="bold" android:fontFamily="sans-serif-black" android:gravity="center"/>
+                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginStart="10dp" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="GEWICHT" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                            <EditText android:id="@+id/etWeight4_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_weight" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                            <EditText android:id="@+id/etWeight4_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="kg" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="numberDecimal" android:gravity="center_vertical"/>
                         </LinearLayout>
-                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="#222222" android:layout_marginEnd="10dp"/>
+                        <View android:layout_width="1dp" android:layout_height="36dp" android:background="@color/divider" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WDHL." android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
-                            <EditText android:id="@+id/etReps4_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/training_reps" android:textColor="@color/text_tertiary" android:textSize="8sp" android:textStyle="bold" android:letterSpacing="0.14" android:fontFamily="sans-serif-medium" android:layout_marginBottom="3dp"/>
+                            <EditText android:id="@+id/etReps4_2" android:layout_width="match_parent" android:layout_height="40dp" android:hint="—" android:textColor="@color/text_primary" android:textColorHint="@color/text_tertiary" android:background="@drawable/bg_training_input_compact" android:paddingStart="10dp" android:paddingEnd="10dp" android:textSize="14sp" android:inputType="number" android:gravity="center_vertical"/>
                         </LinearLayout>
                     </LinearLayout>
 
@@ -709,7 +707,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="CARDIO"
+                        android:text="@string/training_cardio"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold"
@@ -723,7 +721,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cardio-Übung auswählen"
+                    android:text="@string/training_select_cardio"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp"
                     android:textStyle="bold"
@@ -744,7 +742,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Zeit in Minuten"
+                    android:text="@string/training_time_minutes"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp"
                     android:textStyle="bold"
@@ -755,10 +753,10 @@
                     android:id="@+id/etCardioMinutes"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:hint="Minuten"
+                    android:hint="@string/training_minutes"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_tertiary"
-                    android:background="@drawable/bg_input_compact"
+                    android:background="@drawable/bg_training_input_compact"
                     android:paddingStart="14dp"
                     android:paddingEnd="14dp"
                     android:textSize="14sp"
@@ -772,30 +770,55 @@
                     android:gravity="center"
                     android:orientation="horizontal">
 
-                    <ImageButton
+                    <TextView
                         android:id="@+id/btnSaveCardio"
-                        android:layout_width="54dp"
-                        android:layout_height="54dp"
-                        android:background="@drawable/bg_save_circle"
-                        android:src="@android:drawable/ic_menu_save"
-                        android:contentDescription="Cardio speichern"
-                        android:scaleType="centerInside"
-                        android:padding="14dp"
-                        app:tint="@color/black"
-                        android:elevation="6dp"
-                        android:layout_marginEnd="12dp"/>
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_training_primary_action"
+                        android:clickable="true"
+                        android:contentDescription="@string/training_save_cardio"
+                        android:elevation="3dp"
+                        android:focusable="true"
+                        android:fontFamily="sans-serif-black"
+                        android:gravity="center"
+                        android:letterSpacing="0.06"
+                        android:text="@string/training_save"
+                        android:textColor="@color/black"
+                        android:textSize="11sp"
+                        android:layout_marginEnd="10dp"/>
 
-                    <ImageButton
+                    <LinearLayout
                         android:id="@+id/btnEditCardio"
-                        android:layout_width="54dp"
-                        android:layout_height="54dp"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
                         android:background="@drawable/bg_circle_dark"
-                        android:src="@android:drawable/ic_menu_edit"
-                        android:contentDescription="Cardio bearbeiten"
-                        android:scaleType="centerInside"
-                        android:padding="14dp"
-                        app:tint="@color/text_tertiary"
-                        android:elevation="4dp"/>
+                        android:clickable="true"
+                        android:contentDescription="@string/training_edit_cardio"
+                        android:elevation="2dp"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:contentDescription="@null"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_ironx_edit" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:fontFamily="sans-serif-black"
+                            android:includeFontPadding="false"
+                            android:letterSpacing="0.06"
+                            android:text="@string/training_edit"
+                            android:textColor="@color/training_gold"
+                            android:textSize="11sp" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
@@ -809,17 +832,24 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp">
 
-                <ImageButton
+                <TextView
                     android:id="@+id/btnViewHistory"
-                    android:layout_width="54dp"
-                    android:layout_height="54dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
                     android:background="@drawable/bg_circle_dark"
-                    android:src="@android:drawable/ic_menu_view"
-                    android:contentDescription="Trainingshistorie"
-                    android:scaleType="centerInside"
-                    android:padding="14dp"
-                    app:tint="@color/text_tertiary"
-                    android:elevation="4dp"/>
+                    android:clickable="true"
+                    android:contentDescription="@string/training_history"
+                    android:drawableEnd="@drawable/ic_ironx_eye"
+                    android:elevation="2dp"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="center_vertical"
+                    android:letterSpacing="0.08"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
+                    android:text="@string/training_history"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"/>
             </LinearLayout>
 
             <!-- ─────────────────────────────────
@@ -835,7 +865,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="GESPEICHERTE ÜBUNGEN"
+                    android:text="@string/training_saved_exercises"
                     android:textColor="@color/text_tertiary"
                     android:textSize="11sp"
                     android:textStyle="bold"
@@ -846,7 +876,7 @@
                     android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_weight="1"
-                    android:background="#222222"
+                    android:background="@color/divider"
                     android:layout_marginStart="12dp"/>
             </LinearLayout>
 
