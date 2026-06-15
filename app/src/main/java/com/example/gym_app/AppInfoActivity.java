@@ -1,31 +1,59 @@
 package com.example.gym_app;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.button.MaterialButton;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AppInfoActivity extends IronxActivity {
 
     private final DateFormat dateFormat =
             new SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.GERMANY);
+    private final ExecutorService backupExecutor = Executors.newSingleThreadExecutor();
+    private final ActivityResultLauncher<String> exportLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.CreateDocument("application/json"),
+                    this::exportBackup
+            );
+    private final ActivityResultLauncher<String[]> importLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.OpenDocument(),
+                    this::prepareImport
+            );
+
+    private AppDataBackupManager backupManager;
+    private MaterialButton btnExportData;
+    private MaterialButton btnImportData;
+    private TextView tvBackupStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +61,23 @@ public class AppInfoActivity extends IronxActivity {
         setContentView(R.layout.activity_app_info);
         applyWindowInsets();
 
+        backupManager = new AppDataBackupManager(this);
+        btnExportData = findViewById(R.id.btnExportData);
+        btnImportData = findViewById(R.id.btnImportData);
+        tvBackupStatus = findViewById(R.id.tvBackupStatus);
+
         findViewById(R.id.btnBackAppInfo).setOnClickListener(v -> finish());
+        btnExportData.setOnClickListener(v -> exportLauncher.launch(createBackupFileName()));
+        btnImportData.setOnClickListener(v ->
+                importLauncher.launch(new String[]{"application/json", "text/json", "text/plain"})
+        );
         populateAppInformation();
+    }
+
+    @Override
+    protected void onDestroy() {
+        backupExecutor.shutdown();
+        super.onDestroy();
     }
 
     private void applyWindowInsets() {
@@ -114,6 +157,145 @@ public class AppInfoActivity extends IronxActivity {
             addInfoRow(appCard, "APP-INFORMATIONEN",
                     "Paketinformationen konnten nicht geladen werden.");
         }
+    }
+
+    private void exportBackup(Uri uri) {
+        if (uri == null) {
+            return;
+        }
+        setBackupBusy(true, R.string.app_info_backup_export_running);
+        backupExecutor.execute(() -> {
+            try {
+                OutputStream outputStream = getContentResolver().openOutputStream(uri, "wt");
+                if (outputStream == null) {
+                    throw new IOException("Die Zieldatei konnte nicht geöffnet werden.");
+                }
+                AppDataBackupManager.ExportSummary summary =
+                        backupManager.exportTo(outputStream);
+                runOnUiThread(() -> {
+                    setBackupBusy(false, R.string.app_info_backup_export_success);
+                    tvBackupStatus.setText(getString(
+                            R.string.app_info_backup_export_details,
+                            summary.preferenceValues,
+                            summary.internalFiles,
+                            formatFileSize(summary.jsonBytes)
+                    ));
+                    Toast.makeText(
+                            this,
+                            R.string.app_info_backup_export_success,
+                            Toast.LENGTH_SHORT
+                    ).show();
+                });
+            } catch (Exception exception) {
+                showBackupError(R.string.app_info_backup_export_error, exception);
+            }
+        });
+    }
+
+    private void prepareImport(Uri uri) {
+        if (uri == null) {
+            return;
+        }
+        setBackupBusy(true, R.string.app_info_backup_validation_running);
+        backupExecutor.execute(() -> {
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(uri);
+                if (inputStream == null) {
+                    throw new IOException("Die Sicherungsdatei konnte nicht geöffnet werden.");
+                }
+                AppDataBackupManager.PreparedBackup preparedBackup =
+                        backupManager.readAndValidate(inputStream);
+                runOnUiThread(() -> {
+                    setBackupBusy(false, R.string.app_info_backup_ready);
+                    showImportConfirmation(preparedBackup);
+                });
+            } catch (Exception exception) {
+                showBackupError(R.string.app_info_backup_import_invalid, exception);
+            }
+        });
+    }
+
+    private void showImportConfirmation(AppDataBackupManager.PreparedBackup preparedBackup) {
+        String summary = getString(
+                R.string.app_info_backup_import_summary,
+                preparedBackup.preferenceValues,
+                preparedBackup.internalFiles,
+                formatFileSize(preparedBackup.jsonBytes)
+        );
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.app_info_backup_import_confirm_title)
+                .setMessage(getString(R.string.app_info_backup_import_confirm_message, summary))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.app_info_backup_import_action, (dialog, which) ->
+                        importBackup(preparedBackup)
+                )
+                .show();
+    }
+
+    private void importBackup(AppDataBackupManager.PreparedBackup preparedBackup) {
+        setBackupBusy(true, R.string.app_info_backup_import_running);
+        backupExecutor.execute(() -> {
+            try {
+                backupManager.restore(preparedBackup);
+                runOnUiThread(this::showImportSuccess);
+            } catch (Exception exception) {
+                showBackupError(R.string.app_info_backup_import_error, exception);
+            }
+        });
+    }
+
+    private void showImportSuccess() {
+        setBackupBusy(false, R.string.app_info_backup_import_success);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.app_info_backup_import_success_title)
+                .setMessage(R.string.app_info_backup_import_success_message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.app_info_backup_restart, (dialog, which) ->
+                        restartApplication()
+                )
+                .show();
+    }
+
+    private void restartApplication() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finishAffinity();
+    }
+
+    private void showBackupError(int messageResource, Exception exception) {
+        runOnUiThread(() -> {
+            setBackupBusy(false, messageResource);
+            String detail = exception.getMessage();
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.app_info_backup_error_title)
+                    .setMessage(detail == null || detail.trim().isEmpty()
+                            ? getString(messageResource)
+                            : getString(messageResource) + "\n\n" + detail)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+        });
+    }
+
+    private void setBackupBusy(boolean busy, int statusResource) {
+        btnExportData.setEnabled(!busy);
+        btnImportData.setEnabled(!busy);
+        tvBackupStatus.setText(statusResource);
+    }
+
+    private String createBackupFileName() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.ROOT);
+        return "IRONX_Backup_" + format.format(new Date()) + ".json";
+    }
+
+    private String formatFileSize(int bytes) {
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(Locale.getDefault(), "%.1f KB", bytes / 1024.0);
+        }
+        return String.format(Locale.getDefault(), "%.1f MB", bytes / (1024.0 * 1024.0));
     }
 
     private void addInfoRow(LinearLayout container, String label, String value) {

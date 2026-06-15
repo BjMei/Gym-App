@@ -6,7 +6,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
-import android.transition.TransitionManager;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -242,10 +241,7 @@ public class TrainingHistoryActivity extends IronxActivity {
         ));
         header.setOnClickListener(view -> {
             boolean expanding = details.getVisibility() != View.VISIBLE;
-            if (AppSettings.animationsEnabled(this)) {
-                TransitionManager.beginDelayedTransition(card);
-            }
-            details.setVisibility(expanding ? View.VISIBLE : View.GONE);
+            setSessionDetailsVisible(details, expanding);
             expandIcon.setImageResource(
                     expanding
                             ? R.drawable.ic_ironx_chevron_up
@@ -267,6 +263,13 @@ public class TrainingHistoryActivity extends IronxActivity {
         });
 
         return card;
+    }
+
+    private void setSessionDetailsVisible(View details, boolean visible) {
+        details.animate().cancel();
+        details.setAlpha(1f);
+        details.setTranslationY(0f);
+        details.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     private View createExerciseCard(WorkoutStorage.DetailedWorkout workout) {

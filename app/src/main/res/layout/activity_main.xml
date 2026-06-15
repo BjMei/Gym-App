@@ -4,8 +4,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    app:statusBarBackground="@color/primary_dark">
+    android:background="@color/primary_dark">
 
     <LinearLayout
         android:id="@+id/rootMainLayout"
@@ -170,7 +169,7 @@
 
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="88dp"
+                        android:layout_height="96dp"
                         android:layout_marginEnd="5dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_home_metric"
@@ -185,25 +184,38 @@
                             android:fontFamily="sans-serif-black"
                             android:text="0"
                             android:textColor="@color/gold_light"
-                            android:textSize="23sp"
+                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvWeekProgress"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:fontFamily="sans-serif-medium"
                             android:gravity="center"
                             android:letterSpacing="0.04"
-                            android:text="@string/home_trainings"
+                            android:text="@string/home_week_goal_default"
                             android:textColor="@color/text_tertiary"
                             android:textSize="8sp"
                             android:textStyle="bold" />
+
+                        <ProgressBar
+                            android:id="@+id/progressWeekGoal"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="4dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginTop="7dp"
+                            android:layout_marginEnd="8dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:progressDrawable="@drawable/progress_weekly_goal" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="88dp"
+                        android:layout_height="96dp"
                         android:layout_marginStart="5dp"
                         android:layout_marginEnd="5dp"
                         android:layout_weight="1"
@@ -237,7 +249,7 @@
 
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="88dp"
+                        android:layout_height="96dp"
                         android:layout_marginStart="5dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_home_metric"

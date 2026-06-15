@@ -1,17 +1,19 @@
 package com.example.gym_app;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -40,14 +42,9 @@ public class MainActivity extends IronxActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
-
-        getWindow().setStatusBarColor(Color.BLACK);
-        getWindow().setNavigationBarColor(Color.BLACK);
-        new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView())
-                .setAppearanceLightStatusBars(false);
 
         drawerLayout = findViewById(R.id.drawerLayout);
+        configureSystemBars();
 
         LinearLayout workoutCard = findViewById(R.id.workoutCard);
         LinearLayout statsCard = findViewById(R.id.statsCard);
@@ -64,6 +61,46 @@ public class MainActivity extends IronxActivity {
         setupDrawerMenuItems();
         setupBackNavigation();
         updateDashboard();
+    }
+
+    private void configureSystemBars() {
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        getWindow().setNavigationBarColor(Color.BLACK);
+
+        WindowInsetsControllerCompat controller =
+                new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
+        controller.setAppearanceLightStatusBars(false);
+        controller.setAppearanceLightNavigationBars(false);
+
+        LinearLayout rootMainLayout = findViewById(R.id.rootMainLayout);
+        LinearLayout drawerMenuPanel = findViewById(R.id.drawerMenuPanel);
+        int rootLeft = rootMainLayout.getPaddingLeft();
+        int rootTop = rootMainLayout.getPaddingTop();
+        int rootRight = rootMainLayout.getPaddingRight();
+        int rootBottom = rootMainLayout.getPaddingBottom();
+        int drawerLeft = drawerMenuPanel.getPaddingLeft();
+        int drawerTop = drawerMenuPanel.getPaddingTop();
+        int drawerRight = drawerMenuPanel.getPaddingRight();
+        int drawerBottom = drawerMenuPanel.getPaddingBottom();
+
+        ViewCompat.setOnApplyWindowInsetsListener(drawerLayout, (view, windowInsets) -> {
+            Insets systemBars = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            | WindowInsetsCompat.Type.displayCutout());
+            rootMainLayout.setPadding(
+                    rootLeft,
+                    rootTop + systemBars.top,
+                    rootRight,
+                    rootBottom + systemBars.bottom);
+            drawerMenuPanel.setPadding(
+                    drawerLeft,
+                    drawerTop + systemBars.top,
+                    drawerRight,
+                    drawerBottom + systemBars.bottom);
+            return windowInsets;
+        });
+        ViewCompat.requestApplyInsets(drawerLayout);
     }
 
     @Override
@@ -134,6 +171,8 @@ public class MainActivity extends IronxActivity {
         TextView tvHomeDate = findViewById(R.id.tvHomeDate);
         TextView tvHomeGreeting = findViewById(R.id.tvHomeGreeting);
         TextView tvWeekSessions = findViewById(R.id.tvWeekSessions);
+        TextView tvWeekProgress = findViewById(R.id.tvWeekProgress);
+        ProgressBar progressWeekGoal = findViewById(R.id.progressWeekGoal);
         TextView tvCurrentStreak = findViewById(R.id.tvCurrentStreak);
         TextView tvWeekVolume = findViewById(R.id.tvWeekVolume);
         TextView tvNextWorkoutSummary = findViewById(R.id.tvNextWorkoutSummary);
@@ -144,8 +183,8 @@ public class MainActivity extends IronxActivity {
                 DateTimeFormatter.ofPattern("EEEE · d. MMMM", displayLocale))
                 .toUpperCase(displayLocale));
 
-        SharedPreferences appSettings = getSharedPreferences("AppSettings", MODE_PRIVATE);
-        String profileName = appSettings.getString("profile_name", "");
+        ProfileRepository.Profile profile = new ProfileRepository(this).load();
+        String profileName = profile.name;
         if (profileName != null && !profileName.trim().isEmpty()) {
             String firstName = profileName.trim().split("\\s+")[0];
             tvHomeGreeting.setText(getString(R.string.home_greeting, firstName));
@@ -163,11 +202,35 @@ public class MainActivity extends IronxActivity {
                 .filter(date -> !date.isBefore(weekStart) && !date.isAfter(today))
                 .count();
 
-        tvWeekSessions.setText(String.valueOf(sessionsThisWeek));
+        int weeklyGoal = profile.weeklyTrainingGoal;
+        int weeklyProgress = TrainingGoalPlanner.progressPercent(
+                (int) sessionsThisWeek,
+                weeklyGoal
+        );
+        tvWeekSessions.setText(getString(
+                R.string.home_week_goal_value,
+                sessionsThisWeek,
+                weeklyGoal
+        ));
+        tvWeekProgress.setText(getString(
+                R.string.home_week_goal_percent,
+                weeklyProgress
+        ));
+        progressWeekGoal.setProgress(weeklyProgress);
         tvCurrentStreak.setText(String.valueOf(calculateCurrentStreak(trainedDays, today)));
         tvWeekVolume.setText(formatVolume(calculateWeekVolume(weekStart, today)));
         nextWorkoutType = NextWorkoutPlanner.findNextWorkoutType(collectWorkoutEvents());
-        tvNextWorkoutSummary.setText(buildNextWorkoutSummary(nextWorkoutType));
+        LocalDate nextPreferredDay = TrainingGoalPlanner.nextPreferredTrainingDate(
+                today,
+                profile.preferredDays,
+                trainedDays,
+                weeklyGoal
+        );
+        tvNextWorkoutSummary.setText(buildNextWorkoutSummary(
+                nextWorkoutType,
+                nextPreferredDay,
+                today
+        ));
     }
 
     private Set<LocalDate> collectTrainedDays(
@@ -253,11 +316,25 @@ public class MainActivity extends IronxActivity {
         return events;
     }
 
-    private String buildNextWorkoutSummary(String type) {
+    private String buildNextWorkoutSummary(
+            String type,
+            LocalDate nextPreferredDay,
+            LocalDate today) {
         Locale displayLocale = getResources().getConfiguration().getLocales().get(0);
+        String workoutLabel = getWorkoutTypeLabel(type).toUpperCase(displayLocale);
+        if (nextPreferredDay == null) {
+            return getString(R.string.home_next_workout_goal_reached, workoutLabel);
+        }
+        if (nextPreferredDay.equals(today)) {
+            return getString(R.string.home_next_workout_today, workoutLabel);
+        }
+        String weekday = nextPreferredDay.format(
+                DateTimeFormatter.ofPattern("EEEE", displayLocale)
+        ).toUpperCase(displayLocale);
         return getString(
-                R.string.home_next_workout_value,
-                getWorkoutTypeLabel(type).toUpperCase(displayLocale)
+                R.string.home_next_workout_planned,
+                workoutLabel,
+                weekday
         );
     }
 

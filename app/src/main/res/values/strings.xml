@@ -38,7 +38,7 @@
     <string name="home_logo_description">IRONX Logo</string>
     <string name="home_dashboard_chip">DEIN DASHBOARD</string>
     <string name="home_ready">Bereit für dein Training?</string>
-    <string name="home_greeting">Willkommen zurück,\n%1$s</string>
+    <string name="home_greeting">Willkommen zurück \n%1$s</string>
     <string name="home_motto">Stärker als gestern. Satz für Satz.</string>
     <string name="home_week">DEINE WOCHE</string>
     <string name="home_trainings">TRAININGS</string>
@@ -54,6 +54,12 @@
     <string name="home_progress_subtitle">Trends, PRs und Balance</string>
     <string name="home_next_workout">NÄCHSTES TRAINING</string>
     <string name="home_next_workout_value">%1$s DAY · ALS NÄCHSTES DRAN</string>
+    <string name="home_week_goal_default">TRAININGS · 0%</string>
+    <string name="home_week_goal_value">%1$d/%2$d</string>
+    <string name="home_week_goal_percent">TRAININGS · %1$d%%</string>
+    <string name="home_next_workout_today">%1$s DAY · HEUTE EINGEPLANT</string>
+    <string name="home_next_workout_planned">%1$s DAY · %2$s EINGEPLANT</string>
+    <string name="home_next_workout_goal_reached">%1$s DAY · WOCHENZIEL ERREICHT</string>
     <string name="drawer_subtitle">Dein Trainingszentrum</string>
     <string name="drawer_history">Trainingshistorie</string>
     <string name="drawer_profile">Profil &amp; Ziele</string>
@@ -70,11 +76,10 @@
     <string name="settings_profile_goals">Profil &amp; Ziele</string>
     <string name="settings_name">Name</string>
     <string name="settings_weight">Gewicht</string>
-    <string name="settings_calorie_goal">Kalorienziel (kcal)</string>
     <string name="settings_display">Darstellung</string>
     <string name="settings_save">Speichern</string>
     <string name="settings_saved">Einstellungen gespeichert</string>
-    <string name="profile_goals_subtitle">Verwalte hier Name, Gewicht, Ziel und Kalorienziel.</string>
+    <string name="profile_goals_subtitle">Verwalte persönliche Daten, Trainingsprofil und messbare Ziele.</string>
     <string name="profile_goals_saved">Profil und Ziele gespeichert</string>
     <string name="back">Zurück</string>
     <string name="profile_section">PROFIL</string>
@@ -85,13 +90,62 @@
     <string name="profile_name_label">NAME</string>
     <string name="profile_name_hint">Dein Name</string>
     <string name="profile_weight_label">GEWICHT</string>
-    <string name="profile_weight_hint">Gewicht in kg</string>
+    <string name="profile_weight_hint">Aktuelles Gewicht</string>
+    <string name="profile_weight_hint_unit">Aktuelles Gewicht in %1$s</string>
+    <string name="profile_birth_year_label">GEBURTSJAHR</string>
+    <string name="profile_birth_year_hint">z. B. 1992</string>
+    <string name="profile_height_label">KÖRPERGRÖSSE</string>
+    <string name="profile_height_hint">Größe in cm</string>
+    <string name="profile_body_fat_label">KÖRPERFETTANTEIL · OPTIONAL</string>
+    <string name="profile_body_fat_hint">Körperfett in Prozent</string>
     <string name="profile_training_goal">TRAININGSZIEL</string>
     <string name="profile_primary_goal">PRIMÄRES ZIEL</string>
     <string name="profile_weekly_training_goal_label">TRAININGS PRO WOCHE</string>
     <string name="profile_weekly_training_goal_hint">Persönliches Wochenziel (1–7)</string>
-    <string name="profile_calorie_goal_label">KALORIEN PRO TAG</string>
-    <string name="profile_calorie_hint">Tagesziel in kcal</string>
+    <string name="profile_target_weight_label">ZIELGEWICHT</string>
+    <string name="profile_target_weight_hint">Zielgewicht in %1$s</string>
+    <string name="profile_target_date_label">ZIELTERMIN · OPTIONAL</string>
+    <string name="profile_target_date_hint">Datum auswählen</string>
+    <string name="profile_training_profile">TRAININGSPROFIL</string>
+    <string name="profile_activity_level_label">AKTIVITÄTSNIVEAU</string>
+    <string name="profile_activity_low">Überwiegend sitzend</string>
+    <string name="profile_activity_moderate">Alltag aktiv</string>
+    <string name="profile_activity_high">Sehr aktiv</string>
+    <string name="profile_activity_very_high">Körperlich sehr anspruchsvoll</string>
+    <string name="profile_experience_label">TRAININGSSTAND</string>
+    <string name="profile_experience_beginner">Anfänger</string>
+    <string name="profile_experience_intermediate">Fortgeschritten</string>
+    <string name="profile_experience_experienced">Erfahren</string>
+    <string name="profile_preferred_days_label">BEVORZUGTE TRAININGSTAGE</string>
+    <string name="profile_preferred_days_hint">Die übrigen Tage werden als geplante Regeneration berücksichtigt.</string>
+    <string name="day_monday_short">MO</string>
+    <string name="day_tuesday_short">DI</string>
+    <string name="day_wednesday_short">MI</string>
+    <string name="day_thursday_short">DO</string>
+    <string name="day_friday_short">FR</string>
+    <string name="day_saturday_short">SA</string>
+    <string name="day_sunday_short">SO</string>
+    <string name="profile_performance_goals">PERSÖNLICHE LEISTUNGSZIELE</string>
+    <string name="profile_strength_goal_label">KRAFTZIEL · GESCHÄTZTES 1RM</string>
+    <string name="profile_strength_goal_hint">Zielwert in %1$s</string>
+    <string name="profile_volume_goal_label">WOCHENVOLUMEN-ZIEL</string>
+    <string name="profile_volume_goal_hint">Zielvolumen in %1$s</string>
+    <string name="profile_performance_goals_hint">Optionale Zielwerte werden in Fortschritt als Referenzlinien und Zielstatus verwendet.</string>
+    <string name="profile_impact_muscle">Muskelaufbau priorisiert Volumenentwicklung, progressive Steigerung und Trainingsfrequenz.</string>
+    <string name="profile_impact_strength">Kraftaufbau priorisiert 1RM, persönliche Rekorde und relative Kraftwerte.</string>
+    <string name="profile_impact_weight_loss">Abnehmen priorisiert Gewichtstrend, Cardio und nachhaltige Konsistenz.</string>
+    <string name="profile_impact_fitness">Allgemeine Fitness bewertet Kraft, Cardio und regelmäßige Aktivität ausgewogen.</string>
+    <string name="profile_required">Pflichtfeld</string>
+    <string name="profile_invalid_number">Bitte eine gültige Zahl eingeben</string>
+    <string name="profile_value_range">Erlaubter Bereich: %1$s bis %2$s</string>
+    <string name="profile_preferred_days_too_few">Wähle mindestens so viele Trainingstage aus, wie dein Wochenziel vorsieht.</string>
+    <string name="profile_target_date_past">Der Zieltermin muss in der Zukunft liegen.</string>
+    <string name="progress_weight_trend">GEWICHTSVERLAUF · ZIELLINIE</string>
+    <string name="progress_tab_body">Körper</string>
+    <string name="progress_focus_muscle">Dein Fokus: Volumen, progressive Steigerung und Trainingsfrequenz.</string>
+    <string name="progress_focus_strength">Dein Fokus: 1RM, persönliche Rekorde und relative Kraft.</string>
+    <string name="progress_focus_weight_loss">Dein Fokus: Gewichtstrend, Cardio und nachhaltige Konsistenz.</string>
+    <string name="progress_focus_fitness">Dein Fokus: ausgewogene Kraft-, Cardio- und Aktivitätswerte.</string>
     <string name="profile_save">PROFIL SPEICHERN</string>
 
     <string name="settings_section">SYSTEM</string>
@@ -121,6 +175,31 @@
     <string name="app_info_installation_section">INSTALLATION</string>
     <string name="app_info_device_section">GERÄT &amp; KOMPATIBILITÄT</string>
     <string name="app_info_data_section">DATEN &amp; DATENSCHUTZ</string>
+    <string name="app_info_backup_section">DATENSICHERUNG</string>
+    <string name="app_info_backup_title">Backup &amp; Wiederherstellung</string>
+    <string name="app_info_backup_description">Exportiert sämtliche Trainings-, Cardio-, Profil-, Ziel-, Übungs- und Einstellungsdaten in eine einzelne JSON-Datei. Dieselbe Datei kann später vollständig wiederhergestellt werden.</string>
+    <string name="app_info_backup_status_ready">Bereit für Export oder Import.</string>
+    <string name="app_info_backup_export">Alle Daten exportieren</string>
+    <string name="app_info_backup_import">Daten aus JSON importieren</string>
+    <string name="app_info_backup_warning">Beim Import werden die aktuell in der App gespeicherten Daten vollständig durch den Inhalt der Sicherung ersetzt. Vorher erscheint eine Sicherheitsabfrage.</string>
+    <string name="app_info_backup_export_running">Sicherung wird erstellt …</string>
+    <string name="app_info_backup_export_success">Sicherung erfolgreich exportiert.</string>
+    <string name="app_info_backup_export_details">%1$d Datenwerte · Dateien: %2$d · %3$s</string>
+    <string name="app_info_backup_export_error">Die Sicherung konnte nicht exportiert werden.</string>
+    <string name="app_info_backup_validation_running">Sicherungsdatei wird geprüft …</string>
+    <string name="app_info_backup_ready">Gültige IRONX-Sicherung erkannt.</string>
+    <string name="app_info_backup_import_invalid">Die Datei ist beschädigt, fremd oder nicht mit dieser App-Version kompatibel.</string>
+    <string name="app_info_backup_import_summary">%1$d Datenwerte · Dateien: %2$d · %3$s</string>
+    <string name="app_info_backup_import_confirm_title">Alle App-Daten ersetzen?</string>
+    <string name="app_info_backup_import_confirm_message">Die ausgewählte Sicherung enthält:\n\n%1$s\n\nAlle derzeit gespeicherten Trainings-, Profil- und Einstellungsdaten werden ersetzt. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
+    <string name="app_info_backup_import_action">Vollständig importieren</string>
+    <string name="app_info_backup_import_running">Alle App-Daten werden wiederhergestellt …</string>
+    <string name="app_info_backup_import_error">Die Daten konnten nicht vollständig importiert werden. Der vorherige Stand wurde wiederhergestellt.</string>
+    <string name="app_info_backup_import_success">Alle Daten wurden erfolgreich importiert.</string>
+    <string name="app_info_backup_import_success_title">Wiederherstellung abgeschlossen</string>
+    <string name="app_info_backup_import_success_message">Die App-Daten wurden vollständig ersetzt. IRONX wird jetzt neu geladen, damit Sprache, Darstellung und alle Auswertungen den importierten Stand verwenden.</string>
+    <string name="app_info_backup_restart">App neu laden</string>
+    <string name="app_info_backup_error_title">Datensicherung fehlgeschlagen</string>
 
     <string name="history_section">VERLAUF</string>
     <string name="history_archive_chip">ARCHIV</string>
@@ -245,7 +324,9 @@
     <string name="add">Hinzufügen</string>
 
     <string name="settings_goal_muscle">Muskelaufbau</string>
+    <string name="settings_goal_strength">Kraftaufbau</string>
     <string name="settings_goal_weight_loss">Abnehmen</string>
+    <string name="settings_goal_fitness">Allgemeine Fitness</string>
 
     <string name="settings_theme_dark">Standard Dark</string>
     <string name="settings_theme_light">OLED Black</string>
@@ -261,7 +342,9 @@
 
     <string-array name="settings_goals">
         <item>@string/settings_goal_muscle</item>
+        <item>@string/settings_goal_strength</item>
         <item>@string/settings_goal_weight_loss</item>
+        <item>@string/settings_goal_fitness</item>
     </string-array>
 
     <string-array name="settings_theme_options">

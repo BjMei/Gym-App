@@ -189,12 +189,97 @@
                 android:id="@+id/appInfoDataCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_main_card"
                 android:elevation="5dp"
                 android:orientation="vertical"
                 android:paddingStart="18dp"
                 android:paddingEnd="18dp" />
+
+            <TextView
+                style="@style/SectionLabel"
+                android:layout_marginTop="18dp"
+                android:text="@string/app_info_backup_section" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_main_card"
+                android:elevation="5dp"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="@string/app_info_backup_title"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:lineSpacingExtra="2dp"
+                    android:text="@string/app_info_backup_description"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvBackupStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_training_input_compact"
+                    android:fontFamily="sans-serif-medium"
+                    android:lineSpacingExtra="2dp"
+                    android:padding="12dp"
+                    android:text="@string/app_info_backup_status_ready"
+                    android:textColor="@color/training_gold_highlight"
+                    android:textSize="11sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExportData"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/app_info_backup_export"
+                    android:textAllCaps="true"
+                    android:textColor="#11100B"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/training_gold"
+                    app:cornerRadius="15dp"
+                    app:rippleColor="@color/training_gold_highlight" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnImportData"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/app_info_backup_import"
+                    android:textAllCaps="true"
+                    android:textColor="@color/training_gold_highlight"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/input_background"
+                    app:cornerRadius="15dp"
+                    app:rippleColor="@color/card_background_light"
+                    app:strokeColor="@color/training_gold"
+                    app:strokeWidth="1dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:lineSpacingExtra="2dp"
+                    android:text="@string/app_info_backup_warning"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="10sp" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

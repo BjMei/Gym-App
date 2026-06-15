@@ -41,8 +41,10 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,8 +72,6 @@ public class FortschrittActivity extends IronxActivity {
     private static final String PREFS_APP = "AppSettings";
     private static final String PREFS_MUSCLES = "ExerciseMuscleMappings";
     private static final String KEY_UNITS = "units";
-    private static final String KEY_PROFILE_WEIGHT = "profile_weight";
-    private static final String KEY_PROFILE_GOAL = "goal";
     private static final String KEY_WEEKLY_GOAL = "training_goal_per_week";
     private static final double KG_TO_LBS = 2.2046226218;
     private static final DateTimeFormatter STORAGE_TIMESTAMP =
@@ -93,9 +93,11 @@ public class FortschrittActivity extends IronxActivity {
     private LinearLayout tabKraft;
     private LinearLayout tabMuskeln;
     private LinearLayout tabKonsistenz;
+    private LinearLayout tabKoerper;
     private View sectionKraft;
     private View sectionMuskeln;
     private View sectionKonsistenz;
+    private View sectionKoerper;
     private String currentTab = "kraft";
 
     private View kpiBest1Rm;
@@ -126,12 +128,22 @@ public class FortschrittActivity extends IronxActivity {
     private PieChart chartGoalAchievement;
     private TextView tvGoalStatus;
 
+    private View kpiCurrentWeight;
+    private View kpiWeightChange;
+    private View kpiTargetWeight;
+    private View kpiBodyCardio;
+    private TextView tvWeightGoalStatus;
+    private TextView tvProgressFocusHint;
+    private LineChart chartBodyWeight;
+
     private List<ExerciseOption> exerciseOptions = new ArrayList<>();
     private SharedPreferences appPreferences;
     private SharedPreferences musclePreferences;
     private boolean displayLbs;
     private String weightUnit;
     private double weightFactor;
+    private ProfileRepository profileRepository;
+    private ProfileRepository.Profile profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +152,8 @@ public class FortschrittActivity extends IronxActivity {
         applyWindowInsets();
 
         appPreferences = getSharedPreferences(PREFS_APP, MODE_PRIVATE);
+        profileRepository = new ProfileRepository(this);
+        profile = profileRepository.load();
         musclePreferences = getSharedPreferences(PREFS_MUSCLES, MODE_PRIVATE);
         displayLbs = getString(R.string.settings_unit_lbs).equals(
                 appPreferences.getString(KEY_UNITS, getString(R.string.settings_unit_kg))
@@ -156,7 +170,25 @@ public class FortschrittActivity extends IronxActivity {
         updateGoalSummary();
 
         findViewById(R.id.btnBackFortschritt).setOnClickListener(v -> finish());
-        showSection("kraft");
+        showSection(getDefaultTab());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (profileRepository == null) {
+            return;
+        }
+        profile = profileRepository.load();
+        updateGoalSummary();
+        updateFocusHint();
+        if (spinnerWeeklyGoal != null
+                && spinnerWeeklyGoal.getSelectedItemPosition()
+                        != profile.weeklyTrainingGoal - 1) {
+            spinnerWeeklyGoal.setSelection(profile.weeklyTrainingGoal - 1);
+        } else if (sectionKraft != null) {
+            loadCurrentSection();
+        }
     }
 
     private void applyWindowInsets() {
@@ -188,9 +220,12 @@ public class FortschrittActivity extends IronxActivity {
         tabKraft = findViewById(R.id.tabKraft);
         tabMuskeln = findViewById(R.id.tabMuskeln);
         tabKonsistenz = findViewById(R.id.tabKonsistenz);
+        tabKoerper = findViewById(R.id.tabKoerper);
         sectionKraft = findViewById(R.id.sectionKraft);
         sectionMuskeln = findViewById(R.id.sectionMuskeln);
         sectionKonsistenz = findViewById(R.id.sectionKonsistenz);
+        sectionKoerper = findViewById(R.id.sectionKoerper);
+        tvProgressFocusHint = findViewById(R.id.tvProgressFocusHint);
 
         kpiBest1Rm = findViewById(R.id.kpiBest1Rm);
         kpiRelativeStrength = findViewById(R.id.kpiRelativeStrength);
@@ -219,16 +254,25 @@ public class FortschrittActivity extends IronxActivity {
         chartWeeklySessions = findViewById(R.id.chartWeeklySessions);
         chartGoalAchievement = findViewById(R.id.chartGoalAchievement);
         tvGoalStatus = findViewById(R.id.tvGoalStatus);
+
+        kpiCurrentWeight = findViewById(R.id.kpiCurrentWeight);
+        kpiWeightChange = findViewById(R.id.kpiWeightChange);
+        kpiTargetWeight = findViewById(R.id.kpiTargetWeight);
+        kpiBodyCardio = findViewById(R.id.kpiBodyCardio);
+        tvWeightGoalStatus = findViewById(R.id.tvWeightGoalStatus);
+        chartBodyWeight = findViewById(R.id.chartBodyWeight);
     }
 
     private void setupTabs() {
         ((TextView) tabKraft.getChildAt(0)).setText("Kraft");
         ((TextView) tabMuskeln.getChildAt(0)).setText("Muskeln");
         ((TextView) tabKonsistenz.getChildAt(0)).setText("Konsistenz");
+        ((TextView) tabKoerper.getChildAt(0)).setText(R.string.progress_tab_body);
 
         tabKraft.setOnClickListener(v -> showSection("kraft"));
         tabMuskeln.setOnClickListener(v -> showSection("muskeln"));
         tabKonsistenz.setOnClickListener(v -> showSection("konsistenz"));
+        tabKoerper.setOnClickListener(v -> showSection("koerper"));
     }
 
     private void setupRangeSpinner() {
@@ -317,6 +361,7 @@ public class FortschrittActivity extends IronxActivity {
                 appPreferences.edit()
                         .putInt(KEY_WEEKLY_GOAL, position + 1)
                         .apply();
+                profile.weeklyTrainingGoal = position + 1;
                 updateGoalSummary();
                 if ("konsistenz".equals(currentTab)) {
                     loadKonsistenzData();
@@ -337,12 +382,14 @@ public class FortschrittActivity extends IronxActivity {
         sectionKonsistenz.setVisibility(
                 "konsistenz".equals(tab) ? View.VISIBLE : View.GONE
         );
+        sectionKoerper.setVisibility("koerper".equals(tab) ? View.VISIBLE : View.GONE);
 
         int active = ContextCompat.getColor(this, R.color.training_gold_highlight);
         int inactive = ContextCompat.getColor(this, R.color.text_tertiary);
         updateTab(tabKraft, "kraft".equals(tab), active, inactive);
         updateTab(tabMuskeln, "muskeln".equals(tab), active, inactive);
         updateTab(tabKonsistenz, "konsistenz".equals(tab), active, inactive);
+        updateTab(tabKoerper, "koerper".equals(tab), active, inactive);
         loadCurrentSection();
     }
 
@@ -362,8 +409,10 @@ public class FortschrittActivity extends IronxActivity {
             loadKraftData();
         } else if ("muskeln".equals(currentTab)) {
             loadMuscleData();
-        } else {
+        } else if ("konsistenz".equals(currentTab)) {
             loadKonsistenzData();
+        } else {
+            loadBodyData();
         }
     }
 
@@ -495,6 +544,12 @@ public class FortschrittActivity extends IronxActivity {
                 labels,
                 weightUnit
         );
+        addGoalLine(
+                chart1RM,
+                profile.strengthGoalKg > 0
+                        ? (float) (profile.strengthGoalKg * weightFactor)
+                        : null
+        );
         buildLineChart(
                 chartMaxGewicht,
                 maxWeightEntries,
@@ -567,7 +622,35 @@ public class FortschrittActivity extends IronxActivity {
                 ),
                 "Anteil am Oberkörpervolumen"
         );
-        tvMuscleComparison.setText(getComparisonLabel());
+        String muscleComparison = getComparisonLabel();
+        if (profile.weeklyVolumeGoalKg > 0) {
+            LocalDate weekStart = LocalDate.now().with(
+                    TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
+            );
+            double currentWeekVolume = calculateVolume(
+                    records,
+                    weekStart,
+                    LocalDate.now()
+            );
+            int volumeProgress = Math.max(
+                    0,
+                    Math.min(
+                            100,
+                            Math.round((float) (
+                                    currentWeekVolume * 100.0
+                                            / profile.weeklyVolumeGoalKg
+                            ))
+                    )
+            );
+            muscleComparison += "\nWochenvolumen: "
+                    + formatVolume(currentWeekVolume)
+                    + " / "
+                    + formatVolume(profile.weeklyVolumeGoalKg)
+                    + " · "
+                    + volumeProgress
+                    + "%";
+        }
+        tvMuscleComparison.setText(muscleComparison);
 
         List<BarEntry> muscleEntries = new ArrayList<>();
         List<String> muscleLabels = new ArrayList<>();
@@ -708,7 +791,101 @@ public class FortschrittActivity extends IronxActivity {
                 (float) goal
         );
         buildDonutChart(chartGoalAchievement, achievement);
-        updateGoalStatus(achievement, filteredSet.size(), goal);
+        updateGoalStatus(achievement, goal, activeDays);
+    }
+
+    private void loadBodyData() {
+        List<ProfileRepository.WeightEntry> allEntries =
+                profileRepository.getWeightHistory();
+        LocalDate today = LocalDate.now();
+        Set<LocalDate> availableDates = new LinkedHashSet<>();
+        for (ProfileRepository.WeightEntry entry : allEntries) {
+            availableDates.add(entry.date);
+        }
+        LocalDate start = getPeriodStart(availableDates, today);
+        List<ProfileRepository.WeightEntry> selected = new ArrayList<>();
+        for (ProfileRepository.WeightEntry entry : allEntries) {
+            if (isWithin(entry.date, start, today)) {
+                selected.add(entry);
+            }
+        }
+
+        double currentWeight = profile.currentWeightKg;
+        if (currentWeight <= 0 && !allEntries.isEmpty()) {
+            currentWeight = allEntries.get(allEntries.size() - 1).weightKg;
+        }
+        double startWeight = selected.isEmpty()
+                ? currentWeight
+                : selected.get(0).weightKg;
+        double change = currentWeight > 0 && startWeight > 0
+                ? currentWeight - startWeight
+                : 0;
+
+        setKpi(
+                kpiCurrentWeight,
+                "AKTUELLES GEWICHT",
+                currentWeight > 0 ? formatWeight(currentWeight) : "–",
+                allEntries.size() + " Messpunkte"
+        );
+        setKpi(
+                kpiWeightChange,
+                "VERÄNDERUNG",
+                currentWeight > 0
+                        ? String.format(
+                                Locale.GERMANY,
+                                "%+.1f %s",
+                                change * weightFactor,
+                                weightUnit
+                        )
+                        : "–",
+                selected.isEmpty()
+                        ? "Noch kein Verlauf"
+                        : "Seit " + selected.get(0).date.format(DISPLAY_DATE)
+        );
+        setKpi(
+                kpiTargetWeight,
+                "ZIELGEWICHT",
+                profile.targetWeightKg > 0
+                        ? formatWeight(profile.targetWeightKg)
+                        : "–",
+                profile.targetDate == null
+                        ? "Kein Zieltermin"
+                        : "Bis " + profile.targetDate.format(DISPLAY_DATE)
+        );
+
+        int cardioMinutes = calculateCardioMinutes(start, today);
+        setKpi(
+                kpiBodyCardio,
+                "CARDIO",
+                cardioMinutes + " min",
+                getComparisonLabel()
+        );
+
+        updateWeightGoalStatus(currentWeight);
+
+        List<Entry> chartEntries = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        for (int i = 0; i < selected.size(); i++) {
+            ProfileRepository.WeightEntry entry = selected.get(i);
+            chartEntries.add(new Entry(
+                    i,
+                    (float) (entry.weightKg * weightFactor)
+            ));
+            labels.add(entry.date.format(CHART_DATE));
+        }
+        buildLineChart(
+                chartBodyWeight,
+                chartEntries,
+                Collections.emptyList(),
+                labels,
+                weightUnit
+        );
+        addGoalLine(
+                chartBodyWeight,
+                profile.targetWeightKg > 0
+                        ? (float) (profile.targetWeightKg * weightFactor)
+                        : null
+        );
     }
 
     private TreeMap<LocalDate, DayMetric> aggregateStrength(
@@ -747,6 +924,22 @@ public class FortschrittActivity extends IronxActivity {
             result.totalSets += day.setCount;
         }
         return result;
+    }
+
+    private double calculateVolume(
+            List<WorkoutRecord> records,
+            LocalDate start,
+            LocalDate end) {
+        double volume = 0;
+        for (WorkoutRecord record : records) {
+            if (!isWithin(record.date, start, end)) {
+                continue;
+            }
+            for (WorkoutStorage.WorkoutSet set : record.sets) {
+                volume += set.weight * set.reps;
+            }
+        }
+        return volume;
     }
 
     private MuscleSummary summarizeMuscles(
@@ -1041,6 +1234,26 @@ public class FortschrittActivity extends IronxActivity {
         if (AppSettings.animationsEnabled(this)) {
             chart.animateX(450);
         }
+        chart.invalidate();
+    }
+
+    private void addGoalLine(LineChart chart, Float target) {
+        chart.getAxisLeft().removeAllLimitLines();
+        if (target == null || target <= 0 || chart.getData() == null) {
+            chart.invalidate();
+            return;
+        }
+        LimitLine goalLine = new LimitLine(target, "Ziel");
+        goalLine.setLineColor(ContextCompat.getColor(
+                this,
+                R.color.training_gold_highlight
+        ));
+        goalLine.setTextColor(ContextCompat.getColor(
+                this,
+                R.color.text_secondary
+        ));
+        goalLine.setLineWidth(1.2f);
+        chart.getAxisLeft().addLimitLine(goalLine);
         chart.invalidate();
     }
 
@@ -1480,33 +1693,94 @@ public class FortschrittActivity extends IronxActivity {
     }
 
     private int getWeeklyGoal() {
-        return Math.max(1, Math.min(
-                7,
-                appPreferences.getInt(KEY_WEEKLY_GOAL, 3)
-        ));
+        return Math.max(1, Math.min(7, profile.weeklyTrainingGoal));
     }
 
     private double getProfileWeightKg() {
-        String value = appPreferences.getString(KEY_PROFILE_WEIGHT, "");
-        try {
-            return value == null ? 0 : Double.parseDouble(value.replace(',', '.'));
-        } catch (NumberFormatException ignored) {
-            return 0;
-        }
+        return profile.currentWeightKg;
     }
 
     private void updateGoalSummary() {
         TextView summary = findViewById(R.id.tvProgressGoalSummary);
-        String profileGoal = appPreferences.getString(
-                KEY_PROFILE_GOAL,
-                getString(R.string.settings_goal_muscle)
-        );
         summary.setText(String.format(
                 Locale.GERMANY,
                 "%s · %d Trainings pro Woche",
-                profileGoal,
+                getGoalLabel(profile.goalId),
                 getWeeklyGoal()
         ));
+        updateFocusHint();
+    }
+
+    private void updateFocusHint() {
+        if (tvProgressFocusHint == null || profile == null) {
+            return;
+        }
+        int textRes;
+        if (ProfileRepository.GOAL_STRENGTH.equals(profile.goalId)) {
+            textRes = R.string.progress_focus_strength;
+        } else if (ProfileRepository.GOAL_WEIGHT_LOSS.equals(profile.goalId)) {
+            textRes = R.string.progress_focus_weight_loss;
+        } else if (ProfileRepository.GOAL_FITNESS.equals(profile.goalId)) {
+            textRes = R.string.progress_focus_fitness;
+        } else {
+            textRes = R.string.progress_focus_muscle;
+        }
+        tvProgressFocusHint.setText(
+                getString(textRes)
+                        + "\n"
+                        + getExperienceLabel(profile.experienceId)
+                        + " · "
+                        + getActivityLabel(profile.activityLevelId)
+        );
+    }
+
+    private String getDefaultTab() {
+        if (ProfileRepository.GOAL_STRENGTH.equals(profile.goalId)) {
+            return "kraft";
+        }
+        if (ProfileRepository.GOAL_WEIGHT_LOSS.equals(profile.goalId)) {
+            return "koerper";
+        }
+        if (ProfileRepository.GOAL_FITNESS.equals(profile.goalId)) {
+            return "konsistenz";
+        }
+        return "muskeln";
+    }
+
+    private String getGoalLabel(String goalId) {
+        if (ProfileRepository.GOAL_STRENGTH.equals(goalId)) {
+            return getString(R.string.settings_goal_strength);
+        }
+        if (ProfileRepository.GOAL_WEIGHT_LOSS.equals(goalId)) {
+            return getString(R.string.settings_goal_weight_loss);
+        }
+        if (ProfileRepository.GOAL_FITNESS.equals(goalId)) {
+            return getString(R.string.settings_goal_fitness);
+        }
+        return getString(R.string.settings_goal_muscle);
+    }
+
+    private String getExperienceLabel(String experienceId) {
+        if (ProfileRepository.EXPERIENCE_INTERMEDIATE.equals(experienceId)) {
+            return getString(R.string.profile_experience_intermediate);
+        }
+        if (ProfileRepository.EXPERIENCE_EXPERIENCED.equals(experienceId)) {
+            return getString(R.string.profile_experience_experienced);
+        }
+        return getString(R.string.profile_experience_beginner);
+    }
+
+    private String getActivityLabel(String activityId) {
+        if (ProfileRepository.ACTIVITY_LOW.equals(activityId)) {
+            return getString(R.string.profile_activity_low);
+        }
+        if (ProfileRepository.ACTIVITY_HIGH.equals(activityId)) {
+            return getString(R.string.profile_activity_high);
+        }
+        if (ProfileRepository.ACTIVITY_VERY_HIGH.equals(activityId)) {
+            return getString(R.string.profile_activity_very_high);
+        }
+        return getString(R.string.profile_activity_moderate);
     }
 
     private String comparisonTrend(double current, double previous) {
@@ -1551,23 +1825,113 @@ public class FortschrittActivity extends IronxActivity {
 
     private void updateGoalStatus(
             int achievement,
-            int sessionDays,
-            int goal) {
-        if (sessionDays == 0) {
-            tvGoalStatus.setText("Noch keine Trainingstage im Zeitraum");
-        } else if (achievement >= 100) {
+            int goal,
+            Set<LocalDate> activeDays) {
+        LocalDate today = LocalDate.now();
+        LocalDate weekStart = today.with(
+                TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
+        );
+        LocalDate weekEnd = weekStart.plusDays(6);
+        int completedThisWeek = ProgressCalculator.filterDates(
+                activeDays,
+                weekStart,
+                weekEnd
+        ).size();
+        int remaining = Math.max(0, goal - completedThisWeek);
+        LocalDate nextPreferred = TrainingGoalPlanner.nextPreferredTrainingDate(
+                today,
+                profile.preferredDays,
+                activeDays,
+                goal
+        );
+
+        if (completedThisWeek >= goal) {
             tvGoalStatus.setText(
                     "Wochenziel erreicht · Regeneration bleibt eingeplant"
             );
-        } else if (achievement >= 75) {
+        } else if (nextPreferred != null) {
+            String weekday = nextPreferred.format(
+                    DateTimeFormatter.ofPattern(
+                            "EEEE",
+                            getResources().getConfiguration().getLocales().get(0)
+                    )
+            );
             tvGoalStatus.setText(
-                    "Knapp am Ziel · " + goal + " Trainings pro Woche angestrebt"
+                    remaining
+                            + (remaining == 1 ? " Training" : " Trainings")
+                            + " offen · Nächster geplanter Tag: "
+                            + weekday
             );
         } else {
             tvGoalStatus.setText(
-                    "Unter deinem Wochenziel von " + goal + " Trainings"
+                    remaining
+                            + (remaining == 1 ? " Training" : " Trainings")
+                            + " offen · Ruhetage werden nicht negativ bewertet"
             );
         }
+    }
+
+    private int calculateCardioMinutes(LocalDate start, LocalDate end) {
+        int minutes = 0;
+        for (String type : WORKOUT_TYPES) {
+            for (WorkoutStorage.CardioSession session
+                    : WorkoutStorage.getCardioSessions(this, type)) {
+                LocalDate date = parseDate(session.timestamp);
+                if (date != null && isWithin(date, start, end)) {
+                    minutes += session.minutes;
+                }
+            }
+        }
+        return minutes;
+    }
+
+    private void updateWeightGoalStatus(double currentWeight) {
+        String status;
+        if (currentWeight <= 0) {
+            status = "Trage dein aktuelles Gewicht im Profil ein, um den Verlauf zu starten.";
+        } else if (profile.targetWeightKg <= 0) {
+            status = "Aktuelles Gewicht wird gespeichert. Ergänze optional ein Zielgewicht.";
+        } else {
+            double difference = profile.targetWeightKg - currentWeight;
+            if (Math.abs(difference) < 0.1) {
+                status = "Zielgewicht erreicht.";
+            } else {
+                status = String.format(
+                        Locale.GERMANY,
+                        "Noch %.1f %s bis zum Zielgewicht",
+                        Math.abs(difference) * weightFactor,
+                        weightUnit
+                );
+            }
+            if (profile.targetDate != null) {
+                status += " · Zieltermin " + profile.targetDate.format(DISPLAY_DATE);
+            }
+        }
+        String details = buildBodyProfileDetails();
+        tvWeightGoalStatus.setText(
+                details.isEmpty() ? status : status + "\n" + details
+        );
+    }
+
+    private String buildBodyProfileDetails() {
+        List<String> details = new ArrayList<>();
+        if (profile.birthYear > 0) {
+            details.add(
+                    Math.max(0, LocalDate.now().getYear() - profile.birthYear)
+                            + " Jahre"
+            );
+        }
+        if (profile.heightCm > 0) {
+            details.add(profile.heightCm + " cm");
+        }
+        if (profile.bodyFatPercent > 0) {
+            details.add(String.format(
+                    Locale.GERMANY,
+                    "%.1f%% KFA",
+                    profile.bodyFatPercent
+            ));
+        }
+        return String.join(" · ", details);
     }
 
     private void setKpi(

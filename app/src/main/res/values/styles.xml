@@ -56,6 +56,43 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+    <style name="ProfileSectionTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">22dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ProfileCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_main_card</item>
+        <item name="android:elevation">5dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">18dp</item>
+    </style>
+
+    <style name="ProfileDayButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_width">42dp</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:layout_marginEnd">5dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:textColor">@color/profile_day_text</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="backgroundTint">@color/profile_day_background</item>
+        <item name="cornerRadius">13dp</item>
+        <item name="strokeColor">@color/training_gold</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
     <style name="SettingsSpinner">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">54dp</item>

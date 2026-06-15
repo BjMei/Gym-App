@@ -129,6 +129,10 @@
         <include
             android:id="@+id/tabKonsistenz"
             layout="@layout/tab_item" />
+
+        <include
+            android:id="@+id/tabKoerper"
+            layout="@layout/tab_item" />
     </LinearLayout>
 
     <LinearLayout
@@ -158,6 +162,20 @@
             android:paddingStart="8dp"
             android:paddingEnd="8dp" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvProgressFocusHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/bg_home_metric"
+        android:fontFamily="sans-serif-medium"
+        android:lineSpacingExtra="2dp"
+        android:padding="12dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -531,6 +549,81 @@
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp" />
                 </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/sectionKoerper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
+
+                    <include
+                        android:id="@+id/kpiCurrentWeight"
+                        layout="@layout/kpi_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1" />
+
+                    <include
+                        android:id="@+id/kpiWeightChange"
+                        layout="@layout/kpi_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
+
+                    <include
+                        android:id="@+id/kpiTargetWeight"
+                        layout="@layout/kpi_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1" />
+
+                    <include
+                        android:id="@+id/kpiBodyCardio"
+                        layout="@layout/kpi_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvWeightGoalStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/bg_home_metric"
+                    android:fontFamily="sans-serif-medium"
+                    android:lineSpacingExtra="3dp"
+                    android:padding="14dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    style="@style/ChartSectionLabel"
+                    android:text="@string/progress_weight_trend" />
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/chartBodyWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
