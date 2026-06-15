@@ -13,9 +13,11 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public final class ProfileRepository {
@@ -47,7 +49,8 @@ public final class ProfileRepository {
     private static final String KEY_PREFERRED_DAYS = "profile_preferred_days";
     private static final String KEY_TARGET_DATE = "profile_target_date";
     private static final String KEY_BODY_FAT = "profile_body_fat";
-    private static final String KEY_STRENGTH_GOAL = "profile_strength_goal";
+    private static final String KEY_LEGACY_STRENGTH_GOAL = "profile_strength_goal";
+    private static final String KEY_STRENGTH_GOALS = "profile_strength_goals";
     private static final String KEY_VOLUME_GOAL = "profile_volume_goal";
     private static final String KEY_WEIGHT_HISTORY = "profile_weight_history";
     private static final String KEY_LEGACY_CALORIES = "calorie_goal";
@@ -88,14 +91,17 @@ public final class ProfileRepository {
         );
         profile.bodyFatPercent =
                 parseDouble(preferences.getString(KEY_BODY_FAT, ""));
-        profile.strengthGoalKg =
-                parseDouble(preferences.getString(KEY_STRENGTH_GOAL, ""));
+        profile.legacyStrengthGoalKg =
+                parseDouble(preferences.getString(KEY_LEGACY_STRENGTH_GOAL, ""));
+        profile.strengthGoalsKg = parseStrengthGoals(
+                preferences.getString(KEY_STRENGTH_GOALS, "[]")
+        );
         profile.weeklyVolumeGoalKg =
                 parseDouble(preferences.getString(KEY_VOLUME_GOAL, ""));
         return profile;
     }
 
-    public void save(Profile profile, LocalDate measurementDate) {
+    public void save(Profile profile) {
         SharedPreferences.Editor editor = preferences.edit()
                 .putString(KEY_NAME, safe(profile.name))
                 .putString(KEY_WEIGHT, formatNumber(profile.currentWeightKg))
@@ -122,23 +128,73 @@ public final class ProfileRepository {
                         profile.targetDate == null ? "" : profile.targetDate.toString()
                 )
                 .putString(KEY_BODY_FAT, formatNumber(profile.bodyFatPercent))
-                .putString(KEY_STRENGTH_GOAL, formatNumber(profile.strengthGoalKg))
                 .putString(
                         KEY_VOLUME_GOAL,
                         formatNumber(profile.weeklyVolumeGoalKg)
                 )
                 .remove(KEY_LEGACY_CALORIES);
 
-        if (profile.currentWeightKg > 0) {
-            List<WeightEntry> history = getWeightHistory();
-            upsertWeightEntry(
-                    history,
-                    measurementDate == null ? LocalDate.now() : measurementDate,
-                    profile.currentWeightKg
-            );
-            editor.putString(KEY_WEIGHT_HISTORY, serializeWeightHistory(history));
-        }
         editor.apply();
+    }
+
+    public void addWeightMeasurement(LocalDate date, double weightKg) {
+        if (date == null || weightKg <= 0) {
+            return;
+        }
+        List<WeightEntry> history = getWeightHistory();
+        upsertWeightEntry(history, date, weightKg);
+        history.sort(Comparator.comparing(entry -> entry.date));
+        double latestWeight = history.get(history.size() - 1).weightKg;
+        preferences.edit()
+                .putString(KEY_WEIGHT, formatNumber(latestWeight))
+                .putString(KEY_WEIGHT_HISTORY, serializeWeightHistory(history))
+                .apply();
+    }
+
+    public void removeWeightMeasurement(LocalDate date) {
+        if (date == null) {
+            return;
+        }
+        List<WeightEntry> history = getWeightHistory();
+        history.removeIf(entry -> entry.date.equals(date));
+        history.sort(Comparator.comparing(entry -> entry.date));
+        double latestWeight = history.isEmpty()
+                ? 0
+                : history.get(history.size() - 1).weightKg;
+        preferences.edit()
+                .putString(KEY_WEIGHT, formatNumber(latestWeight))
+                .putString(KEY_WEIGHT_HISTORY, serializeWeightHistory(history))
+                .apply();
+    }
+
+    public void setStrengthGoal(String workoutType, String exercise, double targetKg) {
+        String key = strengthGoalKey(workoutType, exercise);
+        if (key.isEmpty()) {
+            return;
+        }
+        Map<String, StrengthGoal> goals = getStrengthGoals();
+        if (targetKg > 0) {
+            goals.put(key, new StrengthGoal(workoutType, exercise.trim(), targetKg));
+        } else {
+            goals.remove(key);
+        }
+        preferences.edit()
+                .putString(KEY_STRENGTH_GOALS, serializeStrengthGoals(goals))
+                .remove(KEY_LEGACY_STRENGTH_GOAL)
+                .apply();
+    }
+
+    public void removeStrengthGoal(String workoutType, String exercise) {
+        setStrengthGoal(workoutType, exercise, 0);
+    }
+
+    public Map<String, StrengthGoal> getStrengthGoals() {
+        return parseStrengthGoals(preferences.getString(KEY_STRENGTH_GOALS, "[]"));
+    }
+
+    public double getStrengthGoalKg(String workoutType, String exercise) {
+        StrengthGoal goal = getStrengthGoals().get(strengthGoalKey(workoutType, exercise));
+        return goal == null ? 0 : goal.targetKg;
     }
 
     public List<WeightEntry> getWeightHistory() {
@@ -225,6 +281,62 @@ public final class ProfileRepository {
             }
         }
         return array.toString();
+    }
+
+    private static Map<String, StrengthGoal> parseStrengthGoals(String json) {
+        Map<String, StrengthGoal> result = new LinkedHashMap<>();
+        try {
+            JSONArray array = new JSONArray(json == null ? "[]" : json);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject object = array.optJSONObject(i);
+                if (object == null) {
+                    continue;
+                }
+                String workoutType = object.optString("workoutType", "");
+                String exercise = object.optString("exercise", "").trim();
+                double targetKg = object.optDouble("targetKg", 0);
+                String key = strengthGoalKey(workoutType, exercise);
+                if (!key.isEmpty() && targetKg > 0) {
+                    result.put(key, new StrengthGoal(workoutType, exercise, targetKg));
+                }
+            }
+        } catch (JSONException ignored) {
+        }
+        return result;
+    }
+
+    private static String serializeStrengthGoals(Map<String, StrengthGoal> goals) {
+        JSONArray array = new JSONArray();
+        if (goals == null) {
+            return array.toString();
+        }
+        List<StrengthGoal> sorted = new ArrayList<>(goals.values());
+        sorted.sort(Comparator
+                .comparing((StrengthGoal goal) -> goal.workoutType)
+                .thenComparing(goal -> goal.exercise.toLowerCase(Locale.ROOT)));
+        for (StrengthGoal goal : sorted) {
+            if (goal == null || goal.targetKg <= 0) {
+                continue;
+            }
+            try {
+                JSONObject object = new JSONObject();
+                object.put("workoutType", goal.workoutType);
+                object.put("exercise", goal.exercise);
+                object.put("targetKg", goal.targetKg);
+                array.put(object);
+            } catch (JSONException ignored) {
+            }
+        }
+        return array.toString();
+    }
+
+    public static String strengthGoalKey(String workoutType, String exercise) {
+        String safeType = workoutType == null ? "" : workoutType.trim().toLowerCase(Locale.ROOT);
+        String safeExercise = exercise == null ? "" : exercise.trim().toLowerCase(Locale.ROOT);
+        if (safeType.isEmpty() || safeExercise.isEmpty()) {
+            return "";
+        }
+        return safeType + "|" + safeExercise;
     }
 
     private static Set<DayOfWeek> parsePreferredDays(Set<String> stored) {
@@ -325,8 +437,16 @@ public final class ProfileRepository {
         public String experienceId = EXPERIENCE_BEGINNER;
         public Set<DayOfWeek> preferredDays = new HashSet<>();
         public LocalDate targetDate;
-        public double strengthGoalKg;
+        public double legacyStrengthGoalKg;
+        public Map<String, StrengthGoal> strengthGoalsKg = new LinkedHashMap<>();
         public double weeklyVolumeGoalKg;
+
+        public double getStrengthGoalKg(String workoutType, String exercise) {
+            StrengthGoal goal = strengthGoalsKg.get(
+                    strengthGoalKey(workoutType, exercise)
+            );
+            return goal == null ? 0 : goal.targetKg;
+        }
     }
 
     public static final class WeightEntry {
@@ -336,6 +456,18 @@ public final class ProfileRepository {
         public WeightEntry(LocalDate date, double weightKg) {
             this.date = date;
             this.weightKg = weightKg;
+        }
+    }
+
+    public static final class StrengthGoal {
+        public final String workoutType;
+        public final String exercise;
+        public final double targetKg;
+
+        public StrengthGoal(String workoutType, String exercise, double targetKg) {
+            this.workoutType = workoutType == null ? "" : workoutType;
+            this.exercise = exercise == null ? "" : exercise;
+            this.targetKg = targetKg;
         }
     }
 }

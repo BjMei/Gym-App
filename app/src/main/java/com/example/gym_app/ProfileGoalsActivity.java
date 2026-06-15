@@ -2,14 +2,19 @@ package com.example.gym_app;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -22,8 +27,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public class ProfileGoalsActivity extends IronxActivity {
@@ -39,14 +46,22 @@ public class ProfileGoalsActivity extends IronxActivity {
     private EditText etTargetWeight;
     private EditText etTargetDate;
     private EditText etTrainingGoalPerWeek;
-    private EditText etStrengthGoal;
+    private EditText etWeightMeasurement;
+    private EditText etWeightMeasurementDate;
+    private EditText etStrengthGoalTarget;
     private EditText etVolumeGoal;
     private Spinner spinnerGoal;
     private Spinner spinnerActivityLevel;
     private Spinner spinnerExperience;
+    private Spinner spinnerStrengthGoalExercise;
     private TextView tvProfileImpact;
+    private TextView tvLegacyStrengthGoal;
+    private LinearLayout llWeightMeasurements;
+    private LinearLayout llStrengthGoals;
     private ProfileRepository repository;
     private LocalDate selectedTargetDate;
+    private LocalDate selectedMeasurementDate = LocalDate.now();
+    private List<StrengthExerciseOption> strengthExerciseOptions = new ArrayList<>();
 
     private final List<MaterialButton> dayButtons = new ArrayList<>();
     private final List<DayOfWeek> dayValues = Arrays.asList(
@@ -68,12 +83,19 @@ public class ProfileGoalsActivity extends IronxActivity {
         repository = new ProfileRepository(this);
         bindViews();
         setupSpinners();
+        setupStrengthGoalExercises();
         setupDayButtons();
         setupTargetDate();
+        setupMeasurementDate();
         setupUnitHints();
+        setupRecommendationUpdates();
         loadProfile();
 
         findViewById(R.id.btnBackProfileGoals).setOnClickListener(v -> finish());
+        findViewById(R.id.btnAddWeightMeasurement)
+                .setOnClickListener(v -> addWeightMeasurement());
+        findViewById(R.id.btnAddStrengthGoal)
+                .setOnClickListener(v -> addStrengthGoal());
         findViewById(R.id.btnSaveProfileGoals)
                 .setOnClickListener(v -> saveProfile());
     }
@@ -87,12 +109,18 @@ public class ProfileGoalsActivity extends IronxActivity {
         etTargetWeight = findViewById(R.id.etTargetWeight);
         etTargetDate = findViewById(R.id.etTargetDate);
         etTrainingGoalPerWeek = findViewById(R.id.etTrainingGoalPerWeek);
-        etStrengthGoal = findViewById(R.id.etStrengthGoal);
+        etWeightMeasurement = findViewById(R.id.etWeightMeasurement);
+        etWeightMeasurementDate = findViewById(R.id.etWeightMeasurementDate);
+        etStrengthGoalTarget = findViewById(R.id.etStrengthGoalTarget);
         etVolumeGoal = findViewById(R.id.etVolumeGoal);
         spinnerGoal = findViewById(R.id.spinnerGoal);
         spinnerActivityLevel = findViewById(R.id.spinnerActivityLevel);
         spinnerExperience = findViewById(R.id.spinnerExperience);
+        spinnerStrengthGoalExercise = findViewById(R.id.spinnerStrengthGoalExercise);
         tvProfileImpact = findViewById(R.id.tvProfileImpact);
+        tvLegacyStrengthGoal = findViewById(R.id.tvLegacyStrengthGoal);
+        llWeightMeasurements = findViewById(R.id.llWeightMeasurements);
+        llStrengthGoals = findViewById(R.id.llStrengthGoals);
 
         dayButtons.add(findViewById(R.id.btnDayMonday));
         dayButtons.add(findViewById(R.id.btnDayTuesday));
@@ -183,7 +211,8 @@ public class ProfileGoalsActivity extends IronxActivity {
                         )
                 )
         );
-        spinnerGoal.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        AdapterView.OnItemSelectedListener impactListener =
+                new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(
                     AdapterView<?> parent,
@@ -196,7 +225,10 @@ public class ProfileGoalsActivity extends IronxActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
-        });
+        };
+        spinnerGoal.setOnItemSelectedListener(impactListener);
+        spinnerActivityLevel.setOnItemSelectedListener(impactListener);
+        spinnerExperience.setOnItemSelectedListener(impactListener);
     }
 
     private void setOptions(Spinner spinner, List<Option> options) {
@@ -207,6 +239,64 @@ public class ProfileGoalsActivity extends IronxActivity {
         );
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
         spinner.setAdapter(adapter);
+    }
+
+    private void setupStrengthGoalExercises() {
+        Map<String, StrengthExerciseOption> options = new LinkedHashMap<>();
+        addStrengthExercises(
+                options,
+                WorkoutStorage.TYPE_PUSH,
+                R.array.push_exercises
+        );
+        addStrengthExercises(
+                options,
+                WorkoutStorage.TYPE_PULL,
+                R.array.pull_exercises
+        );
+        addStrengthExercises(
+                options,
+                WorkoutStorage.TYPE_LEG,
+                R.array.leg_exercises
+        );
+        strengthExerciseOptions = new ArrayList<>(options.values());
+        ArrayAdapter<StrengthExerciseOption> adapter = new ArrayAdapter<>(
+                this,
+                R.layout.spinner_item_white,
+                strengthExerciseOptions
+        );
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
+        spinnerStrengthGoalExercise.setAdapter(adapter);
+        spinnerStrengthGoalExercise.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                            AdapterView<?> parent,
+                            View view,
+                            int position,
+                            long id) {
+                        updateStrengthGoalInput();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                }
+        );
+    }
+
+    private void addStrengthExercises(
+            Map<String, StrengthExerciseOption> options,
+            String workoutType,
+            int defaultArray) {
+        for (String exercise : ExerciseCatalog.getExercises(
+                this,
+                defaultArray,
+                workoutType
+        )) {
+            StrengthExerciseOption option =
+                    new StrengthExerciseOption(workoutType, exercise);
+            options.putIfAbsent(option.key(), option);
+        }
     }
 
     private void setupDayButtons() {
@@ -238,12 +328,63 @@ public class ProfileGoalsActivity extends IronxActivity {
         });
     }
 
+    private void setupMeasurementDate() {
+        etWeightMeasurementDate.setText(selectedMeasurementDate.format(DISPLAY_DATE));
+        etWeightMeasurementDate.setOnClickListener(v -> {
+            LocalDate initial = selectedMeasurementDate == null
+                    ? LocalDate.now()
+                    : selectedMeasurementDate;
+            new DatePickerDialog(
+                    this,
+                    (picker, year, month, day) -> {
+                        selectedMeasurementDate = LocalDate.of(year, month + 1, day);
+                        etWeightMeasurementDate.setText(
+                                selectedMeasurementDate.format(DISPLAY_DATE)
+                        );
+                    },
+                    initial.getYear(),
+                    initial.getMonthValue() - 1,
+                    initial.getDayOfMonth()
+            ).show();
+        });
+    }
+
     private void setupUnitHints() {
         String unit = AppSettings.getWeightUnit(this);
         etProfileWeight.setHint(getString(R.string.profile_weight_hint_unit, unit));
+        etWeightMeasurement.setHint(
+                getString(R.string.profile_measurement_weight_hint, unit)
+        );
         etTargetWeight.setHint(getString(R.string.profile_target_weight_hint, unit));
-        etStrengthGoal.setHint(getString(R.string.profile_strength_goal_hint, unit));
+        etStrengthGoalTarget.setHint(
+                getString(R.string.profile_strength_goal_hint, unit)
+        );
         etVolumeGoal.setHint(getString(R.string.profile_volume_goal_hint, unit));
+    }
+
+    private void setupRecommendationUpdates() {
+        etTrainingGoalPerWeek.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(
+                    CharSequence value,
+                    int start,
+                    int count,
+                    int after) {
+            }
+
+            @Override
+            public void onTextChanged(
+                    CharSequence value,
+                    int start,
+                    int before,
+                    int count) {
+                updateImpactText(getSelectedOptionId(spinnerGoal));
+            }
+
+            @Override
+            public void afterTextChanged(Editable value) {
+            }
+        });
     }
 
     private void loadProfile() {
@@ -255,7 +396,6 @@ public class ProfileGoalsActivity extends IronxActivity {
         etProfileBirthYear.setText(optionalInt(profile.birthYear));
         etProfileBodyFat.setText(optionalNumber(profile.bodyFatPercent));
         etTrainingGoalPerWeek.setText(String.valueOf(profile.weeklyTrainingGoal));
-        setDisplayedWeight(etStrengthGoal, profile.strengthGoalKg);
         setDisplayedWeight(etVolumeGoal, profile.weeklyVolumeGoalKg);
         selectedTargetDate = profile.targetDate;
         etTargetDate.setText(
@@ -271,18 +411,26 @@ public class ProfileGoalsActivity extends IronxActivity {
             dayButtons.get(i).setChecked(profile.preferredDays.contains(dayValues.get(i)));
         }
         updateImpactText(profile.goalId);
+        refreshWeightMeasurements();
+        refreshStrengthGoals();
+        if (profile.legacyStrengthGoalKg > 0
+                && profile.strengthGoalsKg.isEmpty()) {
+            tvLegacyStrengthGoal.setVisibility(View.VISIBLE);
+            tvLegacyStrengthGoal.setText(getString(
+                    R.string.profile_legacy_strength_goal,
+                    AppSettings.formatWeight(this, profile.legacyStrengthGoalKg, 1)
+            ));
+            setDisplayedWeight(etStrengthGoalTarget, profile.legacyStrengthGoalKg);
+        } else {
+            tvLegacyStrengthGoal.setVisibility(View.GONE);
+        }
     }
 
     private void saveProfile() {
         clearErrors();
         ProfileRepository.Profile profile = new ProfileRepository.Profile();
         profile.name = etProfileName.getText().toString().trim();
-        profile.currentWeightKg = parseDisplayedWeight(
-                etProfileWeight,
-                25,
-                400,
-                false
-        );
+        profile.currentWeightKg = repository.load().currentWeightKg;
         profile.heightCm = parseInt(etProfileHeight, 100, 250, false);
         profile.birthYear = parseInt(
                 etProfileBirthYear,
@@ -313,12 +461,6 @@ public class ProfileGoalsActivity extends IronxActivity {
         profile.experienceId = getSelectedOptionId(spinnerExperience);
         profile.preferredDays = getSelectedDays();
         profile.targetDate = selectedTargetDate;
-        profile.strengthGoalKg = parseDisplayedWeight(
-                etStrengthGoal,
-                1,
-                1000,
-                false
-        );
         profile.weeklyVolumeGoalKg = parseDisplayedWeight(
                 etVolumeGoal,
                 1,
@@ -344,9 +486,228 @@ public class ProfileGoalsActivity extends IronxActivity {
             return;
         }
 
-        repository.save(profile, LocalDate.now());
+        repository.save(profile);
         Toast.makeText(this, R.string.profile_goals_saved, Toast.LENGTH_SHORT).show();
         updateImpactText(profile.goalId);
+    }
+
+    private void addWeightMeasurement() {
+        etWeightMeasurement.setError(null);
+        double weightKg = parseDisplayedWeight(
+                etWeightMeasurement,
+                25,
+                400,
+                true
+        );
+        if (etWeightMeasurement.getError() != null) {
+            return;
+        }
+        if (selectedMeasurementDate == null) {
+            etWeightMeasurementDate.setError(getString(R.string.profile_required));
+            return;
+        }
+        if (selectedMeasurementDate.isAfter(LocalDate.now())) {
+            etWeightMeasurementDate.setError(
+                    getString(R.string.profile_measurement_date_future)
+            );
+            return;
+        }
+
+        repository.addWeightMeasurement(selectedMeasurementDate, weightKg);
+        etWeightMeasurement.setText("");
+        selectedMeasurementDate = LocalDate.now();
+        etWeightMeasurementDate.setText(selectedMeasurementDate.format(DISPLAY_DATE));
+        etWeightMeasurementDate.setError(null);
+        setDisplayedWeight(etProfileWeight, repository.load().currentWeightKg);
+        refreshWeightMeasurements();
+        Toast.makeText(
+                this,
+                R.string.profile_measurement_saved,
+                Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    private void addStrengthGoal() {
+        etStrengthGoalTarget.setError(null);
+        Object selected = spinnerStrengthGoalExercise.getSelectedItem();
+        if (!(selected instanceof StrengthExerciseOption)) {
+            return;
+        }
+        double targetKg = parseDisplayedWeight(
+                etStrengthGoalTarget,
+                1,
+                1000,
+                true
+        );
+        if (etStrengthGoalTarget.getError() != null) {
+            return;
+        }
+        StrengthExerciseOption option = (StrengthExerciseOption) selected;
+        repository.setStrengthGoal(option.workoutType, option.exercise, targetKg);
+        tvLegacyStrengthGoal.setVisibility(View.GONE);
+        refreshStrengthGoals();
+        updateStrengthGoalInput();
+        Toast.makeText(
+                this,
+                R.string.profile_strength_goal_saved,
+                Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    private void updateStrengthGoalInput() {
+        Object selected = spinnerStrengthGoalExercise.getSelectedItem();
+        if (!(selected instanceof StrengthExerciseOption) || repository == null) {
+            return;
+        }
+        StrengthExerciseOption option = (StrengthExerciseOption) selected;
+        double targetKg = repository.getStrengthGoalKg(
+                option.workoutType,
+                option.exercise
+        );
+        if (targetKg > 0) {
+            setDisplayedWeight(etStrengthGoalTarget, targetKg);
+        } else if (tvLegacyStrengthGoal == null
+                || tvLegacyStrengthGoal.getVisibility() != View.VISIBLE) {
+            etStrengthGoalTarget.setText("");
+        }
+    }
+
+    private void refreshWeightMeasurements() {
+        llWeightMeasurements.removeAllViews();
+        List<ProfileRepository.WeightEntry> entries =
+                new ArrayList<>(repository.getWeightHistory());
+        entries.sort((left, right) -> right.date.compareTo(left.date));
+        if (entries.isEmpty()) {
+            addEmptyRow(llWeightMeasurements, R.string.profile_measurement_empty);
+            return;
+        }
+        for (int index = 0; index < entries.size(); index++) {
+            ProfileRepository.WeightEntry entry = entries.get(index);
+            addManageRow(
+                    llWeightMeasurements,
+                    entry.date.format(DISPLAY_DATE),
+                    AppSettings.formatWeight(this, entry.weightKg, 1),
+                    () -> confirmDeleteWeightMeasurement(entry.date)
+            );
+        }
+    }
+
+    private void refreshStrengthGoals() {
+        llStrengthGoals.removeAllViews();
+        List<ProfileRepository.StrengthGoal> goals =
+                new ArrayList<>(repository.getStrengthGoals().values());
+        if (goals.isEmpty()) {
+            addEmptyRow(llStrengthGoals, R.string.profile_strength_goal_empty);
+            return;
+        }
+        for (ProfileRepository.StrengthGoal goal : goals) {
+            addManageRow(
+                    llStrengthGoals,
+                    workoutLabel(goal.workoutType) + " · " + goal.exercise,
+                    AppSettings.formatWeight(this, goal.targetKg, 1) + " 1RM",
+                    () -> confirmDeleteStrengthGoal(goal)
+            );
+        }
+    }
+
+    private void addManageRow(
+            LinearLayout container,
+            String title,
+            String value,
+            Runnable deleteAction) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(12), dp(10), dp(8), dp(10));
+        row.setBackgroundResource(R.drawable.bg_training_input_compact);
+
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        TextView titleView = new TextView(this);
+        titleView.setText(title);
+        titleView.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+        titleView.setTextSize(12);
+        titleView.setTypeface(null, android.graphics.Typeface.BOLD);
+        TextView valueView = new TextView(this);
+        valueView.setText(value);
+        valueView.setTextColor(ContextCompat.getColor(this, R.color.training_gold_highlight));
+        valueView.setTextSize(11);
+        valueView.setPadding(0, dp(3), 0, 0);
+        texts.addView(titleView);
+        texts.addView(valueView);
+        row.addView(texts, new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1
+        ));
+
+        TextView delete = new TextView(this);
+        delete.setText(R.string.delete);
+        delete.setTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
+        delete.setTextSize(9);
+        delete.setTypeface(null, android.graphics.Typeface.BOLD);
+        delete.setGravity(android.view.Gravity.CENTER);
+        delete.setPadding(dp(10), dp(10), dp(8), dp(10));
+        delete.setOnClickListener(v -> deleteAction.run());
+        row.addView(delete);
+
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        rowParams.topMargin = dp(8);
+        container.addView(row, rowParams);
+    }
+
+    private void addEmptyRow(LinearLayout container, int textResource) {
+        TextView empty = new TextView(this);
+        empty.setText(textResource);
+        empty.setTextColor(ContextCompat.getColor(this, R.color.text_tertiary));
+        empty.setTextSize(11);
+        empty.setPadding(0, dp(8), 0, 0);
+        container.addView(empty);
+    }
+
+    private void confirmDeleteWeightMeasurement(LocalDate date) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.profile_measurement_delete_title)
+                .setMessage(getString(
+                        R.string.profile_measurement_delete_message,
+                        date.format(DISPLAY_DATE)
+                ))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
+                    repository.removeWeightMeasurement(date);
+                    setDisplayedWeight(etProfileWeight, repository.load().currentWeightKg);
+                    refreshWeightMeasurements();
+                })
+                .show();
+    }
+
+    private void confirmDeleteStrengthGoal(ProfileRepository.StrengthGoal goal) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.profile_strength_goal_delete_title)
+                .setMessage(getString(
+                        R.string.profile_strength_goal_delete_message,
+                        goal.exercise
+                ))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
+                    repository.removeStrengthGoal(goal.workoutType, goal.exercise);
+                    refreshStrengthGoals();
+                    updateStrengthGoalInput();
+                })
+                .show();
+    }
+
+    private String workoutLabel(String workoutType) {
+        if (WorkoutStorage.TYPE_PULL.equals(workoutType)) {
+            return "Pull";
+        }
+        if (WorkoutStorage.TYPE_LEG.equals(workoutType)) {
+            return "Leg";
+        }
+        return "Push";
     }
 
     private void updateImpactText(String goalId) {
@@ -360,7 +721,56 @@ public class ProfileGoalsActivity extends IronxActivity {
         } else {
             textRes = R.string.profile_impact_muscle;
         }
-        tvProfileImpact.setText(textRes);
+        int configuredGoal = getConfiguredWeeklyGoal();
+        ProfileInsights.SessionRecommendation recommendation =
+                ProfileInsights.recommendSessions(
+                        getSelectedOptionId(spinnerActivityLevel),
+                        getSelectedOptionId(spinnerExperience),
+                        configuredGoal
+                );
+        String range = recommendation.min == recommendation.max
+                ? getString(
+                        R.string.profile_recommendation_single,
+                        recommendation.min
+                )
+                : getString(
+                        R.string.profile_recommendation_range,
+                        recommendation.min,
+                        recommendation.max
+                );
+        int statusResource;
+        if (recommendation.difference < 0) {
+            statusResource = R.string.profile_recommendation_below;
+        } else if (recommendation.difference > 0) {
+            statusResource = R.string.profile_recommendation_above;
+        } else {
+            statusResource = R.string.profile_recommendation_suitable;
+        }
+        tvProfileImpact.setText(
+                getString(textRes)
+                        + "\n\n"
+                        + getString(R.string.profile_recommendation_intro, range)
+                        + " "
+                        + getString(statusResource)
+        );
+    }
+
+    private int getConfiguredWeeklyGoal() {
+        try {
+            return Math.max(
+                    1,
+                    Math.min(
+                            7,
+                            Integer.parseInt(
+                                    etTrainingGoalPerWeek.getText()
+                                            .toString()
+                                            .trim()
+                            )
+                    )
+            );
+        } catch (NumberFormatException ignored) {
+            return 3;
+        }
     }
 
     private Set<DayOfWeek> getSelectedDays() {
@@ -451,7 +861,6 @@ public class ProfileGoalsActivity extends IronxActivity {
                 || etTargetWeight.getError() != null
                 || etTargetDate.getError() != null
                 || etTrainingGoalPerWeek.getError() != null
-                || etStrengthGoal.getError() != null
                 || etVolumeGoal.getError() != null;
     }
 
@@ -464,7 +873,6 @@ public class ProfileGoalsActivity extends IronxActivity {
                 etTargetWeight,
                 etTargetDate,
                 etTrainingGoalPerWeek,
-                etStrengthGoal,
                 etVolumeGoal
         )) {
             input.setError(null);
@@ -490,6 +898,10 @@ public class ProfileGoalsActivity extends IronxActivity {
 
     private String optionalInt(int value) {
         return value > 0 ? String.valueOf(value) : "";
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private String getSelectedOptionId(Spinner spinner) {
@@ -519,6 +931,28 @@ public class ProfileGoalsActivity extends IronxActivity {
         @Override
         public String toString() {
             return label;
+        }
+    }
+
+    private static final class StrengthExerciseOption {
+        final String workoutType;
+        final String exercise;
+
+        StrengthExerciseOption(String workoutType, String exercise) {
+            this.workoutType = workoutType;
+            this.exercise = exercise == null ? "" : exercise.trim();
+        }
+
+        String key() {
+            return ProfileRepository.strengthGoalKey(workoutType, exercise);
+        }
+
+        @Override
+        public String toString() {
+            String type = WorkoutStorage.TYPE_PULL.equals(workoutType)
+                    ? "Pull"
+                    : WorkoutStorage.TYPE_LEG.equals(workoutType) ? "Leg" : "Push";
+            return type + " · " + exercise;
         }
     }
 }

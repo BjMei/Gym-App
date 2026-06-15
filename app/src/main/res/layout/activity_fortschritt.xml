@@ -177,6 +177,20 @@
         android:textColor="@color/text_secondary"
         android:textSize="11sp" />
 
+    <TextView
+        android:id="@+id/tvPersonalizedAssessment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/bg_training_input_compact"
+        android:fontFamily="sans-serif-medium"
+        android:lineSpacingExtra="3dp"
+        android:padding="12dp"
+        android:textColor="@color/training_gold_highlight"
+        android:textSize="11sp" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -445,14 +459,40 @@
                     style="@style/SectionLabel"
                     android:text="PERSÖNLICHES WOCHENZIEL" />
 
-                <Spinner
-                    android:id="@+id/spinnerWeeklyGoal"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginBottom="14dp"
-                    android:background="@drawable/spinner_background"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp" />
+                    android:background="@drawable/bg_home_metric"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:id="@+id/tvWeeklyGoalConfigured"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/btnEditWeeklyGoal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_dialog_secondary_action"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="sans-serif-black"
+                        android:gravity="center"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:text="@string/progress_edit_profile_goal"
+                        android:textColor="@color/training_gold_highlight"
+                        android:textSize="9sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
