@@ -135,21 +135,22 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvProfileImpact"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:background="@drawable/bg_home_metric"
-                android:fontFamily="sans-serif-medium"
-                android:lineSpacingExtra="3dp"
-                android:padding="15dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:layout_marginTop="22dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-            <TextView
-                style="@style/ProfileSectionTitle"
-                android:text="@string/profile_personal_data" />
+                <TextView
+                    style="@style/ProfileSectionTitleInline"
+                    android:text="@string/profile_personal_data" />
+
+                <TextView
+                    android:id="@+id/infoProfilePersonalData"
+                    style="@style/InlineInfoButton" />
+            </LinearLayout>
 
             <LinearLayout
                 style="@style/ProfileCard">
@@ -174,9 +175,11 @@
                     android:id="@+id/etProfileBirthYear"
                     style="@style/ProfileInput"
                     android:hint="@string/profile_birth_year_hint"
+                    android:clickable="true"
+                    android:cursorVisible="false"
+                    android:focusable="false"
                     android:imeOptions="actionNext"
-                    android:inputType="number"
-                    android:maxLength="4" />
+                    android:inputType="none" />
 
                 <TextView
                     style="@style/ProfileFieldLabel"
@@ -213,13 +216,110 @@
                     android:id="@+id/etProfileBodyFat"
                     style="@style/ProfileInput"
                     android:hint="@string/profile_body_fat_hint"
+                    android:clickable="false"
+                    android:cursorVisible="false"
+                    android:focusable="false"
                     android:imeOptions="actionNext"
-                    android:inputType="numberDecimal" />
+                    android:inputType="none" />
             </LinearLayout>
 
-            <TextView
-                style="@style/ProfileSectionTitle"
-                android:text="@string/profile_weight_measurements" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/ProfileSectionTitleInline"
+                    android:text="@string/profile_body_fat_measurements" />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/ProfileCard">
+
+                <TextView
+                    style="@style/ProfileFieldLabel"
+                    android:text="@string/profile_body_fat_measurement_label" />
+
+                <EditText
+                    android:id="@+id/etBodyFatMeasurement"
+                    style="@style/ProfileInput"
+                    android:hint="@string/profile_body_fat_measurement_hint"
+                    android:imeOptions="actionNext"
+                    android:inputType="numberDecimal" />
+
+                <TextView
+                    style="@style/ProfileFieldLabel"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/profile_measurement_date_label" />
+
+                <EditText
+                    android:id="@+id/etBodyFatMeasurementDate"
+                    style="@style/ProfileInput"
+                    android:clickable="true"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:inputType="none" />
+
+                <TextView
+                    android:id="@+id/btnAddBodyFatMeasurement"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_training_primary_action"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="center"
+                    android:letterSpacing="0.06"
+                    android:text="@string/profile_body_fat_measurement_add"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btnToggleBodyFatMeasurements"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="18dp"
+                    android:background="@drawable/bg_training_input_compact"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center_vertical"
+                    android:letterSpacing="0.08"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="@string/profile_body_fat_history_label"
+                    android:textColor="@color/training_gold_highlight"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/llBodyFatMeasurements"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/ProfileSectionTitleInline"
+                    android:text="@string/profile_weight_measurements" />
+
+                <TextView
+                    android:id="@+id/infoProfileWeightMeasurements"
+                    style="@style/InlineInfoButton" />
+            </LinearLayout>
 
             <LinearLayout
                 style="@style/ProfileCard">
@@ -264,9 +364,22 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    style="@style/ProfileFieldLabel"
+                    android:id="@+id/btnToggleWeightMeasurements"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
                     android:layout_marginTop="18dp"
-                    android:text="@string/profile_measurement_history_label" />
+                    android:background="@drawable/bg_training_input_compact"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center_vertical"
+                    android:letterSpacing="0.08"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="@string/profile_measurement_history_label"
+                    android:textColor="@color/training_gold_highlight"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:id="@+id/llWeightMeasurements"
@@ -275,9 +388,22 @@
                     android:orientation="vertical" />
             </LinearLayout>
 
-            <TextView
-                style="@style/ProfileSectionTitle"
-                android:text="@string/profile_training_goal" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/ProfileSectionTitleInline"
+                    android:text="@string/profile_training_goal" />
+
+                <TextView
+                    android:id="@+id/infoProfileTrainingGoal"
+                    style="@style/InlineInfoButton" />
+            </LinearLayout>
 
             <LinearLayout
                 style="@style/ProfileCard">
@@ -329,9 +455,22 @@
                     android:maxLength="1" />
             </LinearLayout>
 
-            <TextView
-                style="@style/ProfileSectionTitle"
-                android:text="@string/profile_training_profile" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/ProfileSectionTitleInline"
+                    android:text="@string/profile_training_profile" />
+
+                <TextView
+                    android:id="@+id/infoProfileTrainingProfile"
+                    style="@style/InlineInfoButton" />
+            </LinearLayout>
 
             <LinearLayout
                 style="@style/ProfileCard">
@@ -357,14 +496,6 @@
                     style="@style/ProfileFieldLabel"
                     android:layout_marginTop="15dp"
                     android:text="@string/profile_preferred_days_label" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:text="@string/profile_preferred_days_hint"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="11sp" />
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
@@ -414,9 +545,22 @@
                 </HorizontalScrollView>
             </LinearLayout>
 
-            <TextView
-                style="@style/ProfileSectionTitle"
-                android:text="@string/profile_performance_goals" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/ProfileSectionTitleInline"
+                    android:text="@string/profile_performance_goals" />
+
+                <TextView
+                    android:id="@+id/infoProfilePerformanceGoals"
+                    style="@style/InlineInfoButton" />
+            </LinearLayout>
 
             <LinearLayout
                 style="@style/ProfileCard">
@@ -481,15 +625,6 @@
                     style="@style/ProfileInput"
                     android:imeOptions="actionDone"
                     android:inputType="numberDecimal" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:lineSpacingExtra="3dp"
-                    android:text="@string/profile_performance_goals_hint"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="11sp" />
             </LinearLayout>
 
             <TextView

@@ -43,6 +43,7 @@ public final class ProfileRepository {
     private static final String KEY_WEEKLY_GOAL = "training_goal_per_week";
     private static final String KEY_HEIGHT = "profile_height_cm";
     private static final String KEY_BIRTH_YEAR = "profile_birth_year";
+    private static final String KEY_BIRTH_DATE = "profile_birth_date";
     private static final String KEY_TARGET_WEIGHT = "profile_target_weight";
     private static final String KEY_ACTIVITY_LEVEL = "profile_activity_level";
     private static final String KEY_EXPERIENCE = "profile_experience";
@@ -53,6 +54,7 @@ public final class ProfileRepository {
     private static final String KEY_STRENGTH_GOALS = "profile_strength_goals";
     private static final String KEY_VOLUME_GOAL = "profile_volume_goal";
     private static final String KEY_WEIGHT_HISTORY = "profile_weight_history";
+    private static final String KEY_BODY_FAT_HISTORY = "profile_body_fat_history";
     private static final String KEY_LEGACY_CALORIES = "calorie_goal";
 
     private final SharedPreferences preferences;
@@ -72,7 +74,10 @@ public final class ProfileRepository {
                 7
         );
         profile.heightCm = preferences.getInt(KEY_HEIGHT, 0);
-        profile.birthYear = preferences.getInt(KEY_BIRTH_YEAR, 0);
+        profile.birthDate = parseDate(preferences.getString(KEY_BIRTH_DATE, ""));
+        profile.birthYear = profile.birthDate == null
+                ? preferences.getInt(KEY_BIRTH_YEAR, 0)
+                : profile.birthDate.getYear();
         profile.targetWeightKg =
                 parseDouble(preferences.getString(KEY_TARGET_WEIGHT, ""));
         profile.activityLevelId = preferences.getString(
@@ -89,8 +94,7 @@ public final class ProfileRepository {
         profile.targetDate = parseDate(
                 preferences.getString(KEY_TARGET_DATE, "")
         );
-        profile.bodyFatPercent =
-                parseDouble(preferences.getString(KEY_BODY_FAT, ""));
+        profile.bodyFatPercent = latestBodyFatPercent();
         profile.legacyStrengthGoalKg =
                 parseDouble(preferences.getString(KEY_LEGACY_STRENGTH_GOAL, ""));
         profile.strengthGoalsKg = parseStrengthGoals(
@@ -109,7 +113,14 @@ public final class ProfileRepository {
                 .putString(KEY_LEGACY_GOAL, normalizeGoalId(profile.goalId))
                 .putInt(KEY_WEEKLY_GOAL, clamp(profile.weeklyTrainingGoal, 1, 7))
                 .putInt(KEY_HEIGHT, Math.max(0, profile.heightCm))
-                .putInt(KEY_BIRTH_YEAR, Math.max(0, profile.birthYear))
+                .putInt(
+                        KEY_BIRTH_YEAR,
+                        profile.birthDate == null ? Math.max(0, profile.birthYear) : profile.birthDate.getYear()
+                )
+                .putString(
+                        KEY_BIRTH_DATE,
+                        profile.birthDate == null ? "" : profile.birthDate.toString()
+                )
                 .putString(KEY_TARGET_WEIGHT, formatNumber(profile.targetWeightKg))
                 .putString(
                         KEY_ACTIVITY_LEVEL,
@@ -167,6 +178,36 @@ public final class ProfileRepository {
                 .apply();
     }
 
+    public void addBodyFatMeasurement(LocalDate date, double bodyFatPercent) {
+        if (date == null || bodyFatPercent <= 0) {
+            return;
+        }
+        List<BodyFatEntry> history = getBodyFatHistory();
+        upsertBodyFatEntry(history, date, bodyFatPercent);
+        history.sort(Comparator.comparing(entry -> entry.date));
+        double latestBodyFat = history.get(history.size() - 1).bodyFatPercent;
+        preferences.edit()
+                .putString(KEY_BODY_FAT, formatNumber(latestBodyFat))
+                .putString(KEY_BODY_FAT_HISTORY, serializeBodyFatHistory(history))
+                .apply();
+    }
+
+    public void removeBodyFatMeasurement(LocalDate date) {
+        if (date == null) {
+            return;
+        }
+        List<BodyFatEntry> history = getBodyFatHistory();
+        history.removeIf(entry -> entry.date.equals(date));
+        history.sort(Comparator.comparing(entry -> entry.date));
+        double latestBodyFat = history.isEmpty()
+                ? 0
+                : history.get(history.size() - 1).bodyFatPercent;
+        preferences.edit()
+                .putString(KEY_BODY_FAT, formatNumber(latestBodyFat))
+                .putString(KEY_BODY_FAT_HISTORY, serializeBodyFatHistory(history))
+                .apply();
+    }
+
     public void setStrengthGoal(String workoutType, String exercise, double targetKg) {
         String key = strengthGoalKey(workoutType, exercise);
         if (key.isEmpty()) {
@@ -211,6 +252,20 @@ public final class ProfileRepository {
         return result;
     }
 
+    public List<BodyFatEntry> getBodyFatHistory() {
+        List<BodyFatEntry> result = parseBodyFatHistory(
+                preferences.getString(KEY_BODY_FAT_HISTORY, "[]")
+        );
+        if (result.isEmpty()) {
+            double legacyBodyFat = parseDouble(preferences.getString(KEY_BODY_FAT, ""));
+            if (legacyBodyFat > 0) {
+                result.add(new BodyFatEntry(LocalDate.now(), legacyBodyFat));
+            }
+        }
+        result.sort(Comparator.comparing(entry -> entry.date));
+        return result;
+    }
+
     public String getGoalId() {
         String stored = preferences.getString(KEY_GOAL_ID, "");
         if (stored != null && !stored.trim().isEmpty()) {
@@ -248,6 +303,19 @@ public final class ProfileRepository {
         history.add(new WeightEntry(date, weightKg));
     }
 
+    private static void upsertBodyFatEntry(
+            List<BodyFatEntry> history,
+            LocalDate date,
+            double bodyFatPercent) {
+        for (int i = 0; i < history.size(); i++) {
+            if (history.get(i).date.equals(date)) {
+                history.set(i, new BodyFatEntry(date, bodyFatPercent));
+                return;
+            }
+        }
+        history.add(new BodyFatEntry(date, bodyFatPercent));
+    }
+
     private static List<WeightEntry> parseWeightHistory(String json) {
         List<WeightEntry> result = new ArrayList<>();
         try {
@@ -281,6 +349,49 @@ public final class ProfileRepository {
             }
         }
         return array.toString();
+    }
+
+    private static List<BodyFatEntry> parseBodyFatHistory(String json) {
+        List<BodyFatEntry> result = new ArrayList<>();
+        try {
+            JSONArray array = new JSONArray(json == null ? "[]" : json);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject object = array.optJSONObject(i);
+                if (object == null) {
+                    continue;
+                }
+                LocalDate date = parseDate(object.optString("date", ""));
+                double bodyFatPercent = object.optDouble("bodyFatPercent", 0);
+                if (date != null && bodyFatPercent > 0) {
+                    result.add(new BodyFatEntry(date, bodyFatPercent));
+                }
+            }
+        } catch (JSONException ignored) {
+        }
+        return result;
+    }
+
+    private static String serializeBodyFatHistory(List<BodyFatEntry> history) {
+        JSONArray array = new JSONArray();
+        history.sort(Comparator.comparing(entry -> entry.date));
+        for (BodyFatEntry entry : history) {
+            try {
+                JSONObject object = new JSONObject();
+                object.put("date", entry.date.toString());
+                object.put("bodyFatPercent", entry.bodyFatPercent);
+                array.put(object);
+            } catch (JSONException ignored) {
+            }
+        }
+        return array.toString();
+    }
+
+    private double latestBodyFatPercent() {
+        List<BodyFatEntry> history = getBodyFatHistory();
+        if (!history.isEmpty()) {
+            return history.get(history.size() - 1).bodyFatPercent;
+        }
+        return parseDouble(preferences.getString(KEY_BODY_FAT, ""));
     }
 
     private static Map<String, StrengthGoal> parseStrengthGoals(String json) {
@@ -430,6 +541,7 @@ public final class ProfileRepository {
         public double targetWeightKg;
         public int heightCm;
         public int birthYear;
+        public LocalDate birthDate;
         public double bodyFatPercent;
         public String goalId = GOAL_MUSCLE;
         public int weeklyTrainingGoal = 3;
@@ -456,6 +568,16 @@ public final class ProfileRepository {
         public WeightEntry(LocalDate date, double weightKg) {
             this.date = date;
             this.weightKg = weightKg;
+        }
+    }
+
+    public static final class BodyFatEntry {
+        public final LocalDate date;
+        public final double bodyFatPercent;
+
+        public BodyFatEntry(LocalDate date, double bodyFatPercent) {
+            this.date = date;
+            this.bodyFatPercent = bodyFatPercent;
         }
     }
 

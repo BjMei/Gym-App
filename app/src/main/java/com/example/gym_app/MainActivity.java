@@ -7,8 +7,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
@@ -114,6 +116,7 @@ public class MainActivity extends IronxActivity {
         TextView drawerProfileGoals = findViewById(R.id.drawerProfileGoals);
         TextView drawerSettings = findViewById(R.id.drawerSettings);
         TextView drawerAppInfo = findViewById(R.id.drawerAppInfo);
+        TextView drawerResetData = findViewById(R.id.drawerResetData);
 
         drawerHistory.setOnClickListener(v -> {
             closeDrawerIfOpen();
@@ -134,6 +137,58 @@ public class MainActivity extends IronxActivity {
             closeDrawerIfOpen();
             startActivity(new Intent(MainActivity.this, AppInfoActivity.class));
         });
+
+        drawerResetData.setOnClickListener(v -> {
+            closeDrawerIfOpen();
+            showResetConfirmation();
+        });
+    }
+
+    private void showResetConfirmation() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.drawer_reset_confirm_title)
+                .setMessage(R.string.drawer_reset_confirm_message)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(
+                        R.string.drawer_reset_confirm_continue,
+                        (dialogInterface, which) -> showFinalResetConfirmation()
+                )
+                .create();
+        dialog.setOnShowListener(dialogInterface ->
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setTextColor(Color.parseColor("#EF4444"))
+        );
+        dialog.show();
+    }
+
+    private void showFinalResetConfirmation() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.drawer_reset_final_title)
+                .setMessage(R.string.drawer_reset_final_message)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(
+                        R.string.drawer_reset_final_action,
+                        (dialogInterface, which) -> resetAppData()
+                )
+                .create();
+        dialog.setOnShowListener(dialogInterface ->
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setTextColor(Color.parseColor("#EF4444"))
+        );
+        dialog.show();
+    }
+
+    private void resetAppData() {
+        try {
+            AppDataResetManager.resetAllData(this);
+            Toast.makeText(this, R.string.drawer_reset_success, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            overridePendingTransition(0, 0);
+        } catch (Exception exception) {
+            Toast.makeText(this, R.string.drawer_reset_error, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void closeDrawerIfOpen() {

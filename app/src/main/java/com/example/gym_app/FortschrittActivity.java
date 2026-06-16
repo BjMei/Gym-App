@@ -133,9 +133,8 @@ public class FortschrittActivity extends IronxActivity {
     private View kpiTargetWeight;
     private View kpiBodyCardio;
     private TextView tvWeightGoalStatus;
-    private TextView tvProgressFocusHint;
-    private TextView tvPersonalizedAssessment;
     private TextView tvWeeklyGoalConfigured;
+    private View progressInfoButton;
     private LineChart chartBodyWeight;
 
     private List<ExerciseOption> exerciseOptions = new ArrayList<>();
@@ -146,6 +145,8 @@ public class FortschrittActivity extends IronxActivity {
     private double weightFactor;
     private ProfileRepository profileRepository;
     private ProfileRepository.Profile profile;
+    private String progressFocusInfo = "";
+    private String personalizedAssessmentInfo = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,6 +168,7 @@ public class FortschrittActivity extends IronxActivity {
         setupTabs();
         setupRangeSpinner();
         setupExerciseSpinners();
+        setupInfoButtons();
         setupWeeklyGoalDisplay();
         setupMuscleMapping();
         updateGoalSummary();
@@ -222,8 +224,7 @@ public class FortschrittActivity extends IronxActivity {
         sectionMuskeln = findViewById(R.id.sectionMuskeln);
         sectionKonsistenz = findViewById(R.id.sectionKonsistenz);
         sectionKoerper = findViewById(R.id.sectionKoerper);
-        tvProgressFocusHint = findViewById(R.id.tvProgressFocusHint);
-        tvPersonalizedAssessment = findViewById(R.id.tvPersonalizedAssessment);
+        progressInfoButton = findViewById(R.id.progressInfoButton);
         tvWeeklyGoalConfigured = findViewById(R.id.tvWeeklyGoalConfigured);
 
         kpiBest1Rm = findViewById(R.id.kpiBest1Rm);
@@ -343,6 +344,70 @@ public class FortschrittActivity extends IronxActivity {
         updateWeeklyGoalDisplay();
     }
 
+    private void setupInfoButtons() {
+        updateProgressInfoButton();
+    }
+
+    private void updateProgressInfoButton() {
+        if (progressInfoButton == null) {
+            return;
+        }
+        InfoDialogHelper.bind(
+                progressInfoButton,
+                currentProgressInfoTitle(),
+                infoMessage(
+                        currentProgressInfoText(),
+                        progressFocusInfo,
+                        personalizedAssessmentInfo
+                )
+        );
+    }
+
+    private String currentProgressInfoTitle() {
+        if ("muskeln".equals(currentTab)) {
+            return "Muskelvolumen & Balance";
+        }
+        if ("konsistenz".equals(currentTab)) {
+            return "Serien & Wochenziel";
+        }
+        if ("koerper".equals(currentTab)) {
+            return "Gewichtstrend & Ziel";
+        }
+        return "Kraftwerte & Diagramme";
+    }
+
+    private String currentProgressInfoText() {
+        if ("muskeln".equals(currentTab)) {
+            return InfoDialogHelper.Texts.progressMuscles();
+        }
+        if ("konsistenz".equals(currentTab)) {
+            return InfoDialogHelper.Texts.progressConsistency();
+        }
+        if ("koerper".equals(currentTab)) {
+            return InfoDialogHelper.Texts.progressBody();
+        }
+        return InfoDialogHelper.Texts.progressStrength();
+    }
+
+    private String infoMessage(String... parts) {
+        StringBuilder result = new StringBuilder();
+        for (String part : parts) {
+            if (part == null || part.trim().isEmpty()) {
+                continue;
+            }
+            if (result.length() > 0) {
+                result.append("\n\n");
+            }
+            result.append(part.trim());
+        }
+        return result.toString();
+    }
+
+    private void setPersonalizedAssessment(String message) {
+        personalizedAssessmentInfo = message == null ? "" : message;
+        updateProgressInfoButton();
+    }
+
     private void updateWeeklyGoalDisplay() {
         if (tvWeeklyGoalConfigured == null || profile == null) {
             return;
@@ -380,6 +445,7 @@ public class FortschrittActivity extends IronxActivity {
         updateTab(tabKonsistenz, "konsistenz".equals(tab), active, inactive);
         updateTab(tabKoerper, "koerper".equals(tab), active, inactive);
         loadCurrentSection();
+        updateProgressInfoButton();
     }
 
     private void updateTab(
@@ -1509,18 +1575,15 @@ public class FortschrittActivity extends IronxActivity {
         Map<String, ExerciseOption> options = new LinkedHashMap<>();
         addCatalogExercises(
                 options,
-                WorkoutStorage.TYPE_PUSH,
-                R.array.push_exercises
+                WorkoutStorage.TYPE_PUSH
         );
         addCatalogExercises(
                 options,
-                WorkoutStorage.TYPE_PULL,
-                R.array.pull_exercises
+                WorkoutStorage.TYPE_PULL
         );
         addCatalogExercises(
                 options,
-                WorkoutStorage.TYPE_LEG,
-                R.array.leg_exercises
+                WorkoutStorage.TYPE_LEG
         );
         for (String type : WORKOUT_TYPES) {
             for (WorkoutStorage.DetailedWorkout workout
@@ -1533,13 +1596,8 @@ public class FortschrittActivity extends IronxActivity {
 
     private void addCatalogExercises(
             Map<String, ExerciseOption> options,
-            String type,
-            int defaultArray) {
-        for (String exercise : ExerciseCatalog.getExercises(
-                this,
-                defaultArray,
-                type
-        )) {
+            String type) {
+        for (String exercise : ExerciseCatalog.getExercises(this, type)) {
             addExerciseOption(options, exercise, type);
         }
     }
@@ -1699,7 +1757,7 @@ public class FortschrittActivity extends IronxActivity {
     }
 
     private void updateFocusHint() {
-        if (tvProgressFocusHint == null || profile == null) {
+        if (profile == null) {
             return;
         }
         int textRes;
@@ -1727,17 +1785,16 @@ public class FortschrittActivity extends IronxActivity {
         } else {
             recommendationStatus = "Dein Wochenziel liegt im empfohlenen Bereich.";
         }
-        tvProgressFocusHint.setText(
-                getString(textRes)
-                        + "\n"
-                        + getExperienceLabel(profile.experienceId)
-                        + " · "
-                        + getActivityLabel(profile.activityLevelId)
-                        + "\nEmpfehlung aus Trainingsstand und Alltagsaktivität: "
-                        + formatSessionRange(recommendation.min, recommendation.max)
-                        + ". "
-                        + recommendationStatus
-        );
+        progressFocusInfo = getString(textRes)
+                + "\n"
+                + getExperienceLabel(profile.experienceId)
+                + " · "
+                + getActivityLabel(profile.activityLevelId)
+                + "\nEmpfehlung aus Trainingsstand und Alltagsaktivität: "
+                + formatSessionRange(recommendation.min, recommendation.max)
+                + ". "
+                + recommendationStatus;
+        updateProgressInfoButton();
     }
 
     private String formatSessionRange(int min, int max) {
@@ -1750,13 +1807,13 @@ public class FortschrittActivity extends IronxActivity {
     }
 
     private void updatePersonalizedAssessment() {
-        if (tvPersonalizedAssessment == null || profile == null) {
+        if (profile == null) {
             return;
         }
         if (ProfileRepository.GOAL_STRENGTH.equals(profile.goalId)) {
             ExerciseOption option = getSelectedExercise(spinnerExercise);
             if (option == null) {
-                tvPersonalizedAssessment.setText(
+                setPersonalizedAssessment(
                         "Kraftbewertung: Wähle eine Übung aus."
                 );
                 return;
@@ -1785,7 +1842,7 @@ public class FortschrittActivity extends IronxActivity {
             double bestOneRm,
             double targetOneRm) {
         if (targetOneRm <= 0) {
-            tvPersonalizedAssessment.setText(
+            setPersonalizedAssessment(
                     "Kraftbewertung · "
                             + option.exercise
                             + ": Noch kein übungsbezogenes 1RM-Ziel festgelegt."
@@ -1793,7 +1850,7 @@ public class FortschrittActivity extends IronxActivity {
             return;
         }
         if (bestOneRm <= 0) {
-            tvPersonalizedAssessment.setText(
+            setPersonalizedAssessment(
                     "Kraftbewertung · "
                             + option.exercise
                             + ": Ziel "
@@ -1828,7 +1885,7 @@ public class FortschrittActivity extends IronxActivity {
         } else {
             text.append("\nMit einem Zieltermin wird die nötige Steigerung pro Woche berechnet.");
         }
-        tvPersonalizedAssessment.setText(text);
+        setPersonalizedAssessment(text.toString());
     }
 
     private void updateMuscleAssessment() {
@@ -1897,7 +1954,7 @@ public class FortschrittActivity extends IronxActivity {
                 ));
             }
         }
-        tvPersonalizedAssessment.setText(text);
+        setPersonalizedAssessment(text.toString());
     }
 
     private void updateWeightLossAssessment() {
@@ -1939,7 +1996,7 @@ public class FortschrittActivity extends IronxActivity {
         } else {
             text.append("\nDer aktuelle Gewichtstrend bewegt sich noch nicht in Richtung Zielgewicht.");
         }
-        tvPersonalizedAssessment.setText(text);
+        setPersonalizedAssessment(text.toString());
     }
 
     private void updateFitnessAssessment() {
@@ -1981,7 +2038,7 @@ public class FortschrittActivity extends IronxActivity {
                     ))
                     .append(" Tage.");
         }
-        tvPersonalizedAssessment.setText(text);
+        setPersonalizedAssessment(text.toString());
     }
 
     private boolean hasFutureTargetDate() {
@@ -2218,7 +2275,7 @@ public class FortschrittActivity extends IronxActivity {
                 status += "\nMindestens zwei Messungen an verschiedenen Tagen ergeben eine Prognose.";
             }
         }
-        String details = buildBodyProfileDetails();
+        String details = buildBodyProfileDetails(currentWeight);
         tvWeightGoalStatus.setText(
                 details.isEmpty() ? status : status + "\n" + details
         );
@@ -2243,25 +2300,107 @@ public class FortschrittActivity extends IronxActivity {
         );
     }
 
-    private String buildBodyProfileDetails() {
+    private String buildBodyProfileDetails(double currentWeight) {
         List<String> details = new ArrayList<>();
-        if (profile.birthYear > 0) {
-            details.add(
-                    Math.max(0, LocalDate.now().getYear() - profile.birthYear)
-                            + " Jahre"
+        int age = calculateProfileAge();
+        if (age > 0) {
+            details.add(buildAgeDetail(age));
+        }
+        if (profile.heightCm > 0 && currentWeight > 0) {
+            String bmi = "BMI aktuell: " + formatBmi(calculateBmi(
+                    currentWeight,
+                    profile.heightCm
+            ));
+            if (profile.targetWeightKg > 0) {
+                bmi += " · Ziel-BMI: " + formatBmi(calculateBmi(
+                        profile.targetWeightKg,
+                        profile.heightCm
+                ));
+            }
+            details.add(bmi);
+        } else if (profile.heightCm > 0) {
+            details.add("Körpergröße: " + profile.heightCm + " cm");
+        }
+        if (profile.bodyFatPercent > 0 && currentWeight > 0) {
+            double fatMass = currentWeight * profile.bodyFatPercent / 100.0;
+            double leanMass = Math.max(0, currentWeight - fatMass);
+            String bodyFatDetail = String.format(
+                    Locale.GERMANY,
+                    "Körperfett: %.1f%% · %s Fettmasse · %s fettfreie Masse",
+                    profile.bodyFatPercent,
+                    formatWeight(fatMass),
+                    formatWeight(leanMass)
             );
-        }
-        if (profile.heightCm > 0) {
-            details.add(profile.heightCm + " cm");
-        }
-        if (profile.bodyFatPercent > 0) {
+            String bodyFatTrend = buildBodyFatTrendDetail();
+            details.add(bodyFatTrend.isEmpty()
+                    ? bodyFatDetail
+                    : bodyFatDetail + "\n" + bodyFatTrend);
+        } else if (profile.bodyFatPercent > 0) {
             details.add(String.format(
                     Locale.GERMANY,
-                    "%.1f%% KFA",
+                    "Körperfett: %.1f%%",
                     profile.bodyFatPercent
             ));
         }
-        return String.join(" · ", details);
+        if (details.isEmpty()) {
+            return "";
+        }
+        return "Körperprofil\n" + String.join("\n", details);
+    }
+
+    private String buildBodyFatTrendDetail() {
+        List<ProfileRepository.BodyFatEntry> entries =
+                profileRepository.getBodyFatHistory();
+        if (entries.size() < 2) {
+            return "";
+        }
+        ProfileRepository.BodyFatEntry first = entries.get(0);
+        ProfileRepository.BodyFatEntry latest = entries.get(entries.size() - 1);
+        if (latest.date == null || first.date == null || latest.date.equals(first.date)) {
+            return "";
+        }
+        return String.format(
+                Locale.GERMANY,
+                "KFA-Verlauf seit %s: %+.1f Prozentpunkte",
+                first.date.format(DISPLAY_DATE),
+                latest.bodyFatPercent - first.bodyFatPercent
+        );
+    }
+
+    private int calculateProfileAge() {
+        if (profile.birthDate == null) {
+            return 0;
+        }
+        int age = (int) ChronoUnit.YEARS.between(profile.birthDate, LocalDate.now());
+        return age > 0 && age < 120 ? age : 0;
+    }
+
+    private String buildAgeDetail(int age) {
+        String prefix = "Alter: " + age + " Jahre";
+        if (age >= 45) {
+            return prefix
+                    + " · Zieltempo und Trainingsfrequenz mit Regeneration bewerten.";
+        }
+        if (age <= 24) {
+            return prefix
+                    + " · Verlauf über mehrere Wochen statt einzelner Schwankungen bewerten.";
+        }
+        return prefix + " · Kontext für Zieltempo und Regeneration.";
+    }
+
+    private double calculateBmi(double weightKg, int heightCm) {
+        double heightMeters = heightCm / 100.0;
+        if (weightKg <= 0 || heightMeters <= 0) {
+            return 0;
+        }
+        return weightKg / (heightMeters * heightMeters);
+    }
+
+    private String formatBmi(double bmi) {
+        if (bmi <= 0) {
+            return "–";
+        }
+        return String.format(Locale.GERMANY, "%.1f", bmi);
     }
 
     private void setKpi(
@@ -2272,6 +2411,7 @@ public class FortschrittActivity extends IronxActivity {
         ((TextView) card.findViewById(R.id.kpiLabel)).setText(label);
         ((TextView) card.findViewById(R.id.kpiValue)).setText(value);
         ((TextView) card.findViewById(R.id.kpiTrend)).setText(trend);
+        InfoDialogHelper.bindKpi(card, label);
     }
 
     private void showChartDetail(String text) {
@@ -2279,36 +2419,7 @@ public class FortschrittActivity extends IronxActivity {
     }
 
     private static Map<String, List<String>> createDefaultMuscleMap() {
-        Map<String, List<String>> result = new LinkedHashMap<>();
-        putMuscles(result, "Flys", "Brust");
-        putMuscles(result, "Brustpresse", "Brust", "Schultern", "Arme");
-        putMuscles(result, "Schrägbank", "Brust", "Schultern", "Arme");
-        putMuscles(result, "Frontheben", "Schultern");
-        putMuscles(result, "Seitheben", "Schultern");
-        putMuscles(result, "Triceps", "Arme");
-        putMuscles(result, "Latzug eng", "Rücken", "Arme");
-        putMuscles(result, "Latzug breit", "Rücken", "Arme");
-        putMuscles(result, "Rudern", "Rücken", "Arme");
-        putMuscles(result, "Unterer Rücken", "Rücken", "Core");
-        putMuscles(result, "Bizeps", "Arme");
-        putMuscles(result, "Hammer Curls", "Arme");
-        putMuscles(result, "Bauch", "Core");
-        putMuscles(result, "Butterfly Reverse", "Rücken", "Schultern");
-        putMuscles(result, "Beinbeuger", "Beine");
-        putMuscles(result, "Beine innen", "Beine");
-        putMuscles(result, "Waden sitzend", "Beine");
-        putMuscles(result, "Beinstrecker", "Beine");
-        putMuscles(result, "Beinpresse", "Beine");
-        putMuscles(result, "Hip Thrust", "Beine", "Core");
-        putMuscles(result, "Hyperextension", "Beine", "Rücken", "Core");
-        return result;
-    }
-
-    private static void putMuscles(
-            Map<String, List<String>> map,
-            String exercise,
-            String... groups) {
-        map.put(exercise, Arrays.asList(groups));
+        return new LinkedHashMap<>();
     }
 
     private enum MetricType {

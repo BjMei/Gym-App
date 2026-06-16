@@ -22,6 +22,7 @@ final class TrainingExitDialog {
             @NonNull IronxActivity activity,
             @NonNull String sessionId,
             @NonNull String workoutType,
+            @NonNull String workoutStartedTimestamp,
             long workoutStartedElapsedMs,
             boolean hasUnsavedInput,
             @NonNull Runnable onContinue,
@@ -55,6 +56,7 @@ final class TrainingExitDialog {
                     activity,
                     sessionId,
                     workoutType,
+                    workoutStartedTimestamp,
                     workoutDurationMs
             );
             showSummary(

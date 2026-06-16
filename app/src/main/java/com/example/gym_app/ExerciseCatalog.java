@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ExerciseCatalog {
 
@@ -15,53 +13,17 @@ public class ExerciseCatalog {
     private ExerciseCatalog() {
     }
 
-    public static List<String> getExercises(Context context, int defaultArrayRes, String workoutType) {
-        List<String> active = getActiveExercises(context, workoutType);
-        if (!active.isEmpty()) {
-            return active;
-        }
-
-        List<String> defaults = getDefaultExercises(context, defaultArrayRes);
-        List<String> legacyCustom = getLegacyCustomExercises(context, workoutType);
-
-        Set<String> merged = new LinkedHashSet<>();
-        for (String entry : defaults) {
-            String clean = normalize(entry);
-            if (!clean.isEmpty()) {
-                merged.add(clean);
-            }
-        }
-        for (String entry : legacyCustom) {
-            String clean = normalize(entry);
-            if (!clean.isEmpty()) {
-                merged.add(clean);
-            }
-        }
-
-        List<String> initial = new ArrayList<>(merged);
-        saveExercises(context, workoutType, initial);
-        return initial;
+    public static List<String> getExercises(Context context, String workoutType) {
+        return getActiveExercises(context, workoutType);
     }
 
-    public static List<String> getDefaultExercises(Context context, int defaultArrayRes) {
-        String[] items = context.getResources().getStringArray(defaultArrayRes);
-        List<String> defaults = new ArrayList<>();
-        for (String item : items) {
-            String clean = normalize(item);
-            if (!clean.isEmpty()) {
-                defaults.add(clean);
-            }
-        }
-        return defaults;
-    }
-
-    public static boolean addExercise(Context context, int defaultArrayRes, String workoutType, String exerciseName) {
+    public static boolean addExercise(Context context, String workoutType, String exerciseName) {
         String clean = normalize(exerciseName);
         if (clean.isEmpty()) {
             return false;
         }
 
-        List<String> exercises = getExercises(context, defaultArrayRes, workoutType);
+        List<String> exercises = getExercises(context, workoutType);
         if (containsIgnoreCase(exercises, clean)) {
             return false;
         }
@@ -71,8 +33,8 @@ public class ExerciseCatalog {
         return true;
     }
 
-    public static boolean removeExercise(Context context, int defaultArrayRes, String workoutType, String exerciseName) {
-        List<String> exercises = getExercises(context, defaultArrayRes, workoutType);
+    public static boolean removeExercise(Context context, String workoutType, String exerciseName) {
+        List<String> exercises = getExercises(context, workoutType);
         int index = indexOfIgnoreCase(exercises, exerciseName);
         if (index < 0) {
             return false;
@@ -85,12 +47,6 @@ public class ExerciseCatalog {
 
     public static boolean containsIgnoreCase(List<String> list, String value) {
         return indexOfIgnoreCase(list, value) >= 0;
-    }
-
-    public static List<String> getLegacyCustomExercises(Context context, String workoutType) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String stored = prefs.getString(getLegacyCustomKey(workoutType), "");
-        return parseList(stored);
     }
 
     private static List<String> getActiveExercises(Context context, String workoutType) {
@@ -151,9 +107,5 @@ public class ExerciseCatalog {
 
     private static String getActiveKey(String workoutType) {
         return "active_" + workoutType;
-    }
-
-    private static String getLegacyCustomKey(String workoutType) {
-        return "custom_" + workoutType;
     }
 }

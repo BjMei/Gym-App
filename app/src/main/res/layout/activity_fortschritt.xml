@@ -154,6 +154,11 @@
             android:textColor="@color/text_tertiary"
             android:textSize="9sp" />
 
+        <TextView
+            android:id="@+id/progressInfoButton"
+            style="@style/InlineInfoButton"
+            android:layout_marginEnd="10dp" />
+
         <Spinner
             android:id="@+id/spinnerProgressRange"
             android:layout_width="120dp"
@@ -162,34 +167,6 @@
             android:paddingStart="8dp"
             android:paddingEnd="8dp" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvProgressFocusHint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/bg_home_metric"
-        android:fontFamily="sans-serif-medium"
-        android:lineSpacingExtra="2dp"
-        android:padding="12dp"
-        android:textColor="@color/text_secondary"
-        android:textSize="11sp" />
-
-    <TextView
-        android:id="@+id/tvPersonalizedAssessment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/bg_training_input_compact"
-        android:fontFamily="sans-serif-medium"
-        android:lineSpacingExtra="3dp"
-        android:padding="12dp"
-        android:textColor="@color/training_gold_highlight"
-        android:textSize="11sp" />
 
     <ScrollView
         android:layout_width="match_parent"

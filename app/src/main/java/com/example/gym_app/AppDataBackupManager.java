@@ -45,13 +45,14 @@ public final class AppDataBackupManager {
     private static final int MAX_JSON_BYTES = 100 * 1024 * 1024;
     private static final int MAX_FILE_COUNT = 10_000;
     private static final long MAX_DECODED_FILE_BYTES = 100L * 1024L * 1024L;
+    private static final Set<String> EXCLUDED_PREFERENCE_NAMES =
+            Collections.singleton("WorkoutHistory");
 
     private static final List<String> KNOWN_PREFERENCE_NAMES = Arrays.asList(
             AppSettings.PREFS_NAME,
             "CustomExercises",
             "ExerciseMuscleMappings",
             "ExerciseSettings",
-            "WorkoutHistory",
             "WorkoutHistoryDetailed",
             "WorkoutCardio",
             "WorkoutSessions"
@@ -155,9 +156,13 @@ public final class AppDataBackupManager {
             Arrays.sort(files);
             for (File file : files) {
                 String fileName = file.getName();
-                names.add(fileName.substring(0, fileName.length() - 4));
+                String preferenceName = fileName.substring(0, fileName.length() - 4);
+                if (!EXCLUDED_PREFERENCE_NAMES.contains(preferenceName)) {
+                    names.add(preferenceName);
+                }
             }
         }
+        names.removeAll(EXCLUDED_PREFERENCE_NAMES);
         return names;
     }
 
@@ -334,6 +339,9 @@ public final class AppDataBackupManager {
 
         for (Map.Entry<String, Map<String, PreferenceValue>> preference :
                 importedPreferences.entrySet()) {
+            if (EXCLUDED_PREFERENCE_NAMES.contains(preference.getKey())) {
+                continue;
+            }
             SharedPreferences.Editor editor = context
                     .getSharedPreferences(preference.getKey(), Context.MODE_PRIVATE)
                     .edit();

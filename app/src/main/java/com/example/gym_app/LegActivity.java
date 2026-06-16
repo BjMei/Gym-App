@@ -71,8 +71,10 @@ public class LegActivity extends IronxActivity {
     private boolean timerRunning = false;
     private boolean exitDialogVisible = false;
     private String trainingSessionId;
+    private String trainingSessionStartedAt;
     private long workoutStartedElapsedMs;
     private static final String STATE_SESSION_ID = "training_session_id";
+    private static final String STATE_SESSION_STARTED_AT = "training_session_started_at";
     private static final String STATE_WORKOUT_STARTED =
             "training_workout_started";
     private static final String STATE_TIMER_ELAPSED = "timer_elapsed";
@@ -95,9 +97,7 @@ public class LegActivity extends IronxActivity {
     private ArrayAdapter<String> cardioAdapter;
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "ExerciseSettings";
-    private static final int EXERCISE_ARRAY_RES = R.array.leg_exercises;
     private static final String WORKOUT_TYPE = WorkoutStorage.TYPE_LEG;
-    private static final int CARDIO_ARRAY_RES = R.array.cardio_exercises;
     private static final String CARDIO_TYPE = WORKOUT_TYPE + "_cardio";
 
     @Override
@@ -177,6 +177,7 @@ public class LegActivity extends IronxActivity {
         workoutEntries = new ArrayList<>();
         cardioEntries = new ArrayList<>();
         setupBackNavigation();
+        setupInfoButtons();
 
         // Button-Click-Listener
         btnToggleSecondExercise.setOnClickListener(v -> toggleSecondExerciseSection());
@@ -259,6 +260,25 @@ public class LegActivity extends IronxActivity {
                 loadLastWorkoutSecond(spinnerExerciseSecond.getItemAtPosition(0).toString());
             }
         }
+    }
+
+    private void setupInfoButtons() {
+        InfoDialogHelper.insertInfoRowAfter(
+                llLastWorkout,
+                "Sätze und Berechnungen",
+                InfoDialogHelper.Texts.trainingSets()
+        );
+        InfoDialogHelper.insertInfoRowAfter(
+                btnToggleSecondExercise,
+                "Zweite Übung",
+                "Klappe den Bereich auf, wenn du im selben Workout eine zweite Übung "
+                        + "speichern möchtest. Beide Übungen werden getrennt ausgewertet."
+        );
+        InfoDialogHelper.insertInfoRowAfter(
+                etCardioMinutes,
+                "Cardio speichern",
+                InfoDialogHelper.Texts.cardio()
+        );
     }
 
     private void configureSystemBars() {
@@ -365,13 +385,19 @@ public class LegActivity extends IronxActivity {
 
     private void restoreSessionState(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
+            WorkoutStorage.discardIncompleteTrainingData(this, WORKOUT_TYPE);
             trainingSessionId = UUID.randomUUID().toString();
+            trainingSessionStartedAt = currentStorageTimestamp();
             workoutStartedElapsedMs = SystemClock.elapsedRealtime();
             return;
         }
         trainingSessionId = savedInstanceState.getString(
                 STATE_SESSION_ID,
                 UUID.randomUUID().toString()
+        );
+        trainingSessionStartedAt = savedInstanceState.getString(
+                STATE_SESSION_STARTED_AT,
+                currentStorageTimestamp()
         );
         workoutStartedElapsedMs = savedInstanceState.getLong(
                 STATE_WORKOUT_STARTED,
@@ -385,22 +411,6 @@ public class LegActivity extends IronxActivity {
         return timerRunning
                 ? SystemClock.elapsedRealtime() - timerBaseMs
                 : elapsedWhenPausedMs;
-    }
-
-    private long getCurrentWorkoutDurationMs() {
-        return Math.max(
-                0L,
-                SystemClock.elapsedRealtime() - workoutStartedElapsedMs
-        );
-    }
-
-    private void saveCurrentTrainingDuration() {
-        WorkoutStorage.saveTrainingSession(
-                this,
-                trainingSessionId,
-                WORKOUT_TYPE,
-                getCurrentWorkoutDurationMs()
-        );
     }
 
     private void toggleSecondExerciseSection() {
@@ -463,7 +473,7 @@ public class LegActivity extends IronxActivity {
     }
 
     private void setupExerciseSpinner() {
-        List<String> exercises = ExerciseCatalog.getExercises(this, EXERCISE_ARRAY_RES, WORKOUT_TYPE);
+        List<String> exercises = ExerciseCatalog.getExercises(this, WORKOUT_TYPE);
         adapter = new ArrayAdapter<>(this, R.layout.spinner_item_white, exercises);
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
         spinnerExercise.setAdapter(adapter);
@@ -471,7 +481,7 @@ public class LegActivity extends IronxActivity {
     }
 
     private void refreshExerciseSpinner(String preferredExercise) {
-        List<String> exercises = ExerciseCatalog.getExercises(this, EXERCISE_ARRAY_RES, WORKOUT_TYPE);
+        List<String> exercises = ExerciseCatalog.getExercises(this, WORKOUT_TYPE);
         adapter.clear();
         adapter.addAll(exercises);
         adapter.notifyDataSetChanged();
@@ -498,14 +508,14 @@ public class LegActivity extends IronxActivity {
     }
 
     private void setupCardioSpinner() {
-        List<String> cardioExercises = ExerciseCatalog.getExercises(this, CARDIO_ARRAY_RES, CARDIO_TYPE);
+        List<String> cardioExercises = ExerciseCatalog.getExercises(this, CARDIO_TYPE);
         cardioAdapter = new ArrayAdapter<>(this, R.layout.spinner_item_white, cardioExercises);
         cardioAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
         spinnerCardio.setAdapter(cardioAdapter);
     }
 
     private void refreshCardioSpinner(String preferredExercise) {
-        List<String> cardioExercises = ExerciseCatalog.getExercises(this, CARDIO_ARRAY_RES, CARDIO_TYPE);
+        List<String> cardioExercises = ExerciseCatalog.getExercises(this, CARDIO_TYPE);
         cardioAdapter.clear();
         cardioAdapter.addAll(cardioExercises);
         cardioAdapter.notifyDataSetChanged();
@@ -607,7 +617,6 @@ public class LegActivity extends IronxActivity {
     private void showManageExercisesDialog() {
         showManageListDialog(
                 "Übungen verwalten",
-                EXERCISE_ARRAY_RES,
                 WORKOUT_TYPE,
                 () -> {
                     Object selected = spinnerExercise.getSelectedItem();
@@ -623,7 +632,6 @@ public class LegActivity extends IronxActivity {
     private void showManageCardioDialog() {
         showManageListDialog(
                 "Cardio verwalten",
-                CARDIO_ARRAY_RES,
                 CARDIO_TYPE,
                 () -> {
                 }
@@ -631,7 +639,6 @@ public class LegActivity extends IronxActivity {
     }
 
     private void showManageListDialog(String title,
-                                      int defaultArrayRes,
                                       String listKey,
                                       Runnable afterUpdate) {
         Dialog dialog = new Dialog(this);
@@ -655,9 +662,9 @@ public class LegActivity extends IronxActivity {
 
         Runnable renderList = () -> {
             llItems.removeAllViews();
-            List<String> items = ExerciseCatalog.getExercises(this, defaultArrayRes, listKey);
+            List<String> items = ExerciseCatalog.getExercises(this, listKey);
             for (String item : items) {
-                View row = createManageRow(dialog, item, defaultArrayRes, listKey, afterUpdate);
+                View row = createManageRow(dialog, item, listKey, afterUpdate);
                 llItems.addView(row);
             }
             svItems.post(() -> svItems.scrollTo(0, 0));
@@ -670,7 +677,7 @@ public class LegActivity extends IronxActivity {
                 return;
             }
 
-            if (!ExerciseCatalog.addExercise(this, defaultArrayRes, listKey, newItem)) {
+            if (!ExerciseCatalog.addExercise(this, listKey, newItem)) {
                 Toast.makeText(this, "Eintrag existiert bereits", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -696,7 +703,6 @@ public class LegActivity extends IronxActivity {
 
     private View createManageRow(Dialog parentDialog,
                                  String item,
-                                 int defaultArrayRes,
                                  String listKey,
                                  Runnable afterUpdate) {
         float density = getResources().getDisplayMetrics().density;
@@ -705,8 +711,6 @@ public class LegActivity extends IronxActivity {
         int padTopBottom = Math.round(12 * density);
         int padEnd = Math.round(10 * density);
         int marginBottom = Math.round(12 * density);
-        int deleteSize = Math.round(44 * density);
-        int deletePad = Math.round(10 * density);
 
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -733,18 +737,25 @@ public class LegActivity extends IronxActivity {
         tvName.setLayoutParams(nameParams);
         row.addView(tvName);
 
-        ImageButton btnDelete = new ImageButton(this);
-        LinearLayout.LayoutParams deleteParams = new LinearLayout.LayoutParams(deleteSize, deleteSize);
-        btnDelete.setLayoutParams(deleteParams);
-        btnDelete.setBackground(getResources().getDrawable(R.drawable.bg_dialog_secondary_action, null));
-        btnDelete.setImageResource(R.drawable.ic_ironx_delete);
-        btnDelete.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
-        btnDelete.setPadding(deletePad, deletePad, deletePad, deletePad);
-        btnDelete.setContentDescription("Löschen");
+        TextView btnDelete = new TextView(this);
+        btnDelete.setText(R.string.delete);
+        btnDelete.setTextColor(getResources().getColor(R.color.text_tertiary, null));
+        btnDelete.setTextSize(9);
+        btnDelete.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        btnDelete.setGravity(Gravity.CENTER);
+        btnDelete.setPadding(
+                Math.round(10 * density),
+                Math.round(10 * density),
+                Math.round(8 * density),
+                Math.round(10 * density)
+        );
+        btnDelete.setClickable(true);
+        btnDelete.setFocusable(true);
+        btnDelete.setContentDescription(getString(R.string.delete));
         row.addView(btnDelete);
 
         btnDelete.setOnClickListener(v -> showDeleteConfirmDialog(item, () -> {
-            if (ExerciseCatalog.removeExercise(this, defaultArrayRes, listKey, item)) {
+            if (ExerciseCatalog.removeExercise(this, listKey, item)) {
                 if (listKey.equals(WORKOUT_TYPE)) {
                     refreshExerciseSpinner(null);
                 } else {
@@ -887,8 +898,6 @@ public class LegActivity extends IronxActivity {
             Toast.makeText(this, R.string.training_save_failed, Toast.LENGTH_SHORT).show();
             return false;
         }
-        saveCurrentTrainingDuration();
-
         clearInputFields();
         loadLastWorkout(exercise);
         return true;
@@ -938,11 +947,11 @@ public class LegActivity extends IronxActivity {
                         this,
                         WORKOUT_TYPE,
                         trainingSessionId,
+                        trainingSessionStartedAt,
                         exercise,
                         storageSets
                 );
-        boolean summarySaved = detailedSaved && saveWorkoutSummary(exercise, sets);
-        if (!summarySaved) {
+        if (!detailedSaved) {
             return false;
         }
 
@@ -950,26 +959,6 @@ public class LegActivity extends IronxActivity {
         workoutEntries.add(entry);
         addEntryToView(entry);
         return true;
-    }
-
-    private boolean saveWorkoutSummary(String exercise, List<Set> sets) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(exercise).append(": ");
-        for (int i = 0; i < sets.size(); i++) {
-            Set set = sets.get(i);
-            builder.append(String.format(
-                    Locale.getDefault(),
-                    "%s × %d",
-                    AppSettings.formatWeight(this, set.getWeight(), 1),
-                    set.getReps()
-            ));
-            if (i < sets.size() - 1) {
-                builder.append(" | ");
-            }
-        }
-        String timestamp = new SimpleDateFormat("dd.MM. HH:mm", Locale.getDefault()).format(new Date());
-        builder.append(" • ").append(timestamp);
-        return WorkoutStorage.addWorkout(this, WORKOUT_TYPE, builder.toString());
     }
 
     private void clearInputFields() {
@@ -1090,6 +1079,7 @@ public class LegActivity extends IronxActivity {
                     this,
                     WORKOUT_TYPE,
                     trainingSessionId,
+                    trainingSessionStartedAt,
                     cardioExercise,
                     minutes
             );
@@ -1100,8 +1090,6 @@ public class LegActivity extends IronxActivity {
 
             CardioEntry entry = new CardioEntry(cardioExercise, minutes);
             cardioEntries.add(entry);
-            saveCurrentTrainingDuration();
-
             // Eintrag in der UI anzeigen
             addCardioEntryToView(entry);
 
@@ -1189,6 +1177,7 @@ public class LegActivity extends IronxActivity {
                 this,
                 trainingSessionId,
                 WORKOUT_TYPE,
+                trainingSessionStartedAt,
                 workoutStartedElapsedMs,
                 hasUnsavedTrainingInput(),
                 () -> {
@@ -1254,10 +1243,18 @@ public class LegActivity extends IronxActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(STATE_SESSION_ID, trainingSessionId);
+        outState.putString(STATE_SESSION_STARTED_AT, trainingSessionStartedAt);
         outState.putLong(STATE_WORKOUT_STARTED, workoutStartedElapsedMs);
         outState.putLong(STATE_TIMER_ELAPSED, getCurrentElapsedMs());
         outState.putBoolean(STATE_TIMER_RUNNING, timerRunning);
         super.onSaveInstanceState(outState);
+    }
+
+    private String currentStorageTimestamp() {
+        return new SimpleDateFormat(
+                "dd.MM.yyyy HH:mm",
+                Locale.getDefault()
+        ).format(new Date());
     }
 
     @Override

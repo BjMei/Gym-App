@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -30,6 +30,7 @@ public class TrainingHistoryActivity extends IronxActivity {
     private TextView tvSessionCount;
     private LinearLayout listContainer;
     private boolean showingAllWorkoutTypes;
+    private String currentWorkoutType = "";
     private String weightUnit;
     private double weightFactor;
 
@@ -82,6 +83,7 @@ public class TrainingHistoryActivity extends IronxActivity {
         if (workoutType == null) {
             workoutType = "";
         }
+        currentWorkoutType = workoutType;
         showingAllWorkoutTypes = workoutType.trim().isEmpty();
 
         List<WorkoutStorage.DailyWorkout> dailyWorkouts =
@@ -183,6 +185,10 @@ public class TrainingHistoryActivity extends IronxActivity {
             ));
         }
 
+        TextView delete = createDeleteTextButton();
+        delete.setOnClickListener(v -> confirmDeleteHistoryEntry(day));
+        headerActions.addView(delete);
+
         ImageView expandIcon = new ImageView(this);
         boolean expandedByDefault = AppSettings.historyExpanded(this);
         expandIcon.setImageResource(
@@ -263,6 +269,54 @@ public class TrainingHistoryActivity extends IronxActivity {
         });
 
         return card;
+    }
+
+    private TextView createDeleteTextButton() {
+        TextView delete = createTextView(
+                getString(R.string.delete),
+                9,
+                R.color.text_tertiary,
+                Typeface.BOLD
+        );
+        delete.setGravity(Gravity.CENTER);
+        delete.setPadding(dpToPx(10), dpToPx(10), dpToPx(8), dpToPx(10));
+        delete.setClickable(true);
+        delete.setFocusable(true);
+        delete.setContentDescription(getString(R.string.delete));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.leftMargin = dpToPx(8);
+        delete.setLayoutParams(params);
+        return delete;
+    }
+
+    private void confirmDeleteHistoryEntry(WorkoutStorage.DailyWorkout day) {
+        String workoutType = resolveWorkoutType(day);
+        if (workoutType.isEmpty()) {
+            return;
+        }
+        String label = getDayWorkoutLabel(day);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.history_delete_session_title)
+                .setMessage(getString(
+                        R.string.history_delete_session_message,
+                        day.date,
+                        label
+                ))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
+                    if (WorkoutStorage.deleteHistoryWorkout(
+                            this,
+                            day.date,
+                            workoutType,
+                            day.sessionId
+                    )) {
+                        populateHistory(currentWorkoutType);
+                    }
+                })
+                .show();
     }
 
     private void setSessionDetailsVisible(View details, boolean visible) {
@@ -521,6 +575,9 @@ public class TrainingHistoryActivity extends IronxActivity {
                 exerciseSummary,
                 setSummary
         );
+        if (day.timestamp != null && day.timestamp.length() >= 16) {
+            summary = day.timestamp.substring(11) + " · " + summary;
+        }
         if (day.cardioSessions != null && !day.cardioSessions.isEmpty()) {
             summary += getString(
                     R.string.history_cardio_count,
@@ -566,7 +623,7 @@ public class TrainingHistoryActivity extends IronxActivity {
 
 
     private String getDayWorkoutLabel(WorkoutStorage.DailyWorkout day) {
-        String storedLabel = getWorkoutTypeLabel(day.workoutType);
+        String storedLabel = getWorkoutTypeLabel(resolveWorkoutType(day));
         if (!storedLabel.isEmpty()) {
             return storedLabel;
         }
@@ -576,6 +633,21 @@ public class TrainingHistoryActivity extends IronxActivity {
         }
         if (day.cardioSessions != null && !day.cardioSessions.isEmpty()) {
             return getWorkoutTypeLabel(day.cardioSessions.get(0).workoutType);
+        }
+        return "";
+    }
+
+    private String resolveWorkoutType(WorkoutStorage.DailyWorkout day) {
+        if (day.workoutType != null && !day.workoutType.trim().isEmpty()) {
+            return day.workoutType.trim();
+        }
+        if (day.exercises != null && !day.exercises.isEmpty()) {
+            String workoutType = day.exercises.get(0).workoutType;
+            return workoutType == null ? "" : workoutType.trim();
+        }
+        if (day.cardioSessions != null && !day.cardioSessions.isEmpty()) {
+            String workoutType = day.cardioSessions.get(0).workoutType;
+            return workoutType == null ? "" : workoutType.trim();
         }
         return "";
     }

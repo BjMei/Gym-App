@@ -48,20 +48,30 @@ public class ProfileGoalsActivity extends IronxActivity {
     private EditText etTrainingGoalPerWeek;
     private EditText etWeightMeasurement;
     private EditText etWeightMeasurementDate;
+    private EditText etBodyFatMeasurement;
+    private EditText etBodyFatMeasurementDate;
     private EditText etStrengthGoalTarget;
     private EditText etVolumeGoal;
     private Spinner spinnerGoal;
     private Spinner spinnerActivityLevel;
     private Spinner spinnerExperience;
     private Spinner spinnerStrengthGoalExercise;
-    private TextView tvProfileImpact;
     private TextView tvLegacyStrengthGoal;
+    private TextView btnToggleWeightMeasurements;
+    private TextView btnToggleBodyFatMeasurements;
     private LinearLayout llWeightMeasurements;
+    private LinearLayout llBodyFatMeasurements;
     private LinearLayout llStrengthGoals;
     private ProfileRepository repository;
     private LocalDate selectedTargetDate;
+    private LocalDate selectedBirthDate;
     private LocalDate selectedMeasurementDate = LocalDate.now();
+    private LocalDate selectedBodyFatMeasurementDate = LocalDate.now();
     private List<StrengthExerciseOption> strengthExerciseOptions = new ArrayList<>();
+    private boolean weightMeasurementsExpanded = true;
+    private boolean weightMeasurementsDropdownTouched;
+    private boolean bodyFatMeasurementsExpanded = true;
+    private boolean bodyFatMeasurementsDropdownTouched;
 
     private final List<MaterialButton> dayButtons = new ArrayList<>();
     private final List<DayOfWeek> dayValues = Arrays.asList(
@@ -85,15 +95,22 @@ public class ProfileGoalsActivity extends IronxActivity {
         setupSpinners();
         setupStrengthGoalExercises();
         setupDayButtons();
+        setupBirthDate();
         setupTargetDate();
         setupMeasurementDate();
+        setupBodyFatMeasurementDate();
         setupUnitHints();
         setupRecommendationUpdates();
+        setupWeightMeasurementsDropdown();
+        setupBodyFatMeasurementsDropdown();
+        setupInfoButtons();
         loadProfile();
 
         findViewById(R.id.btnBackProfileGoals).setOnClickListener(v -> finish());
         findViewById(R.id.btnAddWeightMeasurement)
                 .setOnClickListener(v -> addWeightMeasurement());
+        findViewById(R.id.btnAddBodyFatMeasurement)
+                .setOnClickListener(v -> addBodyFatMeasurement());
         findViewById(R.id.btnAddStrengthGoal)
                 .setOnClickListener(v -> addStrengthGoal());
         findViewById(R.id.btnSaveProfileGoals)
@@ -111,15 +128,19 @@ public class ProfileGoalsActivity extends IronxActivity {
         etTrainingGoalPerWeek = findViewById(R.id.etTrainingGoalPerWeek);
         etWeightMeasurement = findViewById(R.id.etWeightMeasurement);
         etWeightMeasurementDate = findViewById(R.id.etWeightMeasurementDate);
+        etBodyFatMeasurement = findViewById(R.id.etBodyFatMeasurement);
+        etBodyFatMeasurementDate = findViewById(R.id.etBodyFatMeasurementDate);
         etStrengthGoalTarget = findViewById(R.id.etStrengthGoalTarget);
         etVolumeGoal = findViewById(R.id.etVolumeGoal);
         spinnerGoal = findViewById(R.id.spinnerGoal);
         spinnerActivityLevel = findViewById(R.id.spinnerActivityLevel);
         spinnerExperience = findViewById(R.id.spinnerExperience);
         spinnerStrengthGoalExercise = findViewById(R.id.spinnerStrengthGoalExercise);
-        tvProfileImpact = findViewById(R.id.tvProfileImpact);
         tvLegacyStrengthGoal = findViewById(R.id.tvLegacyStrengthGoal);
+        btnToggleWeightMeasurements = findViewById(R.id.btnToggleWeightMeasurements);
+        btnToggleBodyFatMeasurements = findViewById(R.id.btnToggleBodyFatMeasurements);
         llWeightMeasurements = findViewById(R.id.llWeightMeasurements);
+        llBodyFatMeasurements = findViewById(R.id.llBodyFatMeasurements);
         llStrengthGoals = findViewById(R.id.llStrengthGoals);
 
         dayButtons.add(findViewById(R.id.btnDayMonday));
@@ -219,7 +240,7 @@ public class ProfileGoalsActivity extends IronxActivity {
                     View view,
                     int position,
                     long id) {
-                updateImpactText(getSelectedOptionId(spinnerGoal));
+                updateImpactInfo(getSelectedOptionId(spinnerGoal));
             }
 
             @Override
@@ -245,18 +266,15 @@ public class ProfileGoalsActivity extends IronxActivity {
         Map<String, StrengthExerciseOption> options = new LinkedHashMap<>();
         addStrengthExercises(
                 options,
-                WorkoutStorage.TYPE_PUSH,
-                R.array.push_exercises
+                WorkoutStorage.TYPE_PUSH
         );
         addStrengthExercises(
                 options,
-                WorkoutStorage.TYPE_PULL,
-                R.array.pull_exercises
+                WorkoutStorage.TYPE_PULL
         );
         addStrengthExercises(
                 options,
-                WorkoutStorage.TYPE_LEG,
-                R.array.leg_exercises
+                WorkoutStorage.TYPE_LEG
         );
         strengthExerciseOptions = new ArrayList<>(options.values());
         ArrayAdapter<StrengthExerciseOption> adapter = new ArrayAdapter<>(
@@ -286,13 +304,8 @@ public class ProfileGoalsActivity extends IronxActivity {
 
     private void addStrengthExercises(
             Map<String, StrengthExerciseOption> options,
-            String workoutType,
-            int defaultArray) {
-        for (String exercise : ExerciseCatalog.getExercises(
-                this,
-                defaultArray,
-                workoutType
-        )) {
+            String workoutType) {
+        for (String exercise : ExerciseCatalog.getExercises(this, workoutType)) {
             StrengthExerciseOption option =
                     new StrengthExerciseOption(workoutType, exercise);
             options.putIfAbsent(option.key(), option);
@@ -303,6 +316,25 @@ public class ProfileGoalsActivity extends IronxActivity {
         for (MaterialButton button : dayButtons) {
             button.setCheckable(true);
         }
+    }
+
+    private void setupBirthDate() {
+        etProfileBirthYear.setOnClickListener(v -> {
+            LocalDate initial = selectedBirthDate == null
+                    ? LocalDate.now().minusYears(30)
+                    : selectedBirthDate;
+            new DatePickerDialog(
+                    this,
+                    (picker, year, month, day) -> {
+                        selectedBirthDate = LocalDate.of(year, month + 1, day);
+                        etProfileBirthYear.setText(selectedBirthDate.format(DISPLAY_DATE));
+                        etProfileBirthYear.setError(null);
+                    },
+                    initial.getYear(),
+                    initial.getMonthValue() - 1,
+                    initial.getDayOfMonth()
+            ).show();
+        });
     }
 
     private void setupTargetDate() {
@@ -349,6 +381,29 @@ public class ProfileGoalsActivity extends IronxActivity {
         });
     }
 
+    private void setupBodyFatMeasurementDate() {
+        etBodyFatMeasurementDate.setText(
+                selectedBodyFatMeasurementDate.format(DISPLAY_DATE)
+        );
+        etBodyFatMeasurementDate.setOnClickListener(v -> {
+            LocalDate initial = selectedBodyFatMeasurementDate == null
+                    ? LocalDate.now()
+                    : selectedBodyFatMeasurementDate;
+            new DatePickerDialog(
+                    this,
+                    (picker, year, month, day) -> {
+                        selectedBodyFatMeasurementDate = LocalDate.of(year, month + 1, day);
+                        etBodyFatMeasurementDate.setText(
+                                selectedBodyFatMeasurementDate.format(DISPLAY_DATE)
+                        );
+                    },
+                    initial.getYear(),
+                    initial.getMonthValue() - 1,
+                    initial.getDayOfMonth()
+            ).show();
+        });
+    }
+
     private void setupUnitHints() {
         String unit = AppSettings.getWeightUnit(this);
         etProfileWeight.setHint(getString(R.string.profile_weight_hint_unit, unit));
@@ -378,7 +433,7 @@ public class ProfileGoalsActivity extends IronxActivity {
                     int start,
                     int before,
                     int count) {
-                updateImpactText(getSelectedOptionId(spinnerGoal));
+                updateImpactInfo(getSelectedOptionId(spinnerGoal));
             }
 
             @Override
@@ -387,13 +442,83 @@ public class ProfileGoalsActivity extends IronxActivity {
         });
     }
 
+    private void setupWeightMeasurementsDropdown() {
+        if (btnToggleWeightMeasurements == null) {
+            return;
+        }
+        btnToggleWeightMeasurements.setOnClickListener(v -> {
+            weightMeasurementsDropdownTouched = true;
+            weightMeasurementsExpanded = !weightMeasurementsExpanded;
+            refreshWeightMeasurements();
+        });
+    }
+
+    private void setupBodyFatMeasurementsDropdown() {
+        if (btnToggleBodyFatMeasurements == null) {
+            return;
+        }
+        btnToggleBodyFatMeasurements.setOnClickListener(v -> {
+            bodyFatMeasurementsDropdownTouched = true;
+            bodyFatMeasurementsExpanded = !bodyFatMeasurementsExpanded;
+            refreshBodyFatMeasurements();
+        });
+    }
+
+    private void setupInfoButtons() {
+        InfoDialogHelper.bind(
+                findViewById(R.id.infoProfilePersonalData),
+                "Körperdaten",
+                InfoDialogHelper.Texts.profileBodyData()
+        );
+        InfoDialogHelper.bind(
+                findViewById(R.id.infoProfileWeightMeasurements),
+                "Gewichtsmessungen",
+                InfoDialogHelper.Texts.profileWeight()
+        );
+        updateImpactInfo(getSelectedOptionId(spinnerGoal));
+        InfoDialogHelper.bind(
+                findViewById(R.id.infoProfileTrainingProfile),
+                "Empfehlungsprofil",
+                infoMessage(
+                        InfoDialogHelper.Texts.profileRecommendationBasis(),
+                        getString(R.string.profile_preferred_days_hint)
+                )
+        );
+        InfoDialogHelper.bind(
+                findViewById(R.id.infoProfilePerformanceGoals),
+                "Leistungsziele",
+                infoMessage(
+                        "Wähle eine Übung und speichere den Zielwert als geschätztes 1RM. Die Fortschritt-Seite vergleicht später dein bestes berechnetes 1RM mit diesem Ziel.",
+                        InfoDialogHelper.Texts.profilePerformanceGoals(),
+                        getString(R.string.profile_performance_goals_hint)
+                )
+        );
+    }
+
+    private String infoMessage(String... parts) {
+        StringBuilder result = new StringBuilder();
+        for (String part : parts) {
+            if (part == null || part.trim().isEmpty()) {
+                continue;
+            }
+            if (result.length() > 0) {
+                result.append("\n\n");
+            }
+            result.append(part.trim());
+        }
+        return result.toString();
+    }
+
     private void loadProfile() {
         ProfileRepository.Profile profile = repository.load();
         etProfileName.setText(profile.name);
         setDisplayedWeight(etProfileWeight, profile.currentWeightKg);
         setDisplayedWeight(etTargetWeight, profile.targetWeightKg);
         etProfileHeight.setText(optionalInt(profile.heightCm));
-        etProfileBirthYear.setText(optionalInt(profile.birthYear));
+        selectedBirthDate = profile.birthDate;
+        etProfileBirthYear.setText(
+                selectedBirthDate == null ? "" : selectedBirthDate.format(DISPLAY_DATE)
+        );
         etProfileBodyFat.setText(optionalNumber(profile.bodyFatPercent));
         etTrainingGoalPerWeek.setText(String.valueOf(profile.weeklyTrainingGoal));
         setDisplayedWeight(etVolumeGoal, profile.weeklyVolumeGoalKg);
@@ -410,8 +535,9 @@ public class ProfileGoalsActivity extends IronxActivity {
         for (int i = 0; i < dayButtons.size(); i++) {
             dayButtons.get(i).setChecked(profile.preferredDays.contains(dayValues.get(i)));
         }
-        updateImpactText(profile.goalId);
+        updateImpactInfo(profile.goalId);
         refreshWeightMeasurements();
+        refreshBodyFatMeasurements();
         refreshStrengthGoals();
         if (profile.legacyStrengthGoalKg > 0
                 && profile.strengthGoalsKg.isEmpty()) {
@@ -432,18 +558,9 @@ public class ProfileGoalsActivity extends IronxActivity {
         profile.name = etProfileName.getText().toString().trim();
         profile.currentWeightKg = repository.load().currentWeightKg;
         profile.heightCm = parseInt(etProfileHeight, 100, 250, false);
-        profile.birthYear = parseInt(
-                etProfileBirthYear,
-                1900,
-                LocalDate.now().getYear(),
-                false
-        );
-        profile.bodyFatPercent = parseNumber(
-                etProfileBodyFat,
-                2,
-                70,
-                false
-        );
+        profile.birthDate = selectedBirthDate;
+        profile.birthYear = selectedBirthDate == null ? 0 : selectedBirthDate.getYear();
+        profile.bodyFatPercent = repository.load().bodyFatPercent;
         profile.goalId = getSelectedOptionId(spinnerGoal);
         profile.targetWeightKg = parseDisplayedWeight(
                 etTargetWeight,
@@ -471,6 +588,16 @@ public class ProfileGoalsActivity extends IronxActivity {
         if (hasErrors()) {
             return;
         }
+        if (profile.birthDate == null) {
+            etProfileBirthYear.setError(getString(R.string.profile_required));
+            return;
+        }
+        if (profile.birthDate.isAfter(LocalDate.now())) {
+            etProfileBirthYear.setError(
+                    getString(R.string.profile_measurement_date_future)
+            );
+            return;
+        }
         if (!profile.preferredDays.isEmpty()
                 && profile.preferredDays.size() < profile.weeklyTrainingGoal) {
             Toast.makeText(
@@ -488,7 +615,7 @@ public class ProfileGoalsActivity extends IronxActivity {
 
         repository.save(profile);
         Toast.makeText(this, R.string.profile_goals_saved, Toast.LENGTH_SHORT).show();
-        updateImpactText(profile.goalId);
+        updateImpactInfo(profile.goalId);
     }
 
     private void addWeightMeasurement() {
@@ -523,6 +650,47 @@ public class ProfileGoalsActivity extends IronxActivity {
         Toast.makeText(
                 this,
                 R.string.profile_measurement_saved,
+                Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    private void addBodyFatMeasurement() {
+        etBodyFatMeasurement.setError(null);
+        double bodyFatPercent = parseNumber(
+                etBodyFatMeasurement,
+                2,
+                70,
+                true
+        );
+        if (etBodyFatMeasurement.getError() != null) {
+            return;
+        }
+        if (selectedBodyFatMeasurementDate == null) {
+            etBodyFatMeasurementDate.setError(getString(R.string.profile_required));
+            return;
+        }
+        if (selectedBodyFatMeasurementDate.isAfter(LocalDate.now())) {
+            etBodyFatMeasurementDate.setError(
+                    getString(R.string.profile_measurement_date_future)
+            );
+            return;
+        }
+
+        repository.addBodyFatMeasurement(
+                selectedBodyFatMeasurementDate,
+                bodyFatPercent
+        );
+        etBodyFatMeasurement.setText("");
+        selectedBodyFatMeasurementDate = LocalDate.now();
+        etBodyFatMeasurementDate.setText(
+                selectedBodyFatMeasurementDate.format(DISPLAY_DATE)
+        );
+        etBodyFatMeasurementDate.setError(null);
+        etProfileBodyFat.setText(optionalNumber(repository.load().bodyFatPercent));
+        refreshBodyFatMeasurements();
+        Toast.makeText(
+                this,
+                R.string.profile_body_fat_saved,
                 Toast.LENGTH_SHORT
         ).show();
     }
@@ -577,8 +745,21 @@ public class ProfileGoalsActivity extends IronxActivity {
         List<ProfileRepository.WeightEntry> entries =
                 new ArrayList<>(repository.getWeightHistory());
         entries.sort((left, right) -> right.date.compareTo(left.date));
+        if (!weightMeasurementsDropdownTouched) {
+            weightMeasurementsExpanded = entries.size() <= 3;
+        }
+        if (entries.isEmpty()) {
+            weightMeasurementsExpanded = true;
+        }
+        updateWeightMeasurementsDropdown(entries.size());
+        llWeightMeasurements.setVisibility(
+                weightMeasurementsExpanded ? View.VISIBLE : View.GONE
+        );
         if (entries.isEmpty()) {
             addEmptyRow(llWeightMeasurements, R.string.profile_measurement_empty);
+            return;
+        }
+        if (!weightMeasurementsExpanded) {
             return;
         }
         for (int index = 0; index < entries.size(); index++) {
@@ -590,6 +771,66 @@ public class ProfileGoalsActivity extends IronxActivity {
                     () -> confirmDeleteWeightMeasurement(entry.date)
             );
         }
+    }
+
+    private void updateWeightMeasurementsDropdown(int count) {
+        if (btnToggleWeightMeasurements == null) {
+            return;
+        }
+        String arrow = weightMeasurementsExpanded ? "▲" : "▼";
+        String text = getString(R.string.profile_measurement_history_label)
+                + " ("
+                + count
+                + ") "
+                + arrow;
+        btnToggleWeightMeasurements.setText(text);
+        btnToggleWeightMeasurements.setContentDescription(text);
+    }
+
+    private void refreshBodyFatMeasurements() {
+        llBodyFatMeasurements.removeAllViews();
+        List<ProfileRepository.BodyFatEntry> entries =
+                new ArrayList<>(repository.getBodyFatHistory());
+        entries.sort((left, right) -> right.date.compareTo(left.date));
+        if (!bodyFatMeasurementsDropdownTouched) {
+            bodyFatMeasurementsExpanded = entries.size() <= 3;
+        }
+        if (entries.isEmpty()) {
+            bodyFatMeasurementsExpanded = true;
+        }
+        updateBodyFatMeasurementsDropdown(entries.size());
+        llBodyFatMeasurements.setVisibility(
+                bodyFatMeasurementsExpanded ? View.VISIBLE : View.GONE
+        );
+        if (entries.isEmpty()) {
+            addEmptyRow(llBodyFatMeasurements, R.string.profile_body_fat_empty);
+            return;
+        }
+        if (!bodyFatMeasurementsExpanded) {
+            return;
+        }
+        for (ProfileRepository.BodyFatEntry entry : entries) {
+            addManageRow(
+                    llBodyFatMeasurements,
+                    entry.date.format(DISPLAY_DATE),
+                    optionalNumber(entry.bodyFatPercent) + " %",
+                    () -> confirmDeleteBodyFatMeasurement(entry.date)
+            );
+        }
+    }
+
+    private void updateBodyFatMeasurementsDropdown(int count) {
+        if (btnToggleBodyFatMeasurements == null) {
+            return;
+        }
+        String arrow = bodyFatMeasurementsExpanded ? "▲" : "▼";
+        String text = getString(R.string.profile_body_fat_history_label)
+                + " ("
+                + count
+                + ") "
+                + arrow;
+        btnToggleBodyFatMeasurements.setText(text);
+        btnToggleBodyFatMeasurements.setContentDescription(text);
     }
 
     private void refreshStrengthGoals() {
@@ -684,6 +925,24 @@ public class ProfileGoalsActivity extends IronxActivity {
                 .show();
     }
 
+    private void confirmDeleteBodyFatMeasurement(LocalDate date) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.profile_body_fat_delete_title)
+                .setMessage(getString(
+                        R.string.profile_body_fat_delete_message,
+                        date.format(DISPLAY_DATE)
+                ))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
+                    repository.removeBodyFatMeasurement(date);
+                    etProfileBodyFat.setText(
+                            optionalNumber(repository.load().bodyFatPercent)
+                    );
+                    refreshBodyFatMeasurements();
+                })
+                .show();
+    }
+
     private void confirmDeleteStrengthGoal(ProfileRepository.StrengthGoal goal) {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.profile_strength_goal_delete_title)
@@ -710,7 +969,7 @@ public class ProfileGoalsActivity extends IronxActivity {
         return "Push";
     }
 
-    private void updateImpactText(String goalId) {
+    private void updateImpactInfo(String goalId) {
         int textRes;
         if (ProfileRepository.GOAL_STRENGTH.equals(goalId)) {
             textRes = R.string.profile_impact_strength;
@@ -746,12 +1005,17 @@ public class ProfileGoalsActivity extends IronxActivity {
         } else {
             statusResource = R.string.profile_recommendation_suitable;
         }
-        tvProfileImpact.setText(
-                getString(textRes)
-                        + "\n\n"
-                        + getString(R.string.profile_recommendation_intro, range)
-                        + " "
-                        + getString(statusResource)
+        InfoDialogHelper.bind(
+                findViewById(R.id.infoProfileTrainingGoal),
+                "Trainingsziel",
+                infoMessage(
+                        getString(textRes),
+                        InfoDialogHelper.Texts.profileTarget(),
+                        InfoDialogHelper.Texts.profileTrainingGoal(),
+                        getString(R.string.profile_recommendation_intro, range)
+                                + " "
+                                + getString(statusResource)
+                )
         );
     }
 
@@ -858,6 +1122,8 @@ public class ProfileGoalsActivity extends IronxActivity {
                 || etProfileHeight.getError() != null
                 || etProfileBirthYear.getError() != null
                 || etProfileBodyFat.getError() != null
+                || etBodyFatMeasurement.getError() != null
+                || etBodyFatMeasurementDate.getError() != null
                 || etTargetWeight.getError() != null
                 || etTargetDate.getError() != null
                 || etTrainingGoalPerWeek.getError() != null
@@ -870,6 +1136,8 @@ public class ProfileGoalsActivity extends IronxActivity {
                 etProfileHeight,
                 etProfileBirthYear,
                 etProfileBodyFat,
+                etBodyFatMeasurement,
+                etBodyFatMeasurementDate,
                 etTargetWeight,
                 etTargetDate,
                 etTrainingGoalPerWeek,

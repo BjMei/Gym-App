@@ -114,6 +114,7 @@ public class StatistikActivity extends IronxActivity {
         setupTabs();
         setupRangeSpinners();
         setupFilters();
+        setupInfoButtons();
         showSection("uebersicht");
     }
 
@@ -268,6 +269,34 @@ public class StatistikActivity extends IronxActivity {
                 }
             });
         }
+    }
+
+    private void setupInfoButtons() {
+        InfoDialogHelper.insertInfoRowAfter(
+                spRangeUebersicht,
+                "Übersicht verstehen",
+                InfoDialogHelper.Texts.statisticsOverview()
+        );
+        InfoDialogHelper.insertInfoRowAfter(
+                spRangeVolumen,
+                "Volumen berechnen",
+                InfoDialogHelper.Texts.statisticsVolume()
+        );
+        InfoDialogHelper.insertInfoRowAfter(
+                spRangeStruktur,
+                "Struktur & Pausen",
+                InfoDialogHelper.Texts.statisticsStructure()
+        );
+        InfoDialogHelper.insertInfoRowAfter(
+                spRangeCardio,
+                "Cardio-Auswertung",
+                InfoDialogHelper.Texts.cardio()
+        );
+        InfoDialogHelper.insertInfoRowAfter(
+                spRangePR,
+                "Rekorde verstehen",
+                InfoDialogHelper.Texts.statisticsRecords()
+        );
     }
 
     private int getRange(String tab) {
@@ -479,7 +508,8 @@ public class StatistikActivity extends IronxActivity {
                 if (date != null
                         && !date.before(startInclusive)
                         && date.before(endExclusive)
-                        && session.durationMs > 0) {
+                        && session.durationMs > 0
+                        && session.completed) {
                     result.add(session);
                 }
             } catch (Exception ignored) {
@@ -582,16 +612,11 @@ public class StatistikActivity extends IronxActivity {
         ((TextView) kpiHours.findViewById(R.id.kpiValue)).setText(
                 String.format(Locale.getDefault(), "%.1f", metrics.totalMinutes / 60.0)
         );
-        String durationQuality = metrics.sessionCount == 0
-                ? "Noch keine Trainingsdauer"
-                : metrics.estimatedDays == 0
-                ? "Gemessene Timerzeit"
-                : String.format(
-                        Locale.getDefault(),
-                        "%d gemessen · %d geschätzt",
-                        metrics.measuredDays,
-                        metrics.estimatedDays
-                );
+        String durationQuality = metrics.measuredSessionCount == 0
+                ? "Keine beendeten Workouts"
+                : metrics.measuredSessionCount == 1
+                ? "1 Workout automatisch erfasst"
+                : metrics.measuredSessionCount + " Workouts automatisch erfasst";
         ((TextView) kpiHours.findViewById(R.id.kpiTrend)).setText(durationQuality);
 
         ((TextView) kpiDuration.findViewById(R.id.kpiLabel)).setText("∅ DAUER");
@@ -607,6 +632,11 @@ public class StatistikActivity extends IronxActivity {
         ((TextView) kpiFrequency.findViewById(R.id.kpiTrend))
                 .setText(days == Integer.MAX_VALUE ? "Seit erster Aktivität" : "Im Zeitraum");
 
+        InfoDialogHelper.bindKpi(kpiWorkouts, "TRAININGS");
+        InfoDialogHelper.bindKpi(kpiHours, "STUNDEN");
+        InfoDialogHelper.bindKpi(kpiDuration, "Ø DAUER");
+        InfoDialogHelper.bindKpi(kpiFrequency, "PRO WOCHE");
+
         tvBestWeek.setText(bestWeek + " (" + bestCount + " Sessions)");
         updatePeriodComparison(days, end);
     }
@@ -620,54 +650,24 @@ public class StatistikActivity extends IronxActivity {
         List<WorkoutStorage.CardioSession> cardio =
                 getCardioBetween(startInclusive, endExclusive);
         Set<String> activeDays = getActiveDays(workouts, cardio);
+        List<WorkoutStorage.TrainingSession> measuredSessions =
+                getMeasuredSessionsBetween(startInclusive, endExclusive);
+        for (WorkoutStorage.TrainingSession session : measuredSessions) {
+            if (session.timestamp != null) {
+                activeDays.add(session.timestamp.split(" ")[0]);
+            }
+        }
 
-        Map<String, Double> estimatedMinutesByDay = new HashMap<>();
         double totalVolume = 0;
         for (WorkoutStorage.DetailedWorkout workout : workouts) {
-            String day = workout.timestamp.split(" ")[0];
-            int setCount = workout.sets == null ? 0 : workout.sets.size();
-            estimatedMinutesByDay.put(
-                    day,
-                    estimatedMinutesByDay.getOrDefault(day, 0.0) + setCount * 2.5
-            );
             if (workout.sets != null) {
                 totalVolume += calcVolume(workout.sets);
             }
         }
 
-        if (getSelectedExerciseFilter().isEmpty()) {
-            for (WorkoutStorage.CardioSession session : cardio) {
-                String day = session.timestamp.split(" ")[0];
-                estimatedMinutesByDay.put(
-                        day,
-                        estimatedMinutesByDay.getOrDefault(day, 0.0) + session.minutes
-                );
-            }
-        }
-
-        Map<String, Double> measuredMinutesByDay = new HashMap<>();
-        for (WorkoutStorage.TrainingSession session :
-                getMeasuredSessionsBetween(startInclusive, endExclusive)) {
-            String day = session.timestamp.split(" ")[0];
-            measuredMinutesByDay.put(
-                    day,
-                    measuredMinutesByDay.getOrDefault(day, 0.0)
-                            + session.durationMs / 60_000.0
-            );
-        }
-
         double totalMinutes = 0;
-        int measuredDays = 0;
-        int estimatedDays = 0;
-        for (String day : activeDays) {
-            Double measured = measuredMinutesByDay.get(day);
-            if (measured != null && measured > 0) {
-                totalMinutes += measured;
-                measuredDays++;
-            } else {
-                totalMinutes += estimatedMinutesByDay.getOrDefault(day, 0.0);
-                estimatedDays++;
-            }
+        for (WorkoutStorage.TrainingSession session : measuredSessions) {
+            totalMinutes += session.durationMs / 60_000.0;
         }
 
         LocalDate firstActivity = null;
@@ -688,9 +688,10 @@ public class StatistikActivity extends IronxActivity {
         }
 
         int sessionCount = activeDays.size();
-        double averageMinutes = sessionCount == 0
+        int measuredSessionCount = measuredSessions.size();
+        double averageMinutes = measuredSessionCount == 0
                 ? 0
-                : totalMinutes / sessionCount;
+                : totalMinutes / measuredSessionCount;
         double weeklyFrequency = StatisticsCalculator.weeklyFrequency(
                 sessionCount,
                 firstActivity,
@@ -705,8 +706,7 @@ public class StatistikActivity extends IronxActivity {
                 averageMinutes,
                 weeklyFrequency,
                 totalVolume,
-                measuredDays,
-                estimatedDays
+                measuredSessionCount
         );
     }
 
@@ -764,8 +764,7 @@ public class StatistikActivity extends IronxActivity {
         final double averageMinutes;
         final double weeklyFrequency;
         final double totalVolume;
-        final int measuredDays;
-        final int estimatedDays;
+        final int measuredSessionCount;
 
         OverviewMetrics(
                 Set<String> activeDays,
@@ -774,16 +773,14 @@ public class StatistikActivity extends IronxActivity {
                 double averageMinutes,
                 double weeklyFrequency,
                 double totalVolume,
-                int measuredDays,
-                int estimatedDays) {
+                int measuredSessionCount) {
             this.activeDays = activeDays;
             this.sessionCount = sessionCount;
             this.totalMinutes = totalMinutes;
             this.averageMinutes = averageMinutes;
             this.weeklyFrequency = weeklyFrequency;
             this.totalVolume = totalVolume;
-            this.measuredDays = measuredDays;
-            this.estimatedDays = estimatedDays;
+            this.measuredSessionCount = measuredSessionCount;
         }
     }
 

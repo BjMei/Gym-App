@@ -1,40 +1,13 @@
 <resources>
     <string name="app_name">IRONX</string>
 
-    <string-array name="push_exercises">
-        <item>Flys</item>
-        <item>Brustpresse</item>
-        <item>Schrägbank</item>
-        <item>Frontheben</item>
-        <item>Seitheben</item>
-        <item>Triceps</item>
-    </string-array>
+    <string-array name="push_exercises" />
 
-    <string-array name="cardio_exercises">
-        <item>Fahrrad</item>
-        <item>Seil springen</item>
-    </string-array>
+    <string-array name="cardio_exercises" />
 
-    <string-array name="pull_exercises">
-        <item>Latzug eng</item>
-        <item>Latzug breit</item>
-        <item>Rudern</item>
-        <item>Unterer Rücken</item>
-        <item>Bizeps</item>
-        <item>Hammer Curls</item>
-        <item>Bauch</item>
-        <item>Butterfly Reverse</item>
-    </string-array>
+    <string-array name="pull_exercises" />
 
-    <string-array name="leg_exercises">
-        <item>Beinbeuger</item>
-        <item>Beine innen</item>
-        <item>Waden sitzend</item>
-        <item>Beinstrecker</item>
-        <item>Beinpresse</item>
-        <item>Hip Thrust</item>
-        <item>Hyperextension</item>
-    </string-array>
+    <string-array name="leg_exercises" />
     <string name="home_logo_description">IRONX Logo</string>
     <string name="home_dashboard_chip">DEIN DASHBOARD</string>
     <string name="home_ready">Bereit für dein Training?</string>
@@ -64,6 +37,15 @@
     <string name="drawer_history">Trainingshistorie</string>
     <string name="drawer_profile">Profil &amp; Ziele</string>
     <string name="drawer_open">Menü öffnen</string>
+    <string name="drawer_reset_data">Daten zurücksetzen</string>
+    <string name="drawer_reset_confirm_title">Alle Daten zurücksetzen?</string>
+    <string name="drawer_reset_confirm_message">Damit werden Profil, Ziele, Trainingsverlauf, Statistikdaten, Übungen, Cardio-Einträge, Geräteeinstellungen und App-Einstellungen gelöscht.</string>
+    <string name="drawer_reset_confirm_continue">Weiter</string>
+    <string name="drawer_reset_final_title">Wirklich alles löschen?</string>
+    <string name="drawer_reset_final_message">Dieser Schritt setzt IRONX auf den Hauptursprung zurück. Die Daten können nur über eine vorher exportierte Sicherung wiederhergestellt werden.</string>
+    <string name="drawer_reset_final_action">Alle Daten löschen</string>
+    <string name="drawer_reset_success">Alle Daten wurden zurückgesetzt.</string>
+    <string name="drawer_reset_error">Die Daten konnten nicht vollständig zurückgesetzt werden.</string>
     <string name="nav_workout_emoji">Workout</string>
     <string name="nav_history_emoji">Trainingshistorie</string>
     <string name="nav_stats_emoji">Statistik</string>
@@ -92,12 +74,12 @@
     <string name="profile_weight_label">AKTUELLES GEWICHT · AUS VERLAUF</string>
     <string name="profile_weight_hint">Aktuelles Gewicht</string>
     <string name="profile_weight_hint_unit">Aktuelles Gewicht in %1$s</string>
-    <string name="profile_birth_year_label">GEBURTSJAHR</string>
-    <string name="profile_birth_year_hint">z. B. 1992</string>
+    <string name="profile_birth_year_label">GEBURTSDATUM</string>
+    <string name="profile_birth_year_hint">Datum auswählen</string>
     <string name="profile_height_label">KÖRPERGRÖSSE</string>
     <string name="profile_height_hint">Größe in cm</string>
-    <string name="profile_body_fat_label">KÖRPERFETTANTEIL · OPTIONAL</string>
-    <string name="profile_body_fat_hint">Körperfett in Prozent</string>
+    <string name="profile_body_fat_label">AKTUELLER KFA · AUS VERLAUF</string>
+    <string name="profile_body_fat_hint">Aktueller Körperfettanteil</string>
     <string name="profile_training_goal">TRAININGSZIEL</string>
     <string name="profile_primary_goal">PRIMÄRES ZIEL</string>
     <string name="profile_weekly_training_goal_label">TRAININGSTAGE PRO WOCHE</string>
@@ -145,6 +127,15 @@
     <string name="profile_measurement_date_future">Das Messdatum darf nicht in der Zukunft liegen.</string>
     <string name="profile_measurement_delete_title">Messwert löschen?</string>
     <string name="profile_measurement_delete_message">Die Gewichtsmessung vom %1$s wird entfernt.</string>
+    <string name="profile_body_fat_measurements">KÖRPERFETT-MESSUNGEN</string>
+    <string name="profile_body_fat_measurement_label">NEUER KFA-MESSWERT</string>
+    <string name="profile_body_fat_measurement_hint">Körperfett in Prozent</string>
+    <string name="profile_body_fat_measurement_add">KFA-MESSWERT HINZUFÜGEN</string>
+    <string name="profile_body_fat_history_label">LETZTE KFA-MESSUNGEN</string>
+    <string name="profile_body_fat_empty">Noch keine Körperfettmessungen gespeichert.</string>
+    <string name="profile_body_fat_saved">Körperfettmessung gespeichert</string>
+    <string name="profile_body_fat_delete_title">KFA-Messwert löschen?</string>
+    <string name="profile_body_fat_delete_message">Die Körperfettmessung vom %1$s wird entfernt.</string>
     <string name="profile_volume_goal_label">WOCHENVOLUMEN-ZIEL</string>
     <string name="profile_volume_goal_hint">Zielvolumen in %1$s</string>
     <string name="profile_performance_goals_hint">Kraftziele gelten ausschließlich für die ausgewählte Übung. Das Wochenvolumen wird im Muskelaufbau als Zielstatus verwendet.</string>
@@ -237,6 +228,8 @@
     <string name="history_collapse_session">Trainingseinheit einklappen</string>
     <string name="history_header_show_details">%1$s, %2$s, %3$s. Zum Anzeigen der Details antippen.</string>
     <string name="history_header_hide_details">%1$s, %2$s, %3$s. Zum Schließen der Details antippen.</string>
+    <string name="history_delete_session_title">Training löschen?</string>
+    <string name="history_delete_session_message">Der Verlaufseintrag vom %1$s (%2$s) wird vollständig entfernt.</string>
     <string name="history_no_set_data">Keine Satzdaten gespeichert</string>
     <string name="history_set_label">SATZ</string>
     <string name="history_weight_label">GEWICHT</string>
@@ -335,7 +328,7 @@
     <string name="dialog_seat_hint">z. B. Sitz 3, Lehne 5</string>
     <string name="dialog_catalog_chip">KATALOG</string>
     <string name="dialog_manage_title">Einträge verwalten</string>
-    <string name="dialog_manage_subtitle">Eigene Übungen oder Cardioarten hinzufügen und entfernen</string>
+    <string name="dialog_manage_subtitle">Eigene Übungen hinzufügen oder entfernen</string>
     <string name="dialog_new_entry_hint">Neuen Eintrag eingeben</string>
     <string name="dialog_selection_chip">AUSWAHL</string>
     <string name="dialog_select_title">Eintrag auswählen</string>
