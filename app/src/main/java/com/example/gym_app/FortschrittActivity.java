@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -81,9 +82,6 @@ public class FortschrittActivity extends IronxActivity {
             DateTimeFormatter.ofPattern("dd.MM.", Locale.GERMANY);
     private static final DateTimeFormatter DISPLAY_DATE =
             DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.GERMANY);
-    private static final Map<String, List<String>> DEFAULT_MUSCLE_MAP =
-            createDefaultMuscleMap();
-
     private Spinner spinnerRange;
     private Spinner spinnerExercise;
     private Spinner spinnerMuscleExercise;
@@ -98,6 +96,7 @@ public class FortschrittActivity extends IronxActivity {
     private View sectionMuskeln;
     private View sectionKonsistenz;
     private View sectionKoerper;
+    private ScrollView scrollFortschrittContent;
     private String currentTab = "kraft";
 
     private View kpiBest1Rm;
@@ -174,7 +173,7 @@ public class FortschrittActivity extends IronxActivity {
         updateGoalSummary();
 
         findViewById(R.id.btnBackFortschritt).setOnClickListener(v -> finish());
-        showSection(getDefaultTab());
+        showSection("kraft");
     }
 
     @Override
@@ -224,6 +223,7 @@ public class FortschrittActivity extends IronxActivity {
         sectionMuskeln = findViewById(R.id.sectionMuskeln);
         sectionKonsistenz = findViewById(R.id.sectionKonsistenz);
         sectionKoerper = findViewById(R.id.sectionKoerper);
+        scrollFortschrittContent = findViewById(R.id.scrollFortschrittContent);
         progressInfoButton = findViewById(R.id.progressInfoButton);
         tvWeeklyGoalConfigured = findViewById(R.id.tvWeeklyGoalConfigured);
 
@@ -446,6 +446,14 @@ public class FortschrittActivity extends IronxActivity {
         updateTab(tabKoerper, "koerper".equals(tab), active, inactive);
         loadCurrentSection();
         updateProgressInfoButton();
+        scrollToTop(scrollFortschrittContent);
+    }
+
+    private void scrollToTop(ScrollView scrollView) {
+        if (scrollView == null) {
+            return;
+        }
+        scrollView.post(() -> scrollView.scrollTo(0, 0));
     }
 
     private void updateTab(
@@ -1214,10 +1222,7 @@ public class FortschrittActivity extends IronxActivity {
             }
             return result;
         }
-        List<String> defaults = DEFAULT_MUSCLE_MAP.get(exercise);
-        return defaults == null
-                ? Collections.emptyList()
-                : new ArrayList<>(defaults);
+        return Collections.emptyList();
     }
 
     private String getMusclePreferenceKey(ExerciseOption option) {
@@ -2070,19 +2075,6 @@ public class FortschrittActivity extends IronxActivity {
         return String.join(", ", result);
     }
 
-    private String getDefaultTab() {
-        if (ProfileRepository.GOAL_STRENGTH.equals(profile.goalId)) {
-            return "kraft";
-        }
-        if (ProfileRepository.GOAL_WEIGHT_LOSS.equals(profile.goalId)) {
-            return "koerper";
-        }
-        if (ProfileRepository.GOAL_FITNESS.equals(profile.goalId)) {
-            return "konsistenz";
-        }
-        return "muskeln";
-    }
-
     private String getGoalLabel(String goalId) {
         if (ProfileRepository.GOAL_STRENGTH.equals(goalId)) {
             return getString(R.string.settings_goal_strength);
@@ -2416,10 +2408,6 @@ public class FortschrittActivity extends IronxActivity {
 
     private void showChartDetail(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-    }
-
-    private static Map<String, List<String>> createDefaultMuscleMap() {
-        return new LinkedHashMap<>();
     }
 
     private enum MetricType {

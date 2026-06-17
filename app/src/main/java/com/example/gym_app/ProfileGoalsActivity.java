@@ -59,6 +59,7 @@ public class ProfileGoalsActivity extends IronxActivity {
     private TextView tvLegacyStrengthGoal;
     private TextView btnToggleWeightMeasurements;
     private TextView btnToggleBodyFatMeasurements;
+    private TextView btnToggleStrengthGoals;
     private LinearLayout llWeightMeasurements;
     private LinearLayout llBodyFatMeasurements;
     private LinearLayout llStrengthGoals;
@@ -72,6 +73,8 @@ public class ProfileGoalsActivity extends IronxActivity {
     private boolean weightMeasurementsDropdownTouched;
     private boolean bodyFatMeasurementsExpanded = true;
     private boolean bodyFatMeasurementsDropdownTouched;
+    private boolean strengthGoalsExpanded = true;
+    private boolean strengthGoalsDropdownTouched;
 
     private final List<MaterialButton> dayButtons = new ArrayList<>();
     private final List<DayOfWeek> dayValues = Arrays.asList(
@@ -103,6 +106,7 @@ public class ProfileGoalsActivity extends IronxActivity {
         setupRecommendationUpdates();
         setupWeightMeasurementsDropdown();
         setupBodyFatMeasurementsDropdown();
+        setupStrengthGoalsDropdown();
         setupInfoButtons();
         loadProfile();
 
@@ -139,6 +143,7 @@ public class ProfileGoalsActivity extends IronxActivity {
         tvLegacyStrengthGoal = findViewById(R.id.tvLegacyStrengthGoal);
         btnToggleWeightMeasurements = findViewById(R.id.btnToggleWeightMeasurements);
         btnToggleBodyFatMeasurements = findViewById(R.id.btnToggleBodyFatMeasurements);
+        btnToggleStrengthGoals = findViewById(R.id.btnToggleStrengthGoals);
         llWeightMeasurements = findViewById(R.id.llWeightMeasurements);
         llBodyFatMeasurements = findViewById(R.id.llBodyFatMeasurements);
         llStrengthGoals = findViewById(R.id.llStrengthGoals);
@@ -461,6 +466,17 @@ public class ProfileGoalsActivity extends IronxActivity {
             bodyFatMeasurementsDropdownTouched = true;
             bodyFatMeasurementsExpanded = !bodyFatMeasurementsExpanded;
             refreshBodyFatMeasurements();
+        });
+    }
+
+    private void setupStrengthGoalsDropdown() {
+        if (btnToggleStrengthGoals == null) {
+            return;
+        }
+        btnToggleStrengthGoals.setOnClickListener(v -> {
+            strengthGoalsDropdownTouched = true;
+            strengthGoalsExpanded = !strengthGoalsExpanded;
+            refreshStrengthGoals();
         });
     }
 
@@ -837,8 +853,27 @@ public class ProfileGoalsActivity extends IronxActivity {
         llStrengthGoals.removeAllViews();
         List<ProfileRepository.StrengthGoal> goals =
                 new ArrayList<>(repository.getStrengthGoals().values());
+        goals.sort((left, right) -> {
+            int workoutComparison = workoutLabel(left.workoutType)
+                    .compareToIgnoreCase(workoutLabel(right.workoutType));
+            if (workoutComparison != 0) {
+                return workoutComparison;
+            }
+            return left.exercise.compareToIgnoreCase(right.exercise);
+        });
+        if (!strengthGoalsDropdownTouched) {
+            strengthGoalsExpanded = goals.size() <= 3;
+        }
+        if (goals.isEmpty()) {
+            strengthGoalsExpanded = true;
+        }
+        updateStrengthGoalsDropdown(goals.size());
+        llStrengthGoals.setVisibility(strengthGoalsExpanded ? View.VISIBLE : View.GONE);
         if (goals.isEmpty()) {
             addEmptyRow(llStrengthGoals, R.string.profile_strength_goal_empty);
+            return;
+        }
+        if (!strengthGoalsExpanded) {
             return;
         }
         for (ProfileRepository.StrengthGoal goal : goals) {
@@ -849,6 +884,20 @@ public class ProfileGoalsActivity extends IronxActivity {
                     () -> confirmDeleteStrengthGoal(goal)
             );
         }
+    }
+
+    private void updateStrengthGoalsDropdown(int count) {
+        if (btnToggleStrengthGoals == null) {
+            return;
+        }
+        String arrow = strengthGoalsExpanded ? "▲" : "▼";
+        String text = getString(R.string.profile_strength_goal_history_label)
+                + " ("
+                + count
+                + ") "
+                + arrow;
+        btnToggleStrengthGoals.setText(text);
+        btnToggleStrengthGoals.setContentDescription(text);
     }
 
     private void addManageRow(

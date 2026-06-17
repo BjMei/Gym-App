@@ -13,7 +13,6 @@
     <color name="gold_secondary">#FFA500</color>
     <color name="gold_dark">#C9A961</color>
     <color name="gold_light">#FFE87C</color>
-    <color name="gold_accent">#F4D03F</color>
 
     <!-- Gedämpftes Metallgold für die Trainingsseiten -->
     <color name="training_gold">#C9A961</color>
@@ -21,45 +20,24 @@
     <color name="training_gold_pressed">#A98543</color>
     <color name="timer_active_green">#09B300</color>
     
-    <!-- Gradient Gold -->
-    <color name="gradient_gold_start">#FFD700</color>
-    <color name="gradient_gold_mid">#FFA500</color>
-    <color name="gradient_gold_end">#C9A961</color>
-    <color name="gradient_gold_dark_start">#C9A961</color>
-    <color name="gradient_gold_dark_end">#8B6914</color>
-    
     <!-- Karten -->
     <color name="card_background">#1A1A1A</color>
     <color name="card_background_light">#242424</color>
-    <color name="card_border_gold">#FFD700</color>
-    <color name="card_border_gold_light">#FFE87C</color>
     
     <!-- Input Felder -->
     <color name="input_background">#0F0F0F</color>
-    <color name="input_border">#FFD700</color>
-    <color name="input_border_focused">#FFE87C</color>
     
     <!-- Text -->
     <color name="text_primary">#FFFFFF</color>
     <color name="text_secondary">#E0E0E0</color>
     <color name="text_tertiary">#B0B0B0</color>
-    <color name="text_gold">#FFD700</color>
-    
-    <!-- Buttons -->
-    <color name="button_gold">#FFD700</color>
-    <color name="button_gold_pressed">#C9A961</color>
-    <color name="button_gold_dark">#8B6914</color>
     
     <!-- Divider -->
     <color name="divider">#2A2A2A</color>
-    <color name="divider_gold">#FFD700</color>
     
     <!-- Status -->
     <color name="success">#10B981</color>
     <color name="error">#EF4444</color>
     
-    <!-- Glow Effekte -->
-    <color name="glow_gold">#FFD700</color>
-    <color name="glow_gold_light">#FFE87C</color>
     <color name="ic_launcher_background">#1A1A1A</color>
 </resources>

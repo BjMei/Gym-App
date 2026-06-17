@@ -2,73 +2,83 @@ package com.example.gym_app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class WorkoutStorage {
 
+    private static final String TAG = "WorkoutStorage";
     private static final String PREFS_DETAILED = "WorkoutHistoryDetailed";
     private static final String PREFS_CARDIO = "WorkoutCardio";
     private static final String PREFS_SESSIONS = "WorkoutSessions";
     private static final String KEY_SESSIONS = "sessions";
     private static final String TIMESTAMP_PATTERN = "dd.MM.yyyy HH:mm";
+    private static boolean corruptionDetected;
+    private static boolean corruptionNoticeShown;
     public static final String TYPE_PUSH = "push";
     public static final String TYPE_PULL = "pull";
     public static final String TYPE_LEG = "leg";
 
-    // Strukturierte Trainingsdaten speichern
-    public static boolean saveDetailedWorkout(Context context, String type, String exercise, List<WorkoutSet> sets) {
-        return saveDetailedWorkout(context, type, "", exercise, sets);
-    }
-
-    public static boolean saveDetailedWorkout(
-            Context context,
-            String type,
-            String sessionId,
-            String exercise,
-            List<WorkoutSet> sets) {
-        return saveDetailedWorkout(context, type, sessionId, currentTimestamp(), exercise, sets);
-    }
-
-    public static boolean saveDetailedWorkout(
+    public static boolean saveDetailedWorkouts(
             Context context,
             String type,
             String sessionId,
             String sessionTimestamp,
-            String exercise,
-            List<WorkoutSet> sets) {
-        if (exercise == null || exercise.isEmpty() || sets == null || sets.isEmpty()) {
+            List<WorkoutExercise> exercises) {
+        if (!isKnownWorkoutType(type)
+                || sessionId == null
+                || sessionId.trim().isEmpty()
+                || exercises == null
+                || exercises.isEmpty()) {
             return false;
+        }
+        for (WorkoutExercise exercise : exercises) {
+            if (exercise == null
+                    || exercise.exercise.trim().isEmpty()
+                    || exercise.sets == null
+                    || exercise.sets.isEmpty()) {
+                return false;
+            }
         }
         
         SharedPreferences prefs = context.getSharedPreferences(PREFS_DETAILED, Context.MODE_PRIVATE);
-        JSONArray storedArray = parseArray(prefs.getString(type, "[]"));
+        JSONArray storedArray = parseArrayForWrite(
+                context,
+                PREFS_DETAILED + "/" + type,
+                prefs.getString(type, "[]")
+        );
+        if (storedArray == null) {
+            return false;
+        }
         JSONArray newArray = new JSONArray();
         
-        // Neues Training als JSON-Objekt erstellen
-        JSONObject workout = new JSONObject();
         try {
-            workout.put("exercise", exercise);
-            workout.put("sessionId", sessionId == null ? "" : sessionId);
-            workout.put("timestamp", normalizeTimestamp(sessionTimestamp));
-            workout.put("completed", isLegacySession(sessionId));
-            
-            JSONArray setsArray = new JSONArray();
-            for (WorkoutSet set : sets) {
-                JSONObject setObj = new JSONObject();
-                setObj.put("weight", set.weight);
-                setObj.put("reps", set.reps);
-                setsArray.put(setObj);
+            for (WorkoutExercise exercise : exercises) {
+                JSONObject workout = new JSONObject();
+                workout.put("exercise", exercise.exercise);
+                workout.put("sessionId", sessionId);
+                workout.put("timestamp", normalizeTimestamp(sessionTimestamp));
+                workout.put("completed", false);
+
+                JSONArray setsArray = new JSONArray();
+                for (WorkoutSet set : exercise.sets) {
+                    JSONObject setObject = new JSONObject();
+                    setObject.put("weight", set.weight);
+                    setObject.put("reps", set.reps);
+                    setsArray.put(setObject);
+                }
+                workout.put("sets", setsArray);
+                newArray.put(workout);
             }
-            workout.put("sets", setsArray);
-            
-            newArray.put(workout);
             
             // Alle bisherigen Einträge beibehalten (Langzeitdaten)
             for (int i = 0; i < storedArray.length(); i++) {
@@ -77,22 +87,9 @@ public class WorkoutStorage {
             
             return prefs.edit().putString(type, newArray.toString()).commit();
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Krafttraining konnte nicht gespeichert werden.", e);
             return false;
         }
-    }
-
-    public static void saveCardioSession(Context context, String type, String exercise, int minutes) {
-        saveCardioSession(context, type, "", exercise, minutes);
-    }
-
-    public static boolean saveCardioSession(
-            Context context,
-            String type,
-            String sessionId,
-            String exercise,
-            int minutes) {
-        return saveCardioSession(context, type, sessionId, currentTimestamp(), exercise, minutes);
     }
 
     public static boolean saveCardioSession(
@@ -102,12 +99,24 @@ public class WorkoutStorage {
             String sessionTimestamp,
             String exercise,
             int minutes) {
-        if (exercise == null || exercise.isEmpty() || minutes <= 0) {
+        if (!isKnownWorkoutType(type)
+                || sessionId == null
+                || sessionId.trim().isEmpty()
+                || exercise == null
+                || exercise.trim().isEmpty()
+                || minutes <= 0) {
             return false;
         }
 
         SharedPreferences prefs = context.getSharedPreferences(PREFS_CARDIO, Context.MODE_PRIVATE);
-        JSONArray storedArray = parseArray(prefs.getString(type, "[]"));
+        JSONArray storedArray = parseArrayForWrite(
+                context,
+                PREFS_CARDIO + "/" + type,
+                prefs.getString(type, "[]")
+        );
+        if (storedArray == null) {
+            return false;
+        }
         JSONArray newArray = new JSONArray();
 
         JSONObject session = new JSONObject();
@@ -116,7 +125,7 @@ public class WorkoutStorage {
             session.put("minutes", minutes);
             session.put("sessionId", sessionId == null ? "" : sessionId);
             session.put("timestamp", normalizeTimestamp(sessionTimestamp));
-            session.put("completed", isLegacySession(sessionId));
+            session.put("completed", false);
 
             newArray.put(session);
 
@@ -127,63 +136,110 @@ public class WorkoutStorage {
 
             return prefs.edit().putString(type, newArray.toString()).commit();
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Cardio-Eintrag konnte nicht gespeichert werden.", e);
             return false;
         }
     }
 
-    public static void saveTrainingSession(
+    public static TrainingSession getOrCreateActiveTrainingSession(
             Context context,
-            String sessionId,
-            String type,
-            long durationMs) {
-        saveTrainingSession(context, sessionId, type, currentTimestamp(), durationMs);
+            String workoutType) {
+        if (!isKnownWorkoutType(workoutType)) {
+            return null;
+        }
+        TrainingSession active = findActiveTrainingSession(context, workoutType);
+        if (active != null) {
+            return active;
+        }
+
+        String sessionId = UUID.randomUUID().toString();
+        String timestamp = currentTimestamp();
+        long startedAtEpochMs = System.currentTimeMillis();
+        TrainingSession created = new TrainingSession(
+                sessionId,
+                workoutType,
+                timestamp,
+                0L,
+                false,
+                startedAtEpochMs
+        );
+        return persistTrainingSession(context, created) ? created : null;
     }
 
-    public static void saveTrainingSession(
+    public static boolean saveTrainingSession(
             Context context,
             String sessionId,
             String type,
             String sessionTimestamp,
             long durationMs) {
-        if (sessionId == null || sessionId.trim().isEmpty() || durationMs <= 0) {
-            return;
+        if (!isKnownWorkoutType(type)
+                || sessionId == null
+                || sessionId.trim().isEmpty()
+                || durationMs <= 0) {
+            return false;
+        }
+        if (!hasTrainingSessionItems(context, type, sessionId)) {
+            return false;
         }
 
-        SharedPreferences prefs =
+        SharedPreferences detailedPrefs =
+                context.getSharedPreferences(PREFS_DETAILED, Context.MODE_PRIVATE);
+        SharedPreferences cardioPrefs =
+                context.getSharedPreferences(PREFS_CARDIO, Context.MODE_PRIVATE);
+        SharedPreferences sessionPrefs =
                 context.getSharedPreferences(PREFS_SESSIONS, Context.MODE_PRIVATE);
-        JSONArray storedArray = parseArray(prefs.getString(KEY_SESSIONS, "[]"));
-        JSONArray updatedArray = new JSONArray();
-        boolean updated = false;
+        String detailedOriginal = detailedPrefs.getString(type, "[]");
+        String cardioOriginal = cardioPrefs.getString(type, "[]");
+        String sessionsOriginal = sessionPrefs.getString(KEY_SESSIONS, "[]");
+
+        JSONArray detailed = parseArrayForWrite(
+                context,
+                PREFS_DETAILED + "/" + type,
+                detailedOriginal
+        );
+        JSONArray cardio = parseArrayForWrite(
+                context,
+                PREFS_CARDIO + "/" + type,
+                cardioOriginal
+        );
+        JSONArray sessions = parseArrayForWrite(
+                context,
+                PREFS_SESSIONS + "/" + KEY_SESSIONS,
+                sessionsOriginal
+        );
+        if (detailed == null || cardio == null || sessions == null) {
+            return false;
+        }
 
         try {
-            for (int i = 0; i < storedArray.length(); i++) {
-                JSONObject stored = storedArray.getJSONObject(i);
-                if (sessionId.equals(stored.optString("sessionId"))) {
-                    long previousDuration = stored.optLong("durationMs", 0L);
-                    stored.put("durationMs", Math.max(previousDuration, durationMs));
-                    stored.put("workoutType", type);
-                    stored.put("timestamp", normalizeTimestamp(sessionTimestamp));
-                    stored.put("completed", true);
-                    updated = true;
-                }
-                updatedArray.put(stored);
-            }
+            String detailedUpdated =
+                    markSessionItemsCompleted(detailed, sessionId).toString();
+            String cardioUpdated =
+                    markSessionItemsCompleted(cardio, sessionId).toString();
+            String sessionsUpdated = completeTrainingSession(
+                    sessions,
+                    sessionId,
+                    type,
+                    sessionTimestamp,
+                    durationMs
+            ).toString();
 
-            if (!updated) {
-                JSONObject session = new JSONObject();
-                session.put("sessionId", sessionId);
-                session.put("workoutType", type);
-                session.put("durationMs", durationMs);
-                session.put("completed", true);
-                session.put("timestamp", normalizeTimestamp(sessionTimestamp));
-                updatedArray.put(session);
+            if (!detailedPrefs.edit().putString(type, detailedUpdated).commit()) {
+                return false;
             }
-
-            prefs.edit().putString(KEY_SESSIONS, updatedArray.toString()).apply();
-            markSessionItemsCompleted(context, type, sessionId);
+            if (!cardioPrefs.edit().putString(type, cardioUpdated).commit()) {
+                detailedPrefs.edit().putString(type, detailedOriginal).commit();
+                return false;
+            }
+            if (!sessionPrefs.edit().putString(KEY_SESSIONS, sessionsUpdated).commit()) {
+                detailedPrefs.edit().putString(type, detailedOriginal).commit();
+                cardioPrefs.edit().putString(type, cardioOriginal).commit();
+                return false;
+            }
+            return true;
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Trainingssession konnte nicht abgeschlossen werden.", e);
+            return false;
         }
     }
 
@@ -191,16 +247,16 @@ public class WorkoutStorage {
         return getTrainingSessions(context, false);
     }
 
-    public static List<TrainingSession> getAllTrainingSessions(Context context) {
-        return getTrainingSessions(context, true);
-    }
-
     private static List<TrainingSession> getTrainingSessions(
             Context context,
             boolean includeIncomplete) {
         SharedPreferences prefs =
                 context.getSharedPreferences(PREFS_SESSIONS, Context.MODE_PRIVATE);
-        JSONArray array = parseArray(prefs.getString(KEY_SESSIONS, "[]"));
+        JSONArray array = parseArray(
+                context,
+                PREFS_SESSIONS + "/" + KEY_SESSIONS,
+                prefs.getString(KEY_SESSIONS, "[]")
+        );
         List<TrainingSession> sessions = new ArrayList<>();
 
         for (int i = 0; i < array.length(); i++) {
@@ -215,9 +271,14 @@ public class WorkoutStorage {
                         session.optString("workoutType"),
                         session.optString("timestamp"),
                         session.optLong("durationMs", 0L),
-                        completed
+                        completed,
+                        session.optLong(
+                                "startedAtEpochMs",
+                                parseTimestampEpoch(session.optString("timestamp"))
+                        )
                 ));
-            } catch (JSONException ignored) {
+            } catch (JSONException exception) {
+                recordCorruption(PREFS_SESSIONS + "/" + KEY_SESSIONS, exception);
             }
         }
         return sessions;
@@ -226,7 +287,11 @@ public class WorkoutStorage {
     // Letztes Training für eine spezifische Übung abrufen
     public static LastWorkout getLastWorkout(Context context, String type, String exercise) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_DETAILED, Context.MODE_PRIVATE);
-        JSONArray array = parseArray(prefs.getString(type, "[]"));
+        JSONArray array = parseArray(
+                context,
+                PREFS_DETAILED + "/" + type,
+                prefs.getString(type, "[]")
+        );
         
         for (int i = 0; i < array.length(); i++) {
             try {
@@ -246,7 +311,8 @@ public class WorkoutStorage {
                         sets
                     );
                 }
-            } catch (JSONException ignored) {
+            } catch (JSONException exception) {
+                recordCorruption(PREFS_DETAILED + "/" + type, exception);
             }
         }
         return null;
@@ -266,7 +332,11 @@ public class WorkoutStorage {
             String type,
             boolean includeIncomplete) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_DETAILED, Context.MODE_PRIVATE);
-        JSONArray array = parseArray(prefs.getString(type, "[]"));
+        JSONArray array = parseArray(
+                context,
+                PREFS_DETAILED + "/" + type,
+                prefs.getString(type, "[]")
+        );
         List<DetailedWorkout> workouts = new ArrayList<>();
         
         for (int i = 0; i < array.length(); i++) {
@@ -294,7 +364,8 @@ public class WorkoutStorage {
                         workout.optString("sessionId", ""),
                         completed
                 ));
-            } catch (JSONException ignored) {
+            } catch (JSONException exception) {
+                recordCorruption(PREFS_DETAILED + "/" + type, exception);
             }
         }
         return workouts;
@@ -314,7 +385,11 @@ public class WorkoutStorage {
             String type,
             boolean includeIncomplete) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_CARDIO, Context.MODE_PRIVATE);
-        JSONArray array = parseArray(prefs.getString(type, "[]"));
+        JSONArray array = parseArray(
+                context,
+                PREFS_CARDIO + "/" + type,
+                prefs.getString(type, "[]")
+        );
         List<CardioSession> sessions = new ArrayList<>();
 
         for (int i = 0; i < array.length(); i++) {
@@ -332,7 +407,8 @@ public class WorkoutStorage {
                     session.optString("sessionId", ""),
                     completed
                 ));
-            } catch (JSONException ignored) {
+            } catch (JSONException exception) {
+                recordCorruption(PREFS_CARDIO + "/" + type, exception);
             }
         }
         return sessions;
@@ -350,24 +426,91 @@ public class WorkoutStorage {
         return 0L;
     }
 
-    public static void discardIncompleteTrainingData(Context context, String workoutType) {
-        if (workoutType == null || workoutType.trim().isEmpty()) {
-            return;
+    public static boolean hasTrainingSessionItems(
+            Context context,
+            String workoutType,
+            String sessionId) {
+        if (sessionId == null || sessionId.trim().isEmpty()) {
+            return false;
         }
-        String safeType = workoutType.trim();
-        discardIncompleteStoredItems(
+        return hasStoredItemsForSession(
                 context.getSharedPreferences(PREFS_DETAILED, Context.MODE_PRIVATE),
-                safeType
-        );
-        discardIncompleteStoredItems(
+                workoutType,
+                sessionId
+        ) || hasStoredItemsForSession(
                 context.getSharedPreferences(PREFS_CARDIO, Context.MODE_PRIVATE),
-                safeType
+                workoutType,
+                sessionId
         );
-        discardIncompleteTrainingSessions(context, safeType);
     }
 
-    public static boolean deleteHistoryWorkout(Context context, String date, String workoutType) {
-        return deleteHistoryWorkout(context, date, workoutType, "");
+    public static boolean discardTrainingSession(
+            Context context,
+            String workoutType,
+            String sessionId) {
+        if (workoutType == null || workoutType.trim().isEmpty()
+                || sessionId == null || sessionId.trim().isEmpty()) {
+            return false;
+        }
+        String safeType = workoutType.trim();
+        String safeSessionId = sessionId.trim();
+        SharedPreferences detailedPrefs =
+                context.getSharedPreferences(PREFS_DETAILED, Context.MODE_PRIVATE);
+        SharedPreferences cardioPrefs =
+                context.getSharedPreferences(PREFS_CARDIO, Context.MODE_PRIVATE);
+        SharedPreferences sessionPrefs =
+                context.getSharedPreferences(PREFS_SESSIONS, Context.MODE_PRIVATE);
+        String detailedOriginal = detailedPrefs.getString(safeType, "[]");
+        String cardioOriginal = cardioPrefs.getString(safeType, "[]");
+        String sessionsOriginal = sessionPrefs.getString(KEY_SESSIONS, "[]");
+        JSONArray detailed = parseArrayForWrite(
+                context,
+                PREFS_DETAILED + "/" + safeType,
+                detailedOriginal
+        );
+        JSONArray cardio = parseArrayForWrite(
+                context,
+                PREFS_CARDIO + "/" + safeType,
+                cardioOriginal
+        );
+        JSONArray sessions = parseArrayForWrite(
+                context,
+                PREFS_SESSIONS + "/" + KEY_SESSIONS,
+                sessionsOriginal
+        );
+        if (detailed == null || cardio == null || sessions == null) {
+            return false;
+        }
+
+        JSONArray detailedUpdated = removeSessionItems(detailed, safeSessionId);
+        JSONArray cardioUpdated = removeSessionItems(cardio, safeSessionId);
+        JSONArray sessionsUpdated = removeSessionItems(sessions, safeSessionId);
+        boolean removed = detailedUpdated.length() != detailed.length()
+                || cardioUpdated.length() != cardio.length()
+                || sessionsUpdated.length() != sessions.length();
+        if (!removed) {
+            return false;
+        }
+
+        if (!detailedPrefs.edit()
+                .putString(safeType, detailedUpdated.toString())
+                .commit()) {
+            return false;
+        }
+        if (!cardioPrefs.edit()
+                .putString(safeType, cardioUpdated.toString())
+                .commit()) {
+            detailedPrefs.edit().putString(safeType, detailedOriginal).commit();
+            return false;
+        }
+        if (!sessionPrefs.edit()
+                .putString(KEY_SESSIONS, sessionsUpdated.toString())
+                .commit()) {
+            detailedPrefs.edit().putString(safeType, detailedOriginal).commit();
+            cardioPrefs.edit().putString(safeType, cardioOriginal).commit();
+            return false;
+        }
+        return true;
     }
 
     public static boolean deleteHistoryWorkout(
@@ -410,64 +553,14 @@ public class WorkoutStorage {
         return removedDetailed || removedCardio || removedSession;
     }
 
-    private static boolean discardIncompleteStoredItems(
-            SharedPreferences prefs,
-            String key) {
-        JSONArray storedArray = parseArray(prefs.getString(key, "[]"));
-        JSONArray updatedArray = new JSONArray();
-        boolean removed = false;
-
-        for (int i = 0; i < storedArray.length(); i++) {
-            try {
-                JSONObject item = storedArray.getJSONObject(i);
-                if (!isCompleted(item) && !item.optString("sessionId").trim().isEmpty()) {
-                    removed = true;
-                    continue;
-                }
-                updatedArray.put(item);
-            } catch (JSONException ignored) {
-            }
-        }
-
-        if (!removed) {
-            return false;
-        }
-        return prefs.edit().putString(key, updatedArray.toString()).commit();
-    }
-
-    private static boolean discardIncompleteTrainingSessions(
-            Context context,
-            String workoutType) {
-        SharedPreferences prefs =
-                context.getSharedPreferences(PREFS_SESSIONS, Context.MODE_PRIVATE);
-        JSONArray storedArray = parseArray(prefs.getString(KEY_SESSIONS, "[]"));
-        JSONArray updatedArray = new JSONArray();
-        boolean removed = false;
-
-        for (int i = 0; i < storedArray.length(); i++) {
-            try {
-                JSONObject session = storedArray.getJSONObject(i);
-                if (workoutType.equals(session.optString("workoutType"))
-                        && !isCompleted(session)) {
-                    removed = true;
-                    continue;
-                }
-                updatedArray.put(session);
-            } catch (JSONException ignored) {
-            }
-        }
-
-        if (!removed) {
-            return false;
-        }
-        return prefs.edit().putString(KEY_SESSIONS, updatedArray.toString()).commit();
-    }
-
     private static boolean deleteStoredItemsForSession(
             SharedPreferences prefs,
             String key,
             String sessionId) {
-        JSONArray storedArray = parseArray(prefs.getString(key, "[]"));
+        JSONArray storedArray = parseArrayForWrite(prefs.getString(key, "[]"));
+        if (storedArray == null) {
+            return false;
+        }
         JSONArray updatedArray = new JSONArray();
         boolean removed = false;
 
@@ -479,7 +572,8 @@ public class WorkoutStorage {
                     continue;
                 }
                 updatedArray.put(item);
-            } catch (JSONException ignored) {
+            } catch (JSONException exception) {
+                recordCorruption("WorkoutStorage/" + key, exception);
             }
         }
 
@@ -493,7 +587,10 @@ public class WorkoutStorage {
             SharedPreferences prefs,
             String key,
             String date) {
-        JSONArray storedArray = parseArray(prefs.getString(key, "[]"));
+        JSONArray storedArray = parseArrayForWrite(prefs.getString(key, "[]"));
+        if (storedArray == null) {
+            return false;
+        }
         JSONArray updatedArray = new JSONArray();
         boolean removed = false;
 
@@ -505,7 +602,8 @@ public class WorkoutStorage {
                     continue;
                 }
                 updatedArray.put(item);
-            } catch (JSONException ignored) {
+            } catch (JSONException exception) {
+                recordCorruption("WorkoutStorage/" + key, exception);
             }
         }
 
@@ -521,7 +619,10 @@ public class WorkoutStorage {
             String date) {
         SharedPreferences prefs =
                 context.getSharedPreferences(PREFS_SESSIONS, Context.MODE_PRIVATE);
-        JSONArray storedArray = parseArray(prefs.getString(KEY_SESSIONS, "[]"));
+        JSONArray storedArray = parseArrayForWrite(prefs.getString(KEY_SESSIONS, "[]"));
+        if (storedArray == null) {
+            return false;
+        }
         JSONArray updatedArray = new JSONArray();
         boolean removed = false;
 
@@ -547,7 +648,10 @@ public class WorkoutStorage {
     private static boolean deleteTrainingSessionById(Context context, String sessionId) {
         SharedPreferences prefs =
                 context.getSharedPreferences(PREFS_SESSIONS, Context.MODE_PRIVATE);
-        JSONArray storedArray = parseArray(prefs.getString(KEY_SESSIONS, "[]"));
+        JSONArray storedArray = parseArrayForWrite(prefs.getString(KEY_SESSIONS, "[]"));
+        if (storedArray == null) {
+            return false;
+        }
         JSONArray updatedArray = new JSONArray();
         boolean removed = false;
 
@@ -735,8 +839,10 @@ public class WorkoutStorage {
         return !object.has("completed") || object.optBoolean("completed", false);
     }
 
-    private static boolean isLegacySession(String sessionId) {
-        return sessionId == null || sessionId.trim().isEmpty();
+    private static boolean isKnownWorkoutType(String workoutType) {
+        return TYPE_PUSH.equals(workoutType)
+                || TYPE_PULL.equals(workoutType)
+                || TYPE_LEG.equals(workoutType);
     }
 
     private static String currentTimestamp() {
@@ -753,44 +859,74 @@ public class WorkoutStorage {
         return value == null ? "" : value;
     }
 
-    private static void markSessionItemsCompleted(
-            Context context,
-            String workoutType,
-            String sessionId) {
-        markStoredItemsCompleted(
-                context.getSharedPreferences(PREFS_DETAILED, Context.MODE_PRIVATE),
-                workoutType,
-                sessionId
-        );
-        markStoredItemsCompleted(
-                context.getSharedPreferences(PREFS_CARDIO, Context.MODE_PRIVATE),
-                workoutType,
-                sessionId
-        );
-    }
-
-    private static boolean markStoredItemsCompleted(
-            SharedPreferences prefs,
-            String key,
-            String sessionId) {
-        JSONArray storedArray = parseArray(prefs.getString(key, "[]"));
+    private static JSONArray markSessionItemsCompleted(
+            JSONArray storedArray,
+            String sessionId) throws JSONException {
         JSONArray updatedArray = new JSONArray();
-        boolean changed = false;
 
         for (int i = 0; i < storedArray.length(); i++) {
-            try {
-                JSONObject item = storedArray.getJSONObject(i);
-                if (sessionId.equals(item.optString("sessionId"))
-                        && !item.optBoolean("completed", false)) {
-                    item.put("completed", true);
-                    changed = true;
-                }
-                updatedArray.put(item);
-            } catch (JSONException ignored) {
+            JSONObject item = storedArray.getJSONObject(i);
+            if (sessionId.equals(item.optString("sessionId"))) {
+                item.put("completed", true);
             }
+            updatedArray.put(item);
+        }
+        return updatedArray;
+    }
+
+    private static JSONArray removeSessionItems(
+            JSONArray storedArray,
+            String sessionId) {
+        JSONArray updatedArray = new JSONArray();
+        for (int i = 0; i < storedArray.length(); i++) {
+            JSONObject item = storedArray.optJSONObject(i);
+            if (item == null || sessionId.equals(item.optString("sessionId"))) {
+                continue;
+            }
+            updatedArray.put(item);
+        }
+        return updatedArray;
+    }
+
+    private static JSONArray completeTrainingSession(
+            JSONArray storedArray,
+            String sessionId,
+            String workoutType,
+            String sessionTimestamp,
+            long durationMs) throws JSONException {
+        JSONArray updatedArray = new JSONArray();
+        boolean updated = false;
+
+        for (int i = 0; i < storedArray.length(); i++) {
+            JSONObject stored = storedArray.getJSONObject(i);
+            if (sessionId.equals(stored.optString("sessionId"))) {
+                long previousDuration = stored.optLong("durationMs", 0L);
+                stored.put("durationMs", Math.max(previousDuration, durationMs));
+                stored.put("workoutType", workoutType);
+                stored.put("timestamp", normalizeTimestamp(sessionTimestamp));
+                stored.put("completed", true);
+                if (stored.optLong("startedAtEpochMs", 0L) <= 0L) {
+                    stored.put(
+                            "startedAtEpochMs",
+                            parseTimestampEpoch(sessionTimestamp)
+                    );
+                }
+                updated = true;
+            }
+            updatedArray.put(stored);
         }
 
-        return changed && prefs.edit().putString(key, updatedArray.toString()).commit();
+        if (!updated) {
+            JSONObject session = new JSONObject();
+            session.put("sessionId", sessionId);
+            session.put("workoutType", workoutType);
+            session.put("durationMs", durationMs);
+            session.put("completed", true);
+            session.put("timestamp", normalizeTimestamp(sessionTimestamp));
+            session.put("startedAtEpochMs", parseTimestampEpoch(sessionTimestamp));
+            updatedArray.put(session);
+        }
+        return updatedArray;
     }
 
     private static int getWorkoutTypeOrder(String workoutType) {
@@ -806,11 +942,195 @@ public class WorkoutStorage {
         return 3;
     }
 
-    private static JSONArray parseArray(String data) {
+    public static synchronized boolean consumeCorruptionNotice() {
+        if (!corruptionDetected || corruptionNoticeShown) {
+            return false;
+        }
+        corruptionNoticeShown = true;
+        return true;
+    }
+
+    private static JSONArray parseArray(
+            Context context,
+            String source,
+            String data) {
         try {
-            return new JSONArray(data);
+            JSONArray array = new JSONArray(data);
+            validateObjectArray(array);
+            return array;
         } catch (JSONException e) {
+            recordCorruption(source, e);
             return new JSONArray();
+        }
+    }
+
+    private static JSONArray parseArray(String data) {
+        return parseArray(null, "WorkoutStorage", data);
+    }
+
+    private static JSONArray parseArrayForWrite(
+            Context context,
+            String source,
+            String data) {
+        try {
+            JSONArray array = new JSONArray(data);
+            validateObjectArray(array);
+            return array;
+        } catch (JSONException e) {
+            recordCorruption(source, e);
+            return null;
+        }
+    }
+
+    private static JSONArray parseArrayForWrite(String data) {
+        return parseArrayForWrite(null, "WorkoutStorage", data);
+    }
+
+    private static synchronized void recordCorruption(
+            String source,
+            JSONException exception) {
+        corruptionDetected = true;
+        Log.e(
+                TAG,
+                "Beschädigte Trainingsdaten in " + source
+                        + " werden weder verwendet noch überschrieben.",
+                exception
+        );
+    }
+
+    private static void validateObjectArray(JSONArray array) throws JSONException {
+        for (int i = 0; i < array.length(); i++) {
+            if (array.optJSONObject(i) == null) {
+                throw new JSONException("Eintrag " + i + " ist kein JSON-Objekt.");
+            }
+        }
+    }
+
+    private static TrainingSession findActiveTrainingSession(
+            Context context,
+            String workoutType) {
+        TrainingSession latest = null;
+        for (TrainingSession session : getTrainingSessions(context, true)) {
+            if (session.completed || !safe(workoutType).equals(session.workoutType)) {
+                continue;
+            }
+            if (latest == null || session.startedAtEpochMs > latest.startedAtEpochMs) {
+                latest = session;
+            }
+        }
+        if (latest != null) {
+            return latest;
+        }
+
+        String fallbackSessionId = "";
+        String fallbackTimestamp = "";
+        long fallbackStartedAt = 0L;
+        for (DetailedWorkout workout : getAllDetailedWorkouts(context, workoutType)) {
+            if (workout.completed || safe(workout.sessionId).isEmpty()) {
+                continue;
+            }
+            long startedAt = parseTimestampEpoch(workout.timestamp);
+            if (fallbackSessionId.isEmpty() || startedAt > fallbackStartedAt) {
+                fallbackSessionId = workout.sessionId;
+                fallbackTimestamp = workout.timestamp;
+                fallbackStartedAt = startedAt;
+            }
+        }
+        for (CardioSession cardio : getAllCardioSessions(context, workoutType)) {
+            if (cardio.completed || safe(cardio.sessionId).isEmpty()) {
+                continue;
+            }
+            long startedAt = parseTimestampEpoch(cardio.timestamp);
+            if (fallbackSessionId.isEmpty() || startedAt > fallbackStartedAt) {
+                fallbackSessionId = cardio.sessionId;
+                fallbackTimestamp = cardio.timestamp;
+                fallbackStartedAt = startedAt;
+            }
+        }
+        if (fallbackSessionId.isEmpty()) {
+            return null;
+        }
+
+        TrainingSession recovered = new TrainingSession(
+                fallbackSessionId,
+                workoutType,
+                fallbackTimestamp,
+                0L,
+                false,
+                fallbackStartedAt
+        );
+        persistTrainingSession(context, recovered);
+        return recovered;
+    }
+
+    private static boolean persistTrainingSession(
+            Context context,
+            TrainingSession trainingSession) {
+        SharedPreferences prefs =
+                context.getSharedPreferences(PREFS_SESSIONS, Context.MODE_PRIVATE);
+        JSONArray storedArray = parseArrayForWrite(prefs.getString(KEY_SESSIONS, "[]"));
+        if (storedArray == null) {
+            return false;
+        }
+        JSONArray updatedArray = new JSONArray();
+        boolean replaced = false;
+        try {
+            for (int i = 0; i < storedArray.length(); i++) {
+                JSONObject stored = storedArray.getJSONObject(i);
+                if (trainingSession.sessionId.equals(stored.optString("sessionId"))) {
+                    updatedArray.put(trainingSessionToJson(trainingSession));
+                    replaced = true;
+                } else {
+                    updatedArray.put(stored);
+                }
+            }
+            if (!replaced) {
+                updatedArray.put(trainingSessionToJson(trainingSession));
+            }
+            return prefs.edit().putString(KEY_SESSIONS, updatedArray.toString()).commit();
+        } catch (JSONException e) {
+            Log.e(TAG, "Aktive Trainingssession konnte nicht gespeichert werden.", e);
+            return false;
+        }
+    }
+
+    private static JSONObject trainingSessionToJson(TrainingSession session)
+            throws JSONException {
+        JSONObject object = new JSONObject();
+        object.put("sessionId", session.sessionId);
+        object.put("workoutType", session.workoutType);
+        object.put("timestamp", normalizeTimestamp(session.timestamp));
+        object.put("durationMs", session.durationMs);
+        object.put("completed", session.completed);
+        object.put("startedAtEpochMs", session.startedAtEpochMs);
+        return object;
+    }
+
+    private static boolean hasStoredItemsForSession(
+            SharedPreferences preferences,
+            String key,
+            String sessionId) {
+        JSONArray array = parseArray(preferences.getString(key, "[]"));
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject object = array.optJSONObject(i);
+            if (object != null && sessionId.equals(object.optString("sessionId"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static long parseTimestampEpoch(String timestamp) {
+        if (timestamp == null || timestamp.trim().isEmpty()) {
+            return System.currentTimeMillis();
+        }
+        SimpleDateFormat format = new SimpleDateFormat(TIMESTAMP_PATTERN, Locale.getDefault());
+        format.setLenient(false);
+        try {
+            Date parsed = format.parse(timestamp.trim());
+            return parsed == null ? System.currentTimeMillis() : parsed.getTime();
+        } catch (ParseException ignored) {
+            return System.currentTimeMillis();
         }
     }
 
@@ -843,14 +1163,6 @@ public class WorkoutStorage {
         public String sessionId;
         public boolean completed;
 
-        public DetailedWorkout(String exercise, String timestamp, List<WorkoutSet> sets) {
-            this(exercise, timestamp, sets, "");
-        }
-
-        public DetailedWorkout(String exercise, String timestamp, List<WorkoutSet> sets, String workoutType) {
-            this(exercise, timestamp, sets, workoutType, "");
-        }
-
         public DetailedWorkout(
                 String exercise,
                 String timestamp,
@@ -876,6 +1188,16 @@ public class WorkoutStorage {
         }
     }
 
+    public static class WorkoutExercise {
+        public final String exercise;
+        public final List<WorkoutSet> sets;
+
+        public WorkoutExercise(String exercise, List<WorkoutSet> sets) {
+            this.exercise = exercise == null ? "" : exercise.trim();
+            this.sets = sets;
+        }
+    }
+
     public static class DailyWorkout {
         public String date;
         public String workoutType;
@@ -884,20 +1206,8 @@ public class WorkoutStorage {
         public List<DetailedWorkout> exercises;
         public List<CardioSession> cardioSessions;
         
-        public DailyWorkout(String date, List<DetailedWorkout> exercises) {
-            this(date, "", exercises, new ArrayList<>());
-        }
-
         public DailyWorkout(String date, List<DetailedWorkout> exercises, List<CardioSession> cardioSessions) {
-            this(date, "", exercises, cardioSessions);
-        }
-
-        public DailyWorkout(
-                String date,
-                String workoutType,
-                List<DetailedWorkout> exercises,
-                List<CardioSession> cardioSessions) {
-            this(date, workoutType, "", "", exercises, cardioSessions);
+            this(date, "", "", "", exercises, cardioSessions);
         }
 
         public DailyWorkout(
@@ -923,14 +1233,6 @@ public class WorkoutStorage {
         public String workoutType;
         public String sessionId;
         public boolean completed;
-
-        public CardioSession(String exercise, int minutes, String timestamp) {
-            this(exercise, minutes, timestamp, "", "");
-        }
-
-        public CardioSession(String exercise, int minutes, String timestamp, String workoutType) {
-            this(exercise, minutes, timestamp, workoutType, "");
-        }
 
         public CardioSession(
                 String exercise,
@@ -963,18 +1265,21 @@ public class WorkoutStorage {
         public String timestamp;
         public long durationMs;
         public boolean completed;
+        public long startedAtEpochMs;
 
         public TrainingSession(
                 String sessionId,
                 String workoutType,
                 String timestamp,
                 long durationMs,
-                boolean completed) {
+                boolean completed,
+                long startedAtEpochMs) {
             this.sessionId = sessionId;
             this.workoutType = workoutType;
             this.timestamp = timestamp;
             this.durationMs = durationMs;
             this.completed = completed;
+            this.startedAtEpochMs = startedAtEpochMs;
         }
     }
 }

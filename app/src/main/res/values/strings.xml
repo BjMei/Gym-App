@@ -1,20 +1,12 @@
 <resources>
     <string name="app_name">IRONX</string>
 
-    <string-array name="push_exercises" />
-
-    <string-array name="cardio_exercises" />
-
-    <string-array name="pull_exercises" />
-
-    <string-array name="leg_exercises" />
     <string name="home_logo_description">IRONX Logo</string>
     <string name="home_dashboard_chip">DEIN DASHBOARD</string>
     <string name="home_ready">Bereit für dein Training?</string>
     <string name="home_greeting">Willkommen zurück \n%1$s</string>
     <string name="home_motto">Stärker als gestern. Satz für Satz.</string>
     <string name="home_week">DEINE WOCHE</string>
-    <string name="home_trainings">TRAININGS</string>
     <string name="home_streak_days">TAGE SERIE</string>
     <string name="home_volume">VOLUMEN</string>
     <string name="home_training_section">TRAINING</string>
@@ -46,22 +38,11 @@
     <string name="drawer_reset_final_action">Alle Daten löschen</string>
     <string name="drawer_reset_success">Alle Daten wurden zurückgesetzt.</string>
     <string name="drawer_reset_error">Die Daten konnten nicht vollständig zurückgesetzt werden.</string>
-    <string name="nav_workout_emoji">Workout</string>
-    <string name="nav_history_emoji">Trainingshistorie</string>
-    <string name="nav_stats_emoji">Statistik</string>
-    <string name="nav_progress_emoji">Fortschritt</string>
     <string name="nav_settings">Einstellungen</string>
 
     <string name="settings_title">Einstellungen</string>
-    <string name="settings_subtitle">Passe dein Profil, Ziele und die Darstellung der App an.</string>
-    <string name="settings_display_subtitle">Hier kannst du nur Darstellung, Einheiten und Sprache konfigurieren.</string>
     <string name="settings_profile_goals">Profil &amp; Ziele</string>
-    <string name="settings_name">Name</string>
-    <string name="settings_weight">Gewicht</string>
-    <string name="settings_display">Darstellung</string>
-    <string name="settings_save">Speichern</string>
     <string name="settings_saved">Einstellungen gespeichert</string>
-    <string name="profile_goals_subtitle">Verwalte persönliche Daten, Trainingsprofil und messbare Ziele.</string>
     <string name="profile_goals_saved">Profil und Ziele gespeichert</string>
     <string name="back">Zurück</string>
     <string name="profile_section">PROFIL</string>
@@ -72,7 +53,6 @@
     <string name="profile_name_label">NAME</string>
     <string name="profile_name_hint">Dein Name</string>
     <string name="profile_weight_label">AKTUELLES GEWICHT · AUS VERLAUF</string>
-    <string name="profile_weight_hint">Aktuelles Gewicht</string>
     <string name="profile_weight_hint_unit">Aktuelles Gewicht in %1$s</string>
     <string name="profile_birth_year_label">GEBURTSDATUM</string>
     <string name="profile_birth_year_hint">Datum auswählen</string>
@@ -113,6 +93,7 @@
     <string name="profile_strength_goal_add">KRAFTZIEL SPEICHERN</string>
     <string name="profile_strength_goal_empty">Noch keine übungsbezogenen Kraftziele festgelegt.</string>
     <string name="profile_strength_goal_saved">Kraftziel gespeichert</string>
+    <string name="profile_strength_goal_history_label">GESPEICHERTE KRAFTZIELE</string>
     <string name="profile_strength_goal_delete_title">Kraftziel löschen?</string>
     <string name="profile_strength_goal_delete_message">Das Ziel für „%1$s“ wird entfernt.</string>
     <string name="profile_legacy_strength_goal">Altes globales Kraftziel: %1$s. Wähle eine Übung und speichere es, um das Ziel eindeutig zuzuordnen.</string>
@@ -167,11 +148,9 @@
     <string name="settings_system_chip">SETUP</string>
     <string name="settings_control_chip">DEINE APP</string>
     <string name="settings_hero_subtitle">Darstellung, Einheiten und Verhalten der App konfigurieren</string>
-    <string name="settings_icon_description">App-Einstellungen</string>
     <string name="settings_app_configuration">APP-KONFIGURATION</string>
     <string name="settings_theme_label">DARSTELLUNG</string>
     <string name="settings_units_label">EINHEITEN</string>
-    <string name="settings_language_label">SPRACHE</string>
     <string name="settings_text_size_label">TEXTGRÖSSE</string>
     <string name="settings_behavior_section">BEDIENUNG &amp; TRAINING</string>
     <string name="settings_animations">Animationen verwenden</string>
@@ -185,7 +164,6 @@
     <string name="app_info_header_chip">INFO</string>
     <string name="app_info_hero_chip">APP-DETAILS</string>
     <string name="app_info_hero_subtitle">Version, System und Datenspeicherung im Überblick</string>
-    <string name="app_info_logo_description">IRONX App-Symbol</string>
     <string name="app_info_app_section">APP &amp; BUILD</string>
     <string name="app_info_installation_section">INSTALLATION</string>
     <string name="app_info_device_section">GERÄT &amp; KOMPATIBILITÄT</string>
@@ -301,8 +279,14 @@
     <string name="training_exit_title">Training beenden?</string>
     <string name="training_exit_message">Möchtest du dieses Training wirklich abschließen?</string>
     <string name="training_exit_unsaved_warning">Noch nicht gespeicherte Eingaben werden beim Beenden verworfen.</string>
+    <string name="training_exit_empty_warning">Es wurden noch keine Kraft- oder Cardiodaten gespeichert. Trainiere weiter oder verwirf die leere Einheit.</string>
     <string name="training_exit_continue">WEITERTRAINIEREN</string>
-    <string name="training_exit_end">BEENDEN</string>
+    <string name="training_exit_save">TRAINING SPEICHERN</string>
+    <string name="training_exit_discard">TRAINING VERWERFEN</string>
+    <string name="training_session_start_failed">Die Trainingssession konnte nicht gestartet werden.</string>
+    <string name="training_discard_failed">Das Training konnte nicht vollständig verworfen werden.</string>
+    <string name="storage_corruption_title">Beschädigte Trainingsdaten erkannt</string>
+    <string name="storage_corruption_message">Mindestens ein gespeicherter Trainingsbereich ist nicht mehr lesbar. Die App überschreibt diesen Bereich nicht. Stelle eine gültige IRONX-Sicherung wieder her oder setze die App-Daten zurück.</string>
     <string name="training_exit_summary_chip">TRAINING BEENDET</string>
     <string name="training_exit_summary_title">Deine Zusammenfassung</string>
     <string name="training_exit_summary_subtitle">Leistung dieser Trainingseinheit</string>
@@ -354,16 +338,6 @@
     <string name="settings_unit_kg">kg</string>
     <string name="settings_unit_lbs">lbs</string>
 
-    <string name="settings_language_german">Deutsch</string>
-    <string name="settings_language_english">English</string>
-
-    <string-array name="settings_goals">
-        <item>@string/settings_goal_muscle</item>
-        <item>@string/settings_goal_strength</item>
-        <item>@string/settings_goal_weight_loss</item>
-        <item>@string/settings_goal_fitness</item>
-    </string-array>
-
     <string-array name="settings_theme_options">
         <item>@string/settings_theme_dark</item>
         <item>@string/settings_theme_light</item>
@@ -372,11 +346,6 @@
     <string-array name="settings_units_options">
         <item>@string/settings_unit_kg</item>
         <item>@string/settings_unit_lbs</item>
-    </string-array>
-
-    <string-array name="settings_language_options">
-        <item>@string/settings_language_german</item>
-        <item>@string/settings_language_english</item>
     </string-array>
 
     <string-array name="settings_text_size_options">

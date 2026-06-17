@@ -12,7 +12,6 @@ public final class AppSettings {
 
     public static final String KEY_THEME = "theme";
     public static final String KEY_UNITS = "units";
-    public static final String KEY_LANGUAGE = "language";
     public static final String KEY_TEXT_SIZE = "text_size";
     public static final String KEY_ANIMATIONS = "animations";
     public static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
@@ -23,8 +22,6 @@ public final class AppSettings {
     public static final String THEME_OLED = "oled";
     public static final String UNIT_KG = "kg";
     public static final String UNIT_LBS = "lbs";
-    public static final String LANGUAGE_DE = "de";
-    public static final String LANGUAGE_EN = "en";
     public static final String TEXT_COMPACT = "compact";
     public static final String TEXT_STANDARD = "standard";
     public static final String TEXT_LARGE = "large";
@@ -40,8 +37,7 @@ public final class AppSettings {
 
     public static Context wrapContext(Context context) {
         SharedPreferences preferences = preferences(context);
-        String language = normalizeLanguage(preferences.getString(KEY_LANGUAGE, LANGUAGE_DE));
-        Locale locale = Locale.forLanguageTag(language);
+        Locale locale = Locale.GERMAN;
         Locale.setDefault(locale);
 
         Configuration configuration =
@@ -102,16 +98,6 @@ public final class AppSettings {
 
     public static boolean hapticsEnabled(Context context) {
         return preferences(context).getBoolean(KEY_HAPTICS, true);
-    }
-
-    public static String normalizeLanguage(String value) {
-        if (value == null) {
-            return LANGUAGE_DE;
-        }
-        if (LANGUAGE_EN.equalsIgnoreCase(value) || "English".equalsIgnoreCase(value)) {
-            return LANGUAGE_EN;
-        }
-        return LANGUAGE_DE;
     }
 
     public static float getTextScale(Context context) {

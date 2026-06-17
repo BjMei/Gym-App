@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public abstract class IronxActivity extends AppCompatActivity {
@@ -46,6 +47,18 @@ public abstract class IronxActivity extends AppCompatActivity {
         super.finish();
         if (!AppSettings.animationsEnabled(this)) {
             overridePendingTransition(0, 0);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (WorkoutStorage.consumeCorruptionNotice() && !isFinishing()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.storage_corruption_title)
+                    .setMessage(R.string.storage_corruption_message)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
         }
     }
 

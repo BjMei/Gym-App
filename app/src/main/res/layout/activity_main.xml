@@ -572,73 +572,19 @@
             android:textColor="@color/text_tertiary"
             android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/drawerHistory"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:background="@drawable/bg_drawer_item"
-            android:clickable="true"
-            android:focusable="true"
-            android:fontFamily="sans-serif-medium"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:text="@string/drawer_history"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/drawerProfileGoals"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_drawer_item"
-            android:clickable="true"
-            android:focusable="true"
-            android:fontFamily="sans-serif-medium"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:text="@string/drawer_profile"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/drawerSettings"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_drawer_item"
-            android:clickable="true"
-            android:focusable="true"
-            android:fontFamily="sans-serif-medium"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:text="@string/nav_settings"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/drawerAppInfo"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_drawer_item"
-            android:clickable="true"
-            android:focusable="true"
-            android:fontFamily="sans-serif-medium"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:text="@string/app_info_title"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp" />
-
-        <View
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/drawerNavigation"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            app:itemBackground="@drawable/bg_drawer_item"
+            app:itemHorizontalPadding="16dp"
+            app:itemIconTint="@color/text_secondary"
+            app:itemTextAppearance="@style/DrawerMenuText"
+            app:itemTextColor="@color/text_primary"
+            app:itemVerticalPadding="8dp"
+            app:menu="@menu/home_burger_menu" />
 
         <TextView
             android:id="@+id/drawerResetData"

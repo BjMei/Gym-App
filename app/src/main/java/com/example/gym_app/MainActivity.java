@@ -19,6 +19,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.material.navigation.NavigationView;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -112,30 +114,25 @@ public class MainActivity extends IronxActivity {
     }
 
     private void setupDrawerMenuItems() {
-        TextView drawerHistory = findViewById(R.id.drawerHistory);
-        TextView drawerProfileGoals = findViewById(R.id.drawerProfileGoals);
-        TextView drawerSettings = findViewById(R.id.drawerSettings);
-        TextView drawerAppInfo = findViewById(R.id.drawerAppInfo);
         TextView drawerResetData = findViewById(R.id.drawerResetData);
-
-        drawerHistory.setOnClickListener(v -> {
+        NavigationView navigation = findViewById(R.id.drawerNavigation);
+        navigation.setNavigationItemSelectedListener(item -> {
+            Intent intent = null;
+            if (item.getItemId() == R.id.menu_history) {
+                intent = new Intent(this, TrainingHistoryActivity.class);
+            } else if (item.getItemId() == R.id.menu_profile_goals) {
+                intent = new Intent(this, ProfileGoalsActivity.class);
+            } else if (item.getItemId() == R.id.menu_settings) {
+                intent = new Intent(this, SettingsActivity.class);
+            } else if (item.getItemId() == R.id.menu_app_info) {
+                intent = new Intent(this, AppInfoActivity.class);
+            }
+            if (intent == null) {
+                return false;
+            }
             closeDrawerIfOpen();
-            startActivity(new Intent(MainActivity.this, TrainingHistoryActivity.class));
-        });
-
-        drawerProfileGoals.setOnClickListener(v -> {
-            closeDrawerIfOpen();
-            startActivity(new Intent(MainActivity.this, ProfileGoalsActivity.class));
-        });
-
-        drawerSettings.setOnClickListener(v -> {
-            closeDrawerIfOpen();
-            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-        });
-
-        drawerAppInfo.setOnClickListener(v -> {
-            closeDrawerIfOpen();
-            startActivity(new Intent(MainActivity.this, AppInfoActivity.class));
+            startActivity(intent);
+            return true;
         });
 
         drawerResetData.setOnClickListener(v -> {

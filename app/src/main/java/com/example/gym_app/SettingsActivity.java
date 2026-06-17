@@ -19,7 +19,6 @@ public class SettingsActivity extends IronxActivity {
 
     private Spinner spinnerTheme;
     private Spinner spinnerUnits;
-    private Spinner spinnerLanguage;
     private Spinner spinnerTextSize;
     private MaterialSwitch switchAnimations;
     private MaterialSwitch switchKeepScreenOn;
@@ -37,7 +36,6 @@ public class SettingsActivity extends IronxActivity {
 
         spinnerTheme = findViewById(R.id.spinnerTheme);
         spinnerUnits = findViewById(R.id.spinnerUnits);
-        spinnerLanguage = findViewById(R.id.spinnerLanguage);
         spinnerTextSize = findViewById(R.id.spinnerTextSize);
         switchAnimations = findViewById(R.id.switchAnimations);
         switchKeepScreenOn = findViewById(R.id.switchKeepScreenOn);
@@ -47,7 +45,6 @@ public class SettingsActivity extends IronxActivity {
 
         setupSpinner(spinnerTheme, R.array.settings_theme_options);
         setupSpinner(spinnerUnits, R.array.settings_units_options);
-        setupSpinner(spinnerLanguage, R.array.settings_language_options);
         setupSpinner(spinnerTextSize, R.array.settings_text_size_options);
 
         loadSettings();
@@ -91,12 +88,6 @@ public class SettingsActivity extends IronxActivity {
                 AppSettings.THEME_OLED.equals(theme) || "Light".equalsIgnoreCase(theme) ? 1 : 0
         );
         spinnerUnits.setSelection(AppSettings.usesLbs(this) ? 1 : 0);
-        spinnerLanguage.setSelection(
-                AppSettings.LANGUAGE_EN.equals(AppSettings.normalizeLanguage(
-                        prefs.getString(AppSettings.KEY_LANGUAGE, AppSettings.LANGUAGE_DE)
-                )) ? 1 : 0
-        );
-
         String textSize = prefs.getString(
                 AppSettings.KEY_TEXT_SIZE,
                 AppSettings.TEXT_STANDARD
@@ -132,14 +123,9 @@ public class SettingsActivity extends IronxActivity {
         String units = spinnerUnits.getSelectedItemPosition() == 1
                 ? AppSettings.UNIT_LBS
                 : AppSettings.UNIT_KG;
-        String language = spinnerLanguage.getSelectedItemPosition() == 1
-                ? AppSettings.LANGUAGE_EN
-                : AppSettings.LANGUAGE_DE;
-
         prefs.edit()
                 .putString(AppSettings.KEY_THEME, theme)
                 .putString(AppSettings.KEY_UNITS, units)
-                .putString(AppSettings.KEY_LANGUAGE, language)
                 .putString(AppSettings.KEY_TEXT_SIZE, selectedTextSize())
                 .putBoolean(AppSettings.KEY_ANIMATIONS, switchAnimations.isChecked())
                 .putBoolean(AppSettings.KEY_KEEP_SCREEN_ON, switchKeepScreenOn.isChecked())

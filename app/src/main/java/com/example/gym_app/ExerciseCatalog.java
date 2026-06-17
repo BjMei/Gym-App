@@ -5,10 +5,12 @@ import android.content.SharedPreferences;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ExerciseCatalog {
 
     private static final String PREFS_NAME = "CustomExercises";
+    private static final String SETTINGS_PREFS_NAME = "ExerciseSettings";
 
     private ExerciseCatalog() {
     }
@@ -47,6 +49,50 @@ public class ExerciseCatalog {
 
     public static boolean containsIgnoreCase(List<String> list, String value) {
         return indexOfIgnoreCase(list, value) >= 0;
+    }
+
+    public static String settingsKey(String workoutType, String exerciseName) {
+        return normalize(workoutType) + "|" + normalize(exerciseName);
+    }
+
+    public static void migrateLegacyExerciseSettings(Context context) {
+        SharedPreferences settings =
+                context.getSharedPreferences(SETTINGS_PREFS_NAME, Context.MODE_PRIVATE);
+        Map<String, ?> storedValues = settings.getAll();
+        SharedPreferences.Editor editor = settings.edit();
+        boolean changed = false;
+        String[] workoutTypes = {
+                WorkoutStorage.TYPE_PUSH,
+                WorkoutStorage.TYPE_PULL,
+                WorkoutStorage.TYPE_LEG
+        };
+
+        for (Map.Entry<String, ?> entry : storedValues.entrySet()) {
+            String legacyExercise = entry.getKey();
+            if (legacyExercise.contains("|") || !(entry.getValue() instanceof String)) {
+                continue;
+            }
+
+            boolean migrated = false;
+            for (String workoutType : workoutTypes) {
+                if (!containsIgnoreCase(getExercises(context, workoutType), legacyExercise)) {
+                    continue;
+                }
+                String typedKey = settingsKey(workoutType, legacyExercise);
+                if (!storedValues.containsKey(typedKey)) {
+                    editor.putString(typedKey, (String) entry.getValue());
+                }
+                migrated = true;
+            }
+            if (migrated) {
+                editor.remove(legacyExercise);
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            editor.apply();
+        }
     }
 
     private static List<String> getActiveExercises(Context context, String workoutType) {

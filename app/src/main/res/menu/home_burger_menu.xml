@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/menu_workout"
-        android:title="@string/nav_workout_emoji" />
-    <item
         android:id="@+id/menu_history"
-        android:title="@string/nav_history_emoji" />
+        android:title="@string/drawer_history" />
     <item
-        android:id="@+id/menu_stats"
-        android:title="@string/nav_stats_emoji" />
-    <item
-        android:id="@+id/menu_progress"
-        android:title="@string/nav_progress_emoji" />
+        android:id="@+id/menu_profile_goals"
+        android:title="@string/drawer_profile" />
     <item
         android:id="@+id/menu_settings"
         android:title="@string/nav_settings" />
+    <item
+        android:id="@+id/menu_app_info"
+        android:title="@string/app_info_title" />
 </menu>

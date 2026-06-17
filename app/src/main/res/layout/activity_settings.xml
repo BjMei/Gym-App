@@ -175,15 +175,6 @@
                 <TextView
                     style="@style/ProfileFieldLabel"
                     android:layout_marginTop="15dp"
-                    android:text="@string/settings_language_label" />
-
-                <Spinner
-                    android:id="@+id/spinnerLanguage"
-                    style="@style/SettingsSpinner" />
-
-                <TextView
-                    style="@style/ProfileFieldLabel"
-                    android:layout_marginTop="15dp"
                     android:text="@string/settings_text_size_label" />
 
                 <Spinner

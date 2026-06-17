@@ -1,7 +1,6 @@
 package com.example.gym_app;
 
 import android.app.Dialog;
-import android.os.SystemClock;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -23,7 +22,7 @@ final class TrainingExitDialog {
             @NonNull String sessionId,
             @NonNull String workoutType,
             @NonNull String workoutStartedTimestamp,
-            long workoutStartedElapsedMs,
+            long workoutStartedEpochMs,
             boolean hasUnsavedInput,
             @NonNull Runnable onContinue,
             @NonNull Runnable onFinished) {
@@ -48,17 +47,30 @@ final class TrainingExitDialog {
             onContinue.run();
         });
         dialog.findViewById(R.id.btnEndTraining).setOnClickListener(view -> {
+            if (!WorkoutStorage.hasTrainingSessionItems(
+                    activity,
+                    workoutType,
+                    sessionId
+            )) {
+                unsavedWarning.setText(R.string.training_exit_empty_warning);
+                unsavedWarning.setVisibility(View.VISIBLE);
+                return;
+            }
             long workoutDurationMs = Math.max(
-                    0L,
-                    SystemClock.elapsedRealtime() - workoutStartedElapsedMs
+                    1L,
+                    System.currentTimeMillis() - workoutStartedEpochMs
             );
-            WorkoutStorage.saveTrainingSession(
+            if (!WorkoutStorage.saveTrainingSession(
                     activity,
                     sessionId,
                     workoutType,
                     workoutStartedTimestamp,
                     workoutDurationMs
-            );
+            )) {
+                unsavedWarning.setText(R.string.training_save_failed);
+                unsavedWarning.setVisibility(View.VISIBLE);
+                return;
+            }
             showSummary(
                     dialog,
                     activity,
@@ -66,6 +78,20 @@ final class TrainingExitDialog {
                     workoutType,
                     workoutDurationMs
             );
+        });
+        dialog.findViewById(R.id.btnDiscardTraining).setOnClickListener(view -> {
+            if (sessionId.trim().isEmpty()) {
+                dialog.dismiss();
+                onFinished.run();
+                return;
+            }
+            if (!WorkoutStorage.discardTrainingSession(activity, workoutType, sessionId)) {
+                unsavedWarning.setText(R.string.training_discard_failed);
+                unsavedWarning.setVisibility(View.VISIBLE);
+                return;
+            }
+            dialog.dismiss();
+            onFinished.run();
         });
         dialog.findViewById(R.id.btnSummaryDone).setOnClickListener(view -> {
             dialog.dismiss();

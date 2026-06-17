@@ -24,18 +24,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.button.MaterialButton;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 public class LegActivity extends IronxActivity {
 
@@ -72,7 +68,7 @@ public class LegActivity extends IronxActivity {
     private boolean exitDialogVisible = false;
     private String trainingSessionId;
     private String trainingSessionStartedAt;
-    private long workoutStartedElapsedMs;
+    private long workoutStartedEpochMs;
     private static final String STATE_SESSION_ID = "training_session_id";
     private static final String STATE_SESSION_STARTED_AT = "training_session_started_at";
     private static final String STATE_WORKOUT_STARTED =
@@ -134,6 +130,7 @@ public class LegActivity extends IronxActivity {
 
         // SharedPreferences initialisieren
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        ExerciseCatalog.migrateLegacyExerciseSettings(this);
         setupStopwatch();
 
         setupExerciseSpinner();
@@ -176,6 +173,7 @@ public class LegActivity extends IronxActivity {
         // Listen für Einträge initialisieren
         workoutEntries = new ArrayList<>();
         cardioEntries = new ArrayList<>();
+        restoreSavedSessionEntries();
         setupBackNavigation();
         setupInfoButtons();
 
@@ -385,26 +383,63 @@ public class LegActivity extends IronxActivity {
 
     private void restoreSessionState(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
-            WorkoutStorage.discardIncompleteTrainingData(this, WORKOUT_TYPE);
-            trainingSessionId = UUID.randomUUID().toString();
-            trainingSessionStartedAt = currentStorageTimestamp();
-            workoutStartedElapsedMs = SystemClock.elapsedRealtime();
+            WorkoutStorage.TrainingSession session =
+                    WorkoutStorage.getOrCreateActiveTrainingSession(this, WORKOUT_TYPE);
+            if (session == null) {
+                trainingSessionId = "";
+                trainingSessionStartedAt = "";
+                workoutStartedEpochMs = System.currentTimeMillis();
+                Toast.makeText(this, R.string.training_session_start_failed, Toast.LENGTH_LONG)
+                        .show();
+                return;
+            }
+            trainingSessionId = session.sessionId;
+            trainingSessionStartedAt = session.timestamp;
+            workoutStartedEpochMs = session.startedAtEpochMs;
             return;
         }
         trainingSessionId = savedInstanceState.getString(
                 STATE_SESSION_ID,
-                UUID.randomUUID().toString()
+                ""
         );
         trainingSessionStartedAt = savedInstanceState.getString(
                 STATE_SESSION_STARTED_AT,
-                currentStorageTimestamp()
+                ""
         );
-        workoutStartedElapsedMs = savedInstanceState.getLong(
+        workoutStartedEpochMs = savedInstanceState.getLong(
                 STATE_WORKOUT_STARTED,
-                SystemClock.elapsedRealtime()
+                System.currentTimeMillis()
         );
         elapsedWhenPausedMs = savedInstanceState.getLong(STATE_TIMER_ELAPSED, 0L);
         timerRunning = savedInstanceState.getBoolean(STATE_TIMER_RUNNING, false);
+    }
+
+    private void restoreSavedSessionEntries() {
+        if (trainingSessionId == null || trainingSessionId.isEmpty()) {
+            return;
+        }
+        for (WorkoutStorage.DetailedWorkout stored :
+                WorkoutStorage.getAllDetailedWorkouts(this, WORKOUT_TYPE)) {
+            if (!trainingSessionId.equals(stored.sessionId) || stored.sets == null) {
+                continue;
+            }
+            List<Set> sets = new ArrayList<>();
+            for (WorkoutStorage.WorkoutSet set : stored.sets) {
+                sets.add(new Set(set.weight, set.reps));
+            }
+            WorkoutEntry entry = new WorkoutEntry(stored.exercise, sets);
+            workoutEntries.add(entry);
+            addEntryToView(entry);
+        }
+        for (WorkoutStorage.CardioSession stored :
+                WorkoutStorage.getAllCardioSessions(this, WORKOUT_TYPE)) {
+            if (!trainingSessionId.equals(stored.sessionId)) {
+                continue;
+            }
+            CardioEntry entry = new CardioEntry(stored.exercise, stored.minutes);
+            cardioEntries.add(entry);
+            addCardioEntryToView(entry);
+        }
     }
 
     private long getCurrentElapsedMs() {
@@ -757,6 +792,14 @@ public class LegActivity extends IronxActivity {
         btnDelete.setOnClickListener(v -> showDeleteConfirmDialog(item, () -> {
             if (ExerciseCatalog.removeExercise(this, listKey, item)) {
                 if (listKey.equals(WORKOUT_TYPE)) {
+                    sharedPreferences.edit()
+                            .remove(ExerciseCatalog.settingsKey(WORKOUT_TYPE, item))
+                            .apply();
+                    getSharedPreferences("ExerciseMuscleMappings", MODE_PRIVATE)
+                            .edit()
+                            .remove(WORKOUT_TYPE + "|" + item)
+                            .apply();
+                    new ProfileRepository(this).removeStrengthGoal(WORKOUT_TYPE, item);
                     refreshExerciseSpinner(null);
                 } else {
                     refreshCardioSpinner(null);
@@ -832,7 +875,11 @@ public class LegActivity extends IronxActivity {
         Button btnSaveSettings = dialog.findViewById(R.id.btnSaveSettings);
 
         // Gespeicherte Einstellungen laden
-        String savedPositions = sharedPreferences.getString(selectedExercise, "");
+        String settingsKey = ExerciseCatalog.settingsKey(WORKOUT_TYPE, selectedExercise);
+        String savedPositions = sharedPreferences.getString(
+                settingsKey,
+                ""
+        );
         etSeatPositions.setText(savedPositions);
 
         // Cancel-Button
@@ -844,7 +891,7 @@ public class LegActivity extends IronxActivity {
             
             // In SharedPreferences speichern
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(selectedExercise, positions);
+            editor.putString(settingsKey, positions);
             editor.apply();
 
             Toast.makeText(this, String.format("Einstellungen für '%s' gespeichert", selectedExercise), 
@@ -890,13 +937,35 @@ public class LegActivity extends IronxActivity {
             }
         }
 
-        boolean saved = saveWorkoutExercise(exercise, primarySets);
-        if (saved && secondHasInput && secondSets != null) {
-            saved = saveWorkoutExercise(secondExercise, secondSets);
+        List<WorkoutStorage.WorkoutExercise> exercisesToSave = new ArrayList<>();
+        exercisesToSave.add(new WorkoutStorage.WorkoutExercise(
+                exercise,
+                toStorageSets(primarySets)
+        ));
+        if (secondHasInput && secondSets != null) {
+            exercisesToSave.add(new WorkoutStorage.WorkoutExercise(
+                    secondExercise,
+                    toStorageSets(secondSets)
+            ));
         }
+        boolean saved = WorkoutStorage.saveDetailedWorkouts(
+                this,
+                WORKOUT_TYPE,
+                trainingSessionId,
+                trainingSessionStartedAt,
+                exercisesToSave
+        );
         if (!saved) {
             Toast.makeText(this, R.string.training_save_failed, Toast.LENGTH_SHORT).show();
             return false;
+        }
+        WorkoutEntry primaryEntry = new WorkoutEntry(exercise, primarySets);
+        workoutEntries.add(primaryEntry);
+        addEntryToView(primaryEntry);
+        if (secondHasInput && secondSets != null) {
+            WorkoutEntry secondEntry = new WorkoutEntry(secondExercise, secondSets);
+            workoutEntries.add(secondEntry);
+            addEntryToView(secondEntry);
         }
         clearInputFields();
         loadLastWorkout(exercise);
@@ -937,28 +1006,12 @@ public class LegActivity extends IronxActivity {
         return false;
     }
 
-    private boolean saveWorkoutExercise(String exercise, List<Set> sets) {
+    private List<WorkoutStorage.WorkoutSet> toStorageSets(List<Set> sets) {
         List<WorkoutStorage.WorkoutSet> storageSets = new ArrayList<>();
         for (Set set : sets) {
             storageSets.add(new WorkoutStorage.WorkoutSet(set.getWeight(), set.getReps()));
         }
-        boolean detailedSaved =
-                WorkoutStorage.saveDetailedWorkout(
-                        this,
-                        WORKOUT_TYPE,
-                        trainingSessionId,
-                        trainingSessionStartedAt,
-                        exercise,
-                        storageSets
-                );
-        if (!detailedSaved) {
-            return false;
-        }
-
-        WorkoutEntry entry = new WorkoutEntry(exercise, sets);
-        workoutEntries.add(entry);
-        addEntryToView(entry);
-        return true;
+        return storageSets;
     }
 
     private void clearInputFields() {
@@ -1178,7 +1231,7 @@ public class LegActivity extends IronxActivity {
                 trainingSessionId,
                 WORKOUT_TYPE,
                 trainingSessionStartedAt,
-                workoutStartedElapsedMs,
+                workoutStartedEpochMs,
                 hasUnsavedTrainingInput(),
                 () -> {
                     exitDialogVisible = false;
@@ -1244,17 +1297,10 @@ public class LegActivity extends IronxActivity {
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(STATE_SESSION_ID, trainingSessionId);
         outState.putString(STATE_SESSION_STARTED_AT, trainingSessionStartedAt);
-        outState.putLong(STATE_WORKOUT_STARTED, workoutStartedElapsedMs);
+        outState.putLong(STATE_WORKOUT_STARTED, workoutStartedEpochMs);
         outState.putLong(STATE_TIMER_ELAPSED, getCurrentElapsedMs());
         outState.putBoolean(STATE_TIMER_RUNNING, timerRunning);
         super.onSaveInstanceState(outState);
-    }
-
-    private String currentStorageTimestamp() {
-        return new SimpleDateFormat(
-                "dd.MM.yyyy HH:mm",
-                Locale.getDefault()
-        ).format(new Date());
     }
 
     @Override

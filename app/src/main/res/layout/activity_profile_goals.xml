@@ -608,11 +608,28 @@
                     android:textSize="11sp"
                     android:visibility="gone" />
 
+                <TextView
+                    android:id="@+id/btnToggleStrengthGoals"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="18dp"
+                    android:background="@drawable/bg_training_input_compact"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center_vertical"
+                    android:letterSpacing="0.08"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="@string/profile_strength_goal_history_label"
+                    android:textColor="@color/training_gold_highlight"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
                 <LinearLayout
                     android:id="@+id/llStrengthGoals"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
                     android:orientation="vertical" />
 
                 <TextView

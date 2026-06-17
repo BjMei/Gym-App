@@ -91,37 +91,57 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="22dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btnContinueTraining"
-            android:layout_width="0dp"
-            android:layout_height="54dp"
-            android:layout_marginEnd="6dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_dialog_secondary_action"
-            android:backgroundTint="@null"
-            android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.04"
-            android:text="@string/training_exit_continue"
-            android:textColor="@color/text_primary"
-            android:textSize="10sp"
-            app:backgroundTint="@null" />
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/btnEndTraining"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
             android:background="@drawable/bg_dialog_primary_action"
             android:backgroundTint="@null"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.04"
-            android:text="@string/training_exit_end"
+            android:letterSpacing="0.06"
+            android:text="@string/training_exit_save"
             android:textColor="#11100B"
-            android:textSize="10sp"
+            android:textSize="11sp"
             app:backgroundTint="@null" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnContinueTraining"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_dialog_secondary_action"
+                android:backgroundTint="@null"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.04"
+                android:text="@string/training_exit_continue"
+                android:textColor="@color/text_primary"
+                android:textSize="9sp"
+                app:backgroundTint="@null" />
+
+            <Button
+                android:id="@+id/btnDiscardTraining"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_drawer_danger_item"
+                android:backgroundTint="@null"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.04"
+                android:text="@string/training_exit_discard"
+                android:textColor="@color/error"
+                android:textSize="9sp"
+                app:backgroundTint="@null" />
+        </LinearLayout>
     </LinearLayout>
 
     <Button

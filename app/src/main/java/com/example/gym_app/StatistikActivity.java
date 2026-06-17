@@ -6,13 +6,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -44,11 +44,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -70,10 +70,12 @@ public class StatistikActivity extends IronxActivity {
 
     private LinearLayout tabUebersicht, tabVolumen, tabStruktur, tabCardio, tabPR;
     private View secUebersicht, secVolumen, secStruktur, secCardio, secPR;
+    private ScrollView scrollStatistikContent;
 
     private Spinner spRangeUebersicht, spRangeVolumen, spRangeStruktur, spRangeCardio, spRangePR;
     private Spinner spFilterType, spFilterExercise;
     private ArrayAdapter<String> exerciseFilterAdapter;
+    private final List<ExerciseFilter> exerciseFilterValues = new ArrayList<>();
     private boolean updatingExerciseFilter;
 
     private TextView tvBestWeek;
@@ -144,6 +146,7 @@ public class StatistikActivity extends IronxActivity {
         tabStruktur = findViewById(R.id.tabStruktur);
         tabCardio = findViewById(R.id.tabCardio);
         tabPR = findViewById(R.id.tabPR);
+        scrollStatistikContent = findViewById(R.id.scrollStatistikContent);
 
         secUebersicht = findViewById(R.id.secUebersicht);
         secVolumen = findViewById(R.id.secVolumen);
@@ -251,6 +254,14 @@ public class StatistikActivity extends IronxActivity {
         spFilterExercise.setAlpha(exerciseFilterRelevant ? 1f : 0.45f);
 
         loadSection(tab);
+        scrollToTop(scrollStatistikContent);
+    }
+
+    private void scrollToTop(ScrollView scrollView) {
+        if (scrollView == null) {
+            return;
+        }
+        scrollView.post(() -> scrollView.scrollTo(0, 0));
     }
 
     private void setupRangeSpinners() {
@@ -358,7 +369,7 @@ public class StatistikActivity extends IronxActivity {
     private void refreshExerciseFilter() {
         updatingExerciseFilter = true;
         String selectedType = getSelectedTypeFilter();
-        Set<String> exercises = new LinkedHashSet<>();
+        Map<String, ExerciseFilter> exercises = new LinkedHashMap<>();
         String[] types = selectedType.isEmpty()
                 ? new String[]{
                         WorkoutStorage.TYPE_PUSH,
@@ -371,16 +382,26 @@ public class StatistikActivity extends IronxActivity {
             for (WorkoutStorage.DetailedWorkout workout :
                     WorkoutStorage.getDetailedWorkouts(this, type)) {
                 if (workout.exercise != null && !workout.exercise.trim().isEmpty()) {
-                    exercises.add(workout.exercise);
+                    String storedType = workout.workoutType == null
+                            || workout.workoutType.trim().isEmpty()
+                            ? type
+                            : workout.workoutType;
+                    ExerciseFilter filter =
+                            new ExerciseFilter(storedType, workout.exercise.trim());
+                    exercises.putIfAbsent(filter.key(), filter);
                 }
             }
         }
 
-        List<String> sorted = new ArrayList<>(exercises);
-        Collections.sort(sorted);
+        List<ExerciseFilter> sorted = new ArrayList<>(exercises.values());
+        sorted.sort(Comparator.comparing(filter -> filter.label));
+        exerciseFilterValues.clear();
+        exerciseFilterValues.addAll(sorted);
         exerciseFilterAdapter.clear();
         exerciseFilterAdapter.add("Alle Übungen");
-        exerciseFilterAdapter.addAll(sorted);
+        for (ExerciseFilter filter : sorted) {
+            exerciseFilterAdapter.add(filter.label);
+        }
         exerciseFilterAdapter.notifyDataSetChanged();
         spFilterExercise.setSelection(0);
         updatingExerciseFilter = false;
@@ -395,13 +416,16 @@ public class StatistikActivity extends IronxActivity {
                 : "";
     }
 
-    private String getSelectedExerciseFilter() {
+    private ExerciseFilter getSelectedExerciseFilter() {
         if (spFilterExercise == null
                 || spFilterExercise.getSelectedItemPosition() <= 0
                 || spFilterExercise.getSelectedItem() == null) {
-            return "";
+            return null;
         }
-        return spFilterExercise.getSelectedItem().toString();
+        int valueIndex = spFilterExercise.getSelectedItemPosition() - 1;
+        return valueIndex >= 0 && valueIndex < exerciseFilterValues.size()
+                ? exerciseFilterValues.get(valueIndex)
+                : null;
     }
 
     private void loadSection(String tab) {
@@ -426,7 +450,7 @@ public class StatistikActivity extends IronxActivity {
                 new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
         List<WorkoutStorage.DetailedWorkout> result = new ArrayList<>();
         String selectedType = getSelectedTypeFilter();
-        String selectedExercise = getSelectedExerciseFilter();
+        ExerciseFilter selectedExercise = getSelectedExerciseFilter();
         String[] types = selectedType.isEmpty()
                 ? new String[]{
                         WorkoutStorage.TYPE_PUSH,
@@ -442,8 +466,9 @@ public class StatistikActivity extends IronxActivity {
                     if (d != null
                             && !d.before(startInclusive)
                             && d.before(endExclusive)
-                            && (selectedExercise.isEmpty()
-                            || selectedExercise.equals(w.exercise))) {
+                            && (selectedExercise == null
+                            || (selectedExercise.exercise.equals(w.exercise)
+                            && selectedExercise.workoutType.equals(w.workoutType)))) {
                         result.add(w);
                     }
                 } catch (Exception ignored) {
@@ -488,7 +513,7 @@ public class StatistikActivity extends IronxActivity {
     private List<WorkoutStorage.TrainingSession> getMeasuredSessionsBetween(
             Date startInclusive,
             Date endExclusive) {
-        if (!getSelectedExerciseFilter().isEmpty()) {
+        if (getSelectedExerciseFilter() != null) {
             return Collections.emptyList();
         }
 
@@ -501,6 +526,13 @@ public class StatistikActivity extends IronxActivity {
                 WorkoutStorage.getTrainingSessions(this)) {
             if (!selectedType.isEmpty()
                     && !selectedType.equals(session.workoutType)) {
+                continue;
+            }
+            if (!WorkoutStorage.hasTrainingSessionItems(
+                    this,
+                    session.workoutType,
+                    session.sessionId
+            )) {
                 continue;
             }
             try {
@@ -526,11 +558,64 @@ public class StatistikActivity extends IronxActivity {
         return days;
     }
 
+    private Map<String, String> getSessionDates(
+            List<WorkoutStorage.DetailedWorkout> workouts,
+            List<WorkoutStorage.CardioSession> cardioSessions) {
+        Map<String, String> sessionDates = new LinkedHashMap<>();
+        for (WorkoutStorage.DetailedWorkout workout : workouts) {
+            String date = datePart(workout.timestamp);
+            if (!date.isEmpty()) {
+                sessionDates.putIfAbsent(
+                        sessionKey(
+                                workout.sessionId,
+                                date,
+                                workout.workoutType
+                        ),
+                        date
+                );
+            }
+        }
+        for (WorkoutStorage.CardioSession cardio : cardioSessions) {
+            String date = datePart(cardio.timestamp);
+            if (!date.isEmpty()) {
+                sessionDates.putIfAbsent(
+                        sessionKey(
+                                cardio.sessionId,
+                                date,
+                                cardio.workoutType
+                        ),
+                        date
+                );
+            }
+        }
+        return sessionDates;
+    }
+
+    private String sessionKey(
+            String sessionId,
+            String date,
+            String workoutType) {
+        if (sessionId != null && !sessionId.trim().isEmpty()) {
+            return "session|" + sessionId.trim();
+        }
+        return "legacy|"
+                + date
+                + "|"
+                + (workoutType == null ? "" : workoutType);
+    }
+
+    private String datePart(String timestamp) {
+        if (timestamp == null || timestamp.trim().isEmpty()) {
+            return "";
+        }
+        return timestamp.trim().split("\\s+")[0];
+    }
+
     private Set<String> getActiveDays(
             List<WorkoutStorage.DetailedWorkout> workouts,
             List<WorkoutStorage.CardioSession> cardioSessions) {
         Set<String> days = getTrainedDays(workouts);
-        if (getSelectedExerciseFilter().isEmpty()) {
+        if (getSelectedExerciseFilter() == null) {
             for (WorkoutStorage.CardioSession session : cardioSessions) {
                 if (session.timestamp != null) {
                     days.add(session.timestamp.split(" ")[0]);
@@ -551,6 +636,23 @@ public class StatistikActivity extends IronxActivity {
             return "Leg";
         }
         return "Sonstige";
+    }
+
+    private String workoutTypeLabel(String workoutType) {
+        if (WorkoutStorage.TYPE_PUSH.equals(workoutType)) {
+            return "Push";
+        }
+        if (WorkoutStorage.TYPE_PULL.equals(workoutType)) {
+            return "Pull";
+        }
+        if (WorkoutStorage.TYPE_LEG.equals(workoutType)) {
+            return "Leg";
+        }
+        return "Sonstige";
+    }
+
+    private String exerciseLabel(WorkoutStorage.DetailedWorkout workout) {
+        return workoutTypeLabel(workout.workoutType) + " · " + workout.exercise;
     }
 
     private double calcVolume(List<WorkoutStorage.WorkoutSet> sets) {
@@ -578,7 +680,7 @@ public class StatistikActivity extends IronxActivity {
         SimpleDateFormat weekFmt = new SimpleDateFormat("'KW'ww/yyyy", Locale.getDefault());
         Map<String, Integer> weekCount = new HashMap<>();
         SimpleDateFormat dayParse = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-        for (String day : metrics.activeDays) {
+        for (String day : metrics.sessionDates.values()) {
             try {
                 Date d = dayParse.parse(day);
                 if (d != null) {
@@ -606,22 +708,26 @@ public class StatistikActivity extends IronxActivity {
         ((TextView) kpiWorkouts.findViewById(R.id.kpiValue))
                 .setText(String.valueOf(metrics.sessionCount));
         ((TextView) kpiWorkouts.findViewById(R.id.kpiTrend))
-                .setText("Kraft und Cardio-Tage");
+                .setText("Einzelne Kraft- und Cardioeinheiten");
 
         ((TextView) kpiHours.findViewById(R.id.kpiLabel)).setText("STUNDEN");
         ((TextView) kpiHours.findViewById(R.id.kpiValue)).setText(
-                String.format(Locale.getDefault(), "%.1f", metrics.totalMinutes / 60.0)
+                metrics.measuredSessionCount == 0
+                        ? "–"
+                        : String.format(Locale.getDefault(), "%.1f", metrics.totalMinutes / 60.0)
         );
         String durationQuality = metrics.measuredSessionCount == 0
                 ? "Keine beendeten Workouts"
                 : metrics.measuredSessionCount == 1
-                ? "1 Workout automatisch erfasst"
-                : metrics.measuredSessionCount + " Workouts automatisch erfasst";
+                ? "1 Workout fest erfasst"
+                : metrics.measuredSessionCount + " Workouts fest erfasst";
         ((TextView) kpiHours.findViewById(R.id.kpiTrend)).setText(durationQuality);
 
         ((TextView) kpiDuration.findViewById(R.id.kpiLabel)).setText("∅ DAUER");
         ((TextView) kpiDuration.findViewById(R.id.kpiValue)).setText(
-                String.format(Locale.getDefault(), "%.0f min", metrics.averageMinutes)
+                metrics.measuredSessionCount == 0
+                        ? "–"
+                        : String.format(Locale.getDefault(), "%.0f min", metrics.averageMinutes)
         );
         ((TextView) kpiDuration.findViewById(R.id.kpiTrend)).setText(durationQuality);
 
@@ -650,6 +756,7 @@ public class StatistikActivity extends IronxActivity {
         List<WorkoutStorage.CardioSession> cardio =
                 getCardioBetween(startInclusive, endExclusive);
         Set<String> activeDays = getActiveDays(workouts, cardio);
+        Map<String, String> sessionDates = getSessionDates(workouts, cardio);
         List<WorkoutStorage.TrainingSession> measuredSessions =
                 getMeasuredSessionsBetween(startInclusive, endExclusive);
         for (WorkoutStorage.TrainingSession session : measuredSessions) {
@@ -687,7 +794,7 @@ public class StatistikActivity extends IronxActivity {
             }
         }
 
-        int sessionCount = activeDays.size();
+        int sessionCount = sessionDates.size();
         int measuredSessionCount = measuredSessions.size();
         double averageMinutes = measuredSessionCount == 0
                 ? 0
@@ -701,6 +808,7 @@ public class StatistikActivity extends IronxActivity {
 
         return new OverviewMetrics(
                 activeDays,
+                sessionDates,
                 sessionCount,
                 totalMinutes,
                 averageMinutes,
@@ -749,16 +857,21 @@ public class StatistikActivity extends IronxActivity {
                         previous.totalVolume
                 )
         );
-        tvCompareDuration.setText(
-                "DAUER " + StatisticsCalculator.formatChange(
-                        current.averageMinutes,
-                        previous.averageMinutes
-                )
-        );
+        if (current.measuredSessionCount == 0 || previous.measuredSessionCount == 0) {
+            tvCompareDuration.setText("DAUER nicht vergleichbar");
+        } else {
+            tvCompareDuration.setText(
+                    "DAUER " + StatisticsCalculator.formatChange(
+                            current.averageMinutes,
+                            previous.averageMinutes
+                    )
+            );
+        }
     }
 
     private static final class OverviewMetrics {
         final Set<String> activeDays;
+        final Map<String, String> sessionDates;
         final int sessionCount;
         final double totalMinutes;
         final double averageMinutes;
@@ -768,6 +881,7 @@ public class StatistikActivity extends IronxActivity {
 
         OverviewMetrics(
                 Set<String> activeDays,
+                Map<String, String> sessionDates,
                 int sessionCount,
                 double totalMinutes,
                 double averageMinutes,
@@ -775,12 +889,38 @@ public class StatistikActivity extends IronxActivity {
                 double totalVolume,
                 int measuredSessionCount) {
             this.activeDays = activeDays;
+            this.sessionDates = sessionDates;
             this.sessionCount = sessionCount;
             this.totalMinutes = totalMinutes;
             this.averageMinutes = averageMinutes;
             this.weeklyFrequency = weeklyFrequency;
             this.totalVolume = totalVolume;
             this.measuredSessionCount = measuredSessionCount;
+        }
+    }
+
+    private static final class CardioAggregate {
+        final String date;
+        int minutes;
+
+        CardioAggregate(String date) {
+            this.date = date;
+        }
+    }
+
+    private final class ExerciseFilter {
+        final String workoutType;
+        final String exercise;
+        final String label;
+
+        ExerciseFilter(String workoutType, String exercise) {
+            this.workoutType = workoutType;
+            this.exercise = exercise;
+            this.label = workoutTypeLabel(workoutType) + " · " + exercise;
+        }
+
+        String key() {
+            return workoutType + "|" + exercise.toLowerCase(Locale.ROOT);
         }
     }
 
@@ -804,7 +944,11 @@ public class StatistikActivity extends IronxActivity {
             totalSaetze += w.sets.size();
             String type = getType(w);
             volPerType.put(type, volPerType.get(type) + vol);
-            volPerExercise.put(w.exercise, volPerExercise.getOrDefault(w.exercise, 0.0) + vol);
+            String exerciseLabel = exerciseLabel(w);
+            volPerExercise.put(
+                    exerciseLabel,
+                    volPerExercise.getOrDefault(exerciseLabel, 0.0) + vol
+            );
 
             String day = w.timestamp.split(" ")[0];
             double maxSet = 0;
@@ -817,7 +961,7 @@ public class StatistikActivity extends IronxActivity {
             if (maxSet > dayVolMap.get(day)[1]) dayVolMap.get(day)[1] = maxSet;
         }
 
-        int sessionCount = getTrainedDays(all).size();
+        int sessionCount = getSessionDates(all, Collections.emptyList()).size();
         tvGesamtVolumen.setText(AppSettings.formatVolume(this, totalVol, 0));
         tvAvgVolumen.setText(AppSettings.formatVolume(
                 this,
@@ -967,19 +1111,24 @@ public class StatistikActivity extends IronxActivity {
                 getCardioBetween(cutoff, new Date());
         Set<String> trainedDays = getActiveDays(all, cardio);
 
-        Map<String, Set<String>> typeDays = new HashMap<>();
-        typeDays.put("Push", new HashSet<>());
-        typeDays.put("Pull", new HashSet<>());
-        typeDays.put("Leg", new HashSet<>());
+        Map<String, Set<String>> typeSessions = new HashMap<>();
+        typeSessions.put("Push", new HashSet<>());
+        typeSessions.put("Pull", new HashSet<>());
+        typeSessions.put("Leg", new HashSet<>());
         for (WorkoutStorage.DetailedWorkout w : all) {
             String type = getType(w);
-            if (typeDays.containsKey(type)) {
-                typeDays.get(type).add(w.timestamp.split(" ")[0]);
+            if (typeSessions.containsKey(type)) {
+                String date = datePart(w.timestamp);
+                typeSessions.get(type).add(sessionKey(
+                        w.sessionId,
+                        date,
+                        w.workoutType
+                ));
             }
         }
-        float pushC = typeDays.get("Push").size();
-        float pullC = typeDays.get("Pull").size();
-        float legC = typeDays.get("Leg").size();
+        float pushC = typeSessions.get("Push").size();
+        float pullC = typeSessions.get("Pull").size();
+        float legC = typeSessions.get("Leg").size();
 
         buildPieChart(chartPPLVerteilung,
                 new String[]{"Push", "Pull", "Leg"},
@@ -1048,25 +1197,49 @@ public class StatistikActivity extends IronxActivity {
         List<WorkoutStorage.CardioSession> allCardio =
                 getCardioBetween(cutoff, new Date());
 
+        Map<String, CardioAggregate> cardioSessions = new LinkedHashMap<>();
+        for (WorkoutStorage.CardioSession cardio : allCardio) {
+            String date = datePart(cardio.timestamp);
+            String key = sessionKey(
+                    cardio.sessionId,
+                    date,
+                    cardio.workoutType
+            );
+            CardioAggregate aggregate = cardioSessions.computeIfAbsent(
+                    key,
+                    ignored -> new CardioAggregate(date)
+            );
+            aggregate.minutes += cardio.minutes;
+        }
+
         int totalMin = 0;
         int maxMin = 0;
         String maxDatum = "–";
         Map<String, Integer> artMin = new LinkedHashMap<>();
         Map<String, Integer> artCount = new LinkedHashMap<>();
         for (WorkoutStorage.CardioSession cs : allCardio) {
-            totalMin += cs.minutes;
-            if (cs.minutes > maxMin) {
-                maxMin = cs.minutes;
-                maxDatum = cs.timestamp.split(" ")[0];
+            String cardioLabel = workoutTypeLabel(cs.workoutType) + " · " + cs.exercise;
+            artMin.put(cardioLabel, artMin.getOrDefault(cardioLabel, 0) + cs.minutes);
+            artCount.put(cardioLabel, artCount.getOrDefault(cardioLabel, 0) + 1);
+        }
+        for (CardioAggregate aggregate : cardioSessions.values()) {
+            totalMin += aggregate.minutes;
+            if (aggregate.minutes > maxMin) {
+                maxMin = aggregate.minutes;
+                maxDatum = aggregate.date;
             }
-            artMin.put(cs.exercise, artMin.getOrDefault(cs.exercise, 0) + cs.minutes);
-            artCount.put(cs.exercise, artCount.getOrDefault(cs.exercise, 0) + 1);
         }
 
         tvCardioMinuten.setText(totalMin + " min");
-        tvCardioAvg.setText(allCardio.isEmpty() ? "–" : String.format(Locale.getDefault(), "%.0f min", (double) totalMin / allCardio.size()));
+        tvCardioAvg.setText(cardioSessions.isEmpty()
+                ? "–"
+                : String.format(
+                        Locale.getDefault(),
+                        "%.0f min",
+                        (double) totalMin / cardioSessions.size()
+                ));
         tvCardioLaengste.setText(maxMin + " min (" + maxDatum + ")");
-        tvCardioSessions.setText(String.valueOf(allCardio.size()));
+        tvCardioSessions.setText(String.valueOf(cardioSessions.size()));
 
         List<String> artLabels = new ArrayList<>(artCount.keySet());
         float[] artValues = new float[artLabels.size()];
@@ -1104,10 +1277,11 @@ public class StatistikActivity extends IronxActivity {
             typeVolumes.put(type, typeVolumes.getOrDefault(type, 0.0) + dayV);
 
             for (WorkoutStorage.WorkoutSet s : w.sets) {
-                double[] best = prMap.get(w.exercise);
+                String exerciseLabel = exerciseLabel(w);
+                double[] best = prMap.get(exerciseLabel);
                 if (best == null || s.weight > best[0] || (s.weight == best[0] && s.reps > best[1])) {
-                    prMap.put(w.exercise, new double[]{s.weight, s.reps, s.weight * s.reps});
-                    prDate.put(w.exercise, day);
+                    prMap.put(exerciseLabel, new double[]{s.weight, s.reps, s.weight * s.reps});
+                    prDate.put(exerciseLabel, day);
                 }
             }
         }
@@ -1153,14 +1327,15 @@ public class StatistikActivity extends IronxActivity {
         Map<String, Map<Double, double[]>> repRecord = new HashMap<>();
         Map<String, Map<Double, String>> repDate = new HashMap<>();
         for (WorkoutStorage.DetailedWorkout w : all) {
-            repRecord.putIfAbsent(w.exercise, new TreeMap<>());
-            repDate.putIfAbsent(w.exercise, new TreeMap<>());
+            String exerciseLabel = exerciseLabel(w);
+            repRecord.putIfAbsent(exerciseLabel, new TreeMap<>());
+            repDate.putIfAbsent(exerciseLabel, new TreeMap<>());
             for (WorkoutStorage.WorkoutSet s : w.sets) {
                 Double wKey = s.weight;
-                double[] cur = repRecord.get(w.exercise).get(wKey);
+                double[] cur = repRecord.get(exerciseLabel).get(wKey);
                 if (cur == null || s.reps > cur[0]) {
-                    repRecord.get(w.exercise).put(wKey, new double[]{s.reps});
-                    repDate.get(w.exercise).put(wKey, w.timestamp.split(" ")[0]);
+                    repRecord.get(exerciseLabel).put(wKey, new double[]{s.reps});
+                    repDate.get(exerciseLabel).put(wKey, w.timestamp.split(" ")[0]);
                 }
             }
         }

@@ -245,7 +245,7 @@ final class InfoDialogHelper {
         if (key.contains("DAUER") || key.contains("STUNDEN")) {
             return new Info(
                     "Trainingsdauer",
-                    "Die Workout-Dauer startet automatisch beim Öffnen von Push, Pull oder Leg und endet beim bestätigten Beenden. Stunden sind die Summe dieser abgeschlossenen Workouts; Ø Dauer ist die Gesamtzeit geteilt durch deren Anzahl."
+                    "Die Workout-Dauer wird fest aus Start und bestätigtem Trainingsende ermittelt. Stunden sind die Summe dieser abgeschlossenen Workouts; Ø Dauer ist die Gesamtzeit geteilt durch deren Anzahl. Ohne beendetes Workout wird keine Dauer angezeigt."
             );
         }
         if (key.contains("PRO WOCHE") || key.contains("ZIELERREICHUNG")) {
@@ -312,7 +312,7 @@ final class InfoDialogHelper {
         }
 
         static String statisticsOverview() {
-            return "Die Übersicht zählt aktive Trainingstage und die Trainingsfrequenz. Die Dauer startet automatisch bei der Auswahl von Push, Pull oder Leg und endet beim bestätigten Beenden. Stunden und Ø Dauer verwenden ausschließlich diese exakt erfassten, abgeschlossenen Workouts.";
+            return "Die Übersicht zählt aktive Trainingstage und die Trainingsfrequenz. Stunden und Ø Dauer verwenden ausschließlich fest erfasste Zeiten aus Start und bestätigtem Trainingsende. Fehlende Dauer bleibt leer.";
         }
 
         static String statisticsVolume() {
