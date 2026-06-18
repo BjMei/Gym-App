@@ -2,11 +2,7 @@ package com.example.gym_app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.util.Base64;
-
-import androidx.core.content.pm.PackageInfoCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,20 +18,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.TreeMap;
 
 public final class AppDataBackupManager {
@@ -46,11 +38,15 @@ public final class AppDataBackupManager {
     private static final int MAX_FILE_COUNT = 10_000;
     private static final long MAX_DECODED_FILE_BYTES = 100L * 1024L * 1024L;
     private static final Set<String> EXCLUDED_PREFERENCE_NAMES =
-            Collections.singleton("WorkoutHistory");
+            new HashSet<>(Arrays.asList(
+                    "WorkoutHistory",
+                    "WorkoutStorageTransactions"
+            ));
 
     private static final List<String> KNOWN_PREFERENCE_NAMES = Arrays.asList(
             AppSettings.PREFS_NAME,
             "CustomExercises",
+            WorkoutTypeRepository.PREFS_NAME,
             "ExerciseMuscleMappings",
             "ExerciseSettings",
             "WorkoutHistoryDetailed",
@@ -96,8 +92,7 @@ public final class AppDataBackupManager {
                     snapshot.preferenceCount(),
                     snapshot.preferenceValueCount(),
                     snapshot.fileCount(),
-                    bytes.length,
-                    root.optString("createdAt", "")
+                    bytes.length
             );
         } catch (JSONException | IllegalArgumentException exception) {
             throw new IOException("Die ausgewählte Datei ist keine gültige IRONX-Sicherung.", exception);
@@ -205,19 +200,9 @@ public final class AppDataBackupManager {
         JSONObject root = new JSONObject();
         root.put("format", FORMAT_ID);
         root.put("schemaVersion", SCHEMA_VERSION);
-        root.put("createdAt", utcTimestamp());
 
         JSONObject app = new JSONObject();
         app.put("packageName", context.getPackageName());
-        try {
-            PackageInfo packageInfo =
-                    context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            app.put("versionName", packageInfo.versionName != null ? packageInfo.versionName : "");
-            app.put("versionCode", PackageInfoCompat.getLongVersionCode(packageInfo));
-        } catch (PackageManager.NameNotFoundException exception) {
-            app.put("versionName", "");
-            app.put("versionCode", 0);
-        }
         root.put("app", app);
 
         JSONObject preferencesJson = new JSONObject();
@@ -246,11 +231,6 @@ public final class AppDataBackupManager {
         }
         root.put("storage", storageJson);
 
-        JSONObject statistics = new JSONObject();
-        statistics.put("preferenceFiles", snapshot.preferenceCount());
-        statistics.put("preferenceValues", snapshot.preferenceValueCount());
-        statistics.put("internalFiles", snapshot.fileCount());
-        root.put("statistics", statistics);
         return root;
     }
 
@@ -282,6 +262,7 @@ public final class AppDataBackupManager {
             }
             preferences.put(preferenceName, values);
         }
+        validateStructuredPreferences(preferences);
 
         JSONObject storageJson = root.getJSONObject("storage");
         Map<String, List<StoredFile>> storage = new LinkedHashMap<>();
@@ -315,6 +296,32 @@ public final class AppDataBackupManager {
             storage.put(rootName, files);
         }
         return new BackupSnapshot(preferences, storage);
+    }
+
+    private void validateStructuredPreferences(
+            Map<String, Map<String, PreferenceValue>> preferences
+    ) throws JSONException {
+        Map<String, PreferenceValue> appSettings =
+                preferences.get(AppSettings.PREFS_NAME);
+        if (appSettings == null) {
+            return;
+        }
+        for (Map.Entry<String, PreferenceValue> entry : appSettings.entrySet()) {
+            PreferenceValue value = entry.getValue();
+            if (ProfileRepository.isStructuredPreferenceKey(entry.getKey())
+                    && !"string".equals(value.type)) {
+                throw new JSONException(
+                        "Strukturierte Profildaten besitzen einen falschen Datentyp."
+                );
+            }
+            if (!"string".equals(value.type)) {
+                continue;
+            }
+            ProfileRepository.validateStructuredPreference(
+                    entry.getKey(),
+                    (String) value.value
+            );
+        }
     }
 
     private void applySnapshot(BackupSnapshot snapshot) throws IOException {
@@ -470,13 +477,6 @@ public final class AppDataBackupManager {
         return value.replace('\\', '/');
     }
 
-    private String utcTimestamp() {
-        SimpleDateFormat format =
-                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ROOT);
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return format.format(new Date());
-    }
-
     public static final class ExportSummary {
         public final int preferenceFiles;
         public final int preferenceValues;
@@ -502,22 +502,19 @@ public final class AppDataBackupManager {
         public final int preferenceValues;
         public final int internalFiles;
         public final int jsonBytes;
-        public final String createdAt;
 
         private PreparedBackup(
                 BackupSnapshot snapshot,
                 int preferenceFiles,
                 int preferenceValues,
                 int internalFiles,
-                int jsonBytes,
-                String createdAt
+                int jsonBytes
         ) {
             this.snapshot = snapshot;
             this.preferenceFiles = preferenceFiles;
             this.preferenceValues = preferenceValues;
             this.internalFiles = internalFiles;
             this.jsonBytes = jsonBytes;
-            this.createdAt = createdAt;
         }
     }
 

@@ -65,6 +65,27 @@ public class NextWorkoutPlannerTest {
     }
 
     @Test
+    public void customRotationIncludesUserDefinedWorkoutTypes() {
+        String upper = "custom_upper";
+        String lower = "custom_lower";
+
+        assertEquals(
+                lower,
+                NextWorkoutPlanner.findNextWorkoutType(
+                        Arrays.asList(
+                                event(upper, 9),
+                                event(WorkoutStorage.TYPE_PUSH, 10)
+                        ),
+                        Arrays.asList(
+                                WorkoutStorage.TYPE_PUSH,
+                                upper,
+                                lower
+                        )
+                )
+        );
+    }
+
+    @Test
     public void latestEntryPerTypeDeterminesRecommendation() {
         assertEquals(
                 WorkoutStorage.TYPE_LEG,

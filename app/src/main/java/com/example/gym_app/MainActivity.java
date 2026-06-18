@@ -271,7 +271,10 @@ public class MainActivity extends IronxActivity {
         progressWeekGoal.setProgress(weeklyProgress);
         tvCurrentStreak.setText(String.valueOf(calculateCurrentStreak(trainedDays, today)));
         tvWeekVolume.setText(formatVolume(calculateWeekVolume(weekStart, today)));
-        nextWorkoutType = NextWorkoutPlanner.findNextWorkoutType(collectWorkoutEvents());
+        nextWorkoutType = NextWorkoutPlanner.findNextWorkoutType(
+                collectWorkoutEvents(),
+                WorkoutTypeRepository.getActiveTypeIds(this)
+        );
         LocalDate nextPreferredDay = TrainingGoalPlanner.nextPreferredTrainingDate(
                 today,
                 profile.preferredDays,
@@ -316,13 +319,7 @@ public class MainActivity extends IronxActivity {
 
     private double calculateWeekVolume(LocalDate weekStart, LocalDate today) {
         double volume = 0;
-        String[] workoutTypes = {
-                WorkoutStorage.TYPE_PUSH,
-                WorkoutStorage.TYPE_PULL,
-                WorkoutStorage.TYPE_LEG
-        };
-
-        for (String type : workoutTypes) {
+        for (String type : WorkoutTypeRepository.getAllTypeIds(this)) {
             for (WorkoutStorage.DetailedWorkout workout :
                     WorkoutStorage.getDetailedWorkouts(this, type)) {
                 LocalDate workoutDate = parseTimestampDate(workout.timestamp);
@@ -350,13 +347,7 @@ public class MainActivity extends IronxActivity {
 
     private List<NextWorkoutPlanner.WorkoutEvent> collectWorkoutEvents() {
         List<NextWorkoutPlanner.WorkoutEvent> events = new ArrayList<>();
-        String[] workoutTypes = {
-                WorkoutStorage.TYPE_PUSH,
-                WorkoutStorage.TYPE_PULL,
-                WorkoutStorage.TYPE_LEG
-        };
-
-        for (String type : workoutTypes) {
+        for (String type : WorkoutTypeRepository.getActiveTypeIds(this)) {
             for (WorkoutStorage.DetailedWorkout workout :
                     WorkoutStorage.getDetailedWorkouts(this, type)) {
                 LocalDateTime timestamp = parseStorageTimestamp(workout.timestamp);
@@ -391,6 +382,12 @@ public class MainActivity extends IronxActivity {
     }
 
     private void openNextWorkout() {
+        if (!WorkoutStorage.TYPE_PUSH.equals(nextWorkoutType)
+                && !WorkoutStorage.TYPE_PULL.equals(nextWorkoutType)
+                && !WorkoutStorage.TYPE_LEG.equals(nextWorkoutType)) {
+            startActivity(PushActivity.createCustomIntent(this, nextWorkoutType));
+            return;
+        }
         Class<?> targetActivity;
         if (WorkoutStorage.TYPE_PULL.equals(nextWorkoutType)) {
             targetActivity = PullActivity.class;
@@ -403,16 +400,7 @@ public class MainActivity extends IronxActivity {
     }
 
     private String getWorkoutTypeLabel(String type) {
-        if (WorkoutStorage.TYPE_PUSH.equals(type)) {
-            return "Push";
-        }
-        if (WorkoutStorage.TYPE_PULL.equals(type)) {
-            return "Pull";
-        }
-        if (WorkoutStorage.TYPE_LEG.equals(type)) {
-            return "Leg";
-        }
-        return "Training";
+        return WorkoutTypeRepository.label(this, type);
     }
 
     private LocalDate parseTimestampDate(String timestamp) {

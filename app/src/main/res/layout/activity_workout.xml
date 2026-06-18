@@ -282,6 +282,7 @@
                 android:id="@+id/legCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
                 android:background="@drawable/bg_workout_card"
                 android:clickable="true"
                 android:elevation="5dp"
@@ -348,6 +349,31 @@
                     android:contentDescription="@string/open"
                     android:src="@drawable/ic_chevron_home" />
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/customWorkoutContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddCustomWorkout"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.06"
+                android:text="@string/custom_workout_add"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:backgroundTint="@color/training_gold_highlight"
+                app:cornerRadius="14dp"
+                app:icon="@drawable/ic_ironx_add"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp"
+                app:iconTint="@color/black" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

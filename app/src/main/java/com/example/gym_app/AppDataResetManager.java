@@ -39,6 +39,7 @@ public final class AppDataResetManager {
         Set<String> names = new LinkedHashSet<>();
         names.add(AppSettings.PREFS_NAME);
         names.add("CustomExercises");
+        names.add(WorkoutTypeRepository.PREFS_NAME);
         names.add("ExerciseMuscleMappings");
         names.add("ExerciseSettings");
         names.add("WorkoutHistory");

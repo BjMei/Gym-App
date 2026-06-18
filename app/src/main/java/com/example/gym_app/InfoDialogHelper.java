@@ -45,11 +45,20 @@ final class InfoDialogHelper {
     }
 
     static void insertInfoRowAfter(View anchor, String title, String message) {
+        insertInfoRowAfter(anchor, title, message, 2);
+    }
+
+    static void insertInfoRowAfter(
+            View anchor,
+            String title,
+            String message,
+            int endPaddingDp
+    ) {
         if (anchor == null || !(anchor.getParent() instanceof LinearLayout)) {
             return;
         }
         LinearLayout parent = (LinearLayout) anchor.getParent();
-        View row = createInfoRow(parent.getContext(), title, message);
+        View row = createInfoRow(parent.getContext(), title, message, endPaddingDp);
         ViewGroup.LayoutParams anchorParams = anchor.getLayoutParams();
         ViewGroup.LayoutParams infoParams = row.getLayoutParams();
         if (anchorParams instanceof ViewGroup.MarginLayoutParams
@@ -76,11 +85,25 @@ final class InfoDialogHelper {
     }
 
     private static View createInfoRow(Context context, String title, String message) {
+        return createInfoRow(context, title, message, 2);
+    }
+
+    private static View createInfoRow(
+            Context context,
+            String title,
+            String message,
+            int endPaddingDp
+    ) {
         LinearLayout row = new LinearLayout(context);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
         row.setMinimumHeight(dp(context, 30));
-        row.setPadding(dp(context, 2), dp(context, 2), dp(context, 2), dp(context, 2));
+        row.setPaddingRelative(
+                dp(context, 2),
+                dp(context, 2),
+                dp(context, endPaddingDp),
+                dp(context, 2)
+        );
         row.setClickable(true);
         row.setFocusable(true);
         row.setContentDescription("Info: " + title);
@@ -320,7 +343,7 @@ final class InfoDialogHelper {
         }
 
         static String statisticsStructure() {
-            return "Struktur zeigt Verteilung nach Push, Pull und Leg sowie Pausen zwischen Trainingstagen. Cardio-only-Tage zählen als aktive Tage.";
+            return "Struktur zeigt die Verteilung über alle angelegten Trainingsarten sowie Pausen zwischen Trainingstagen. Cardio-only-Tage zählen als aktive Tage.";
         }
 
         static String statisticsRecords() {
@@ -332,7 +355,7 @@ final class InfoDialogHelper {
         }
 
         static String progressMuscles() {
-            return "Das Volumen wird anhand der hinterlegten Muskelgruppen verteilt. Eigene Übungen kannst du hier zuordnen. Push/Pull und Oberkörper/Unterkörper zeigen Anteile am erfassten Volumen, keine anatomische Belastungsmessung.";
+            return "Das Volumen wird anhand der hinterlegten Muskelgruppen verteilt. Eigene Übungen kannst du hier zuordnen. Trainingsarten und Oberkörper/Unterkörper zeigen Anteile am erfassten Volumen, keine anatomische Belastungsmessung.";
         }
 
         static String progressConsistency() {

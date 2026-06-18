@@ -58,4 +58,45 @@ public class StatisticsCalculatorTest {
         assertEquals("NEU", StatisticsCalculator.formatChange(5, 0));
         assertEquals("0%", StatisticsCalculator.formatChange(0, 0));
     }
+
+    @Test
+    public void isoWeekLabel_usesWeekBasedYearAtYearBoundary() {
+        assertEquals(
+                "KW01/2026",
+                StatisticsCalculator.isoWeekLabel(LocalDate.of(2025, 12, 29))
+        );
+    }
+
+    @Test
+    public void sessionVolumes_doNotMergeTwoSessionsOnSameDay() {
+        List<StatisticsCalculator.SessionVolume> sessions =
+                StatisticsCalculator.aggregateSessionVolumes(Arrays.asList(
+                        new StatisticsCalculator.VolumeEntry(
+                                "session-a",
+                                "18.06.2026",
+                                "Push",
+                                1000,
+                                300
+                        ),
+                        new StatisticsCalculator.VolumeEntry(
+                                "session-b",
+                                "18.06.2026",
+                                "Push",
+                                800,
+                                250
+                        ),
+                        new StatisticsCalculator.VolumeEntry(
+                                "session-a",
+                                "18.06.2026",
+                                "Push",
+                                200,
+                                150
+                        )
+                ));
+
+        assertEquals(2, sessions.size());
+        assertEquals(1200, sessions.get(0).totalVolume, 0.001);
+        assertEquals(300, sessions.get(0).maxSetVolume, 0.001);
+        assertEquals(800, sessions.get(1).totalVolume, 0.001);
+    }
 }

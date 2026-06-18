@@ -2,6 +2,7 @@ package com.example.gym_app;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -17,11 +18,23 @@ final class NextWorkoutPlanner {
     }
 
     static String findNextWorkoutType(List<WorkoutEvent> events) {
+        return findNextWorkoutType(events, Arrays.asList(ROTATION));
+    }
+
+    static String findNextWorkoutType(
+            List<WorkoutEvent> events,
+            List<String> rotation
+    ) {
+        if (rotation == null || rotation.isEmpty()) {
+            return WorkoutStorage.TYPE_PUSH;
+        }
         Map<String, LocalDateTime> latestByType = new HashMap<>();
 
         if (events != null) {
             for (WorkoutEvent event : events) {
-                if (event == null || event.timestamp == null || !isKnownType(event.workoutType)) {
+                if (event == null
+                        || event.timestamp == null
+                        || !rotation.contains(event.workoutType)) {
                     continue;
                 }
 
@@ -32,11 +45,11 @@ final class NextWorkoutPlanner {
             }
         }
 
-        String nextType = ROTATION[0];
+        String nextType = rotation.get(0);
         LocalDateTime oldestTimestamp = latestByType.get(nextType);
 
-        for (int i = 1; i < ROTATION.length; i++) {
-            String candidateType = ROTATION[i];
+        for (int i = 1; i < rotation.size(); i++) {
+            String candidateType = rotation.get(i);
             LocalDateTime candidateTimestamp = latestByType.get(candidateType);
 
             if (isOlder(candidateTimestamp, oldestTimestamp)) {
@@ -46,15 +59,6 @@ final class NextWorkoutPlanner {
         }
 
         return nextType;
-    }
-
-    private static boolean isKnownType(String type) {
-        for (String candidate : ROTATION) {
-            if (candidate.equals(type)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static boolean isOlder(LocalDateTime candidate, LocalDateTime currentOldest) {

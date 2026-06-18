@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="Base.Theme.GymApp" parent="Base.Theme.GymApp.Core">
-        <item name="android:windowSplashScreenBackground">@color/primary_dark</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ironx_launcher_foreground</item>
-        <item name="android:windowSplashScreenIconBackgroundColor">@color/primary_dark</item>
-        <item name="android:windowSplashScreenAnimationDuration">500</item>
-    </style>
-</resources>

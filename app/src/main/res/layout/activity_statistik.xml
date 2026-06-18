@@ -369,7 +369,7 @@
 
             <LinearLayout android:id="@+id/secStruktur" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
                 <Spinner android:id="@+id/spRangeStruktur" style="@style/RangeSpinner" android:layout_marginBottom="12dp"/>
-                <TextView style="@style/SectionLabel" android:text="PUSH / PULL / LEG VERTEILUNG"
+                <TextView style="@style/SectionLabel" android:text="VERTEILUNG NACH TRAININGSART"
                 android:layout_width="wrap_content" 
                 android:layout_height="wrap_content" />
                 <com.github.mikephil.charting.charts.PieChart android:id="@+id/chartPPLVerteilung" android:layout_width="match_parent" android:layout_height="220dp" android:layout_marginBottom="12dp"/>

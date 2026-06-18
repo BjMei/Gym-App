@@ -22,7 +22,7 @@ final class TrainingExitDialog {
             @NonNull String sessionId,
             @NonNull String workoutType,
             @NonNull String workoutStartedTimestamp,
-            long workoutStartedEpochMs,
+            long activeDurationMs,
             boolean hasUnsavedInput,
             @NonNull Runnable onContinue,
             @NonNull Runnable onFinished) {
@@ -56,10 +56,7 @@ final class TrainingExitDialog {
                 unsavedWarning.setVisibility(View.VISIBLE);
                 return;
             }
-            long workoutDurationMs = Math.max(
-                    1L,
-                    System.currentTimeMillis() - workoutStartedEpochMs
-            );
+            long workoutDurationMs = Math.max(1L, activeDurationMs);
             if (!WorkoutStorage.saveTrainingSession(
                     activity,
                     sessionId,
@@ -132,7 +129,7 @@ final class TrainingExitDialog {
                 R.id.tvExitSubtitle,
                 R.string.training_exit_summary_subtitle
         );
-        setText(dialog, R.id.tvSummaryWorkoutType, workoutTitle(workoutType));
+        setText(dialog, R.id.tvSummaryWorkoutType, workoutTitle(activity, workoutType));
         setText(
                 dialog,
                 R.id.tvSummaryDuration,
@@ -288,7 +285,7 @@ final class TrainingExitDialog {
                 R.string.training_summary_volume_change,
                 volume,
                 changeText,
-                workoutTitle(workoutType)
+                workoutTitle(activity, workoutType)
         );
     }
 
@@ -335,7 +332,10 @@ final class TrainingExitDialog {
         );
     }
 
-    private static String workoutTitle(String workoutType) {
+    private static String workoutTitle(
+            IronxActivity activity,
+            String workoutType
+    ) {
         if (WorkoutStorage.TYPE_PUSH.equals(workoutType)) {
             return "PUSH DAY";
         }
@@ -345,9 +345,8 @@ final class TrainingExitDialog {
         if (WorkoutStorage.TYPE_LEG.equals(workoutType)) {
             return "LEG DAY";
         }
-        return workoutType == null
-                ? ""
-                : workoutType.toUpperCase(Locale.getDefault());
+        return WorkoutTypeRepository.label(activity, workoutType)
+                .toUpperCase(Locale.getDefault());
     }
 
     private static void setText(Dialog dialog, int viewId, int stringId) {

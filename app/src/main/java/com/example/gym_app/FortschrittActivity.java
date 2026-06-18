@@ -64,11 +64,6 @@ public class FortschrittActivity extends IronxActivity {
 
     private static final Integer[] RANGE_DAYS = {7, 30, 90, 180, 365, null};
     private static final String[] RANGE_LABELS = {"7T", "30T", "90T", "6M", "12M", "Gesamt"};
-    private static final String[] WORKOUT_TYPES = {
-            WorkoutStorage.TYPE_PUSH,
-            WorkoutStorage.TYPE_PULL,
-            WorkoutStorage.TYPE_LEG
-    };
     private static final String[] MUSCLE_GROUPS = {
             "Brust", "Rücken", "Schultern", "Arme", "Core", "Beine"
     };
@@ -671,21 +666,23 @@ public class FortschrittActivity extends IronxActivity {
                 )
         );
 
-        double pushPullTotal = selected.pushVolume + selected.pullVolume;
-        double pushPercent = pushPullTotal > 0
-                ? selected.pushVolume * 100.0 / pushPullTotal
-                : 0;
-        double pullPercent = pushPullTotal > 0 ? 100.0 - pushPercent : 0;
+        Map.Entry<String, Double> strongestType = null;
+        for (Map.Entry<String, Double> entry : selected.typeVolume.entrySet()) {
+            if (strongestType == null || entry.getValue() > strongestType.getValue()) {
+                strongestType = entry;
+            }
+        }
+        double strongestShare = strongestType == null || selected.totalVolume <= 0
+                ? 0
+                : strongestType.getValue() * 100.0 / selected.totalVolume;
         setKpi(
                 kpiMuscleBalance,
-                "PUSH / PULL",
-                String.format(
-                        Locale.GERMANY,
-                        "%.0f / %.0f",
-                        pushPercent,
-                        pullPercent
-                ),
-                "Anteil am Oberkörpervolumen"
+                "TRAININGSARTEN",
+                strongestType == null
+                        ? "–"
+                        : strongestType.getKey() + " · "
+                                + String.format(Locale.GERMANY, "%.0f%%", strongestShare),
+                selected.typeVolume.size() + " Kategorien im Zeitraum"
         );
         String muscleComparison = getComparisonLabel();
         if (profile.weeklyVolumeGoalKg > 0) {
@@ -734,14 +731,16 @@ public class FortschrittActivity extends IronxActivity {
                 weightUnit,
                 null
         );
+        String[] typeLabels = selected.typeVolume.keySet().toArray(new String[0]);
+        float[] typeValues = new float[typeLabels.length];
+        for (int i = 0; i < typeLabels.length; i++) {
+            typeValues[i] = selected.typeVolume.get(typeLabels[i]).floatValue();
+        }
         buildPieChart(
                 chartPushPull,
-                new String[]{"Push", "Pull"},
-                new float[]{
-                        (float) selected.pushVolume,
-                        (float) selected.pullVolume
-                },
-                new int[]{R.color.training_gold, R.color.card_background_light}
+                typeLabels,
+                typeValues,
+                workoutPalette(typeLabels.length)
         );
         buildPieChart(
                 chartOberUnter,
@@ -1021,15 +1020,24 @@ public class FortschrittActivity extends IronxActivity {
                 volume += set.weight * set.reps;
             }
             result.totalVolume += volume;
+            String typeLabel = WorkoutTypeRepository.label(
+                    this,
+                    record.workoutType
+            );
+            result.typeVolume.put(
+                    typeLabel,
+                    result.typeVolume.getOrDefault(typeLabel, 0.0) + volume
+            );
 
-            if (WorkoutStorage.TYPE_PUSH.equals(record.workoutType)) {
+            WorkoutTypeRepository.WorkoutType definition =
+                    WorkoutTypeRepository.find(this, record.workoutType);
+            String focus = definition == null
+                    ? WorkoutTypeRepository.FOCUS_OTHER
+                    : definition.focus;
+            if (WorkoutTypeRepository.FOCUS_PUSH.equals(focus)) {
                 result.pushVolume += volume;
-                result.upperVolume += volume;
-            } else if (WorkoutStorage.TYPE_PULL.equals(record.workoutType)) {
+            } else if (WorkoutTypeRepository.FOCUS_PULL.equals(focus)) {
                 result.pullVolume += volume;
-                result.upperVolume += volume;
-            } else if (WorkoutStorage.TYPE_LEG.equals(record.workoutType)) {
-                result.lowerVolume += volume;
             }
 
             List<String> groups = getMuscleGroups(
@@ -1046,6 +1054,26 @@ public class FortschrittActivity extends IronxActivity {
                         result.muscleVolume.getOrDefault(group, 0.0)
                                 + allocatedVolume
                 );
+                if ("Beine".equals(group)) {
+                    result.lowerVolume += allocatedVolume;
+                } else if ("Brust".equals(group)
+                        || "Rücken".equals(group)
+                        || "Schultern".equals(group)
+                        || "Arme".equals(group)) {
+                    result.upperVolume += allocatedVolume;
+                }
+            }
+            if (groups.size() == 1 && "Nicht zugeordnet".equals(groups.get(0))) {
+                if (WorkoutTypeRepository.FOCUS_LOWER.equals(focus)) {
+                    result.lowerVolume += volume;
+                } else if (WorkoutTypeRepository.FOCUS_FULL.equals(focus)) {
+                    result.upperVolume += volume / 2.0;
+                    result.lowerVolume += volume / 2.0;
+                } else if (WorkoutTypeRepository.FOCUS_UPPER.equals(focus)
+                        || WorkoutTypeRepository.FOCUS_PUSH.equals(focus)
+                        || WorkoutTypeRepository.FOCUS_PULL.equals(focus)) {
+                    result.upperVolume += volume;
+                }
             }
         }
         return result;
@@ -1372,6 +1400,22 @@ public class FortschrittActivity extends IronxActivity {
         chart.invalidate();
     }
 
+    private int[] workoutPalette(int count) {
+        int[] base = {
+                R.color.training_gold_highlight,
+                R.color.training_gold,
+                R.color.training_gold_pressed,
+                R.color.gold_light,
+                R.color.gold_dark,
+                R.color.text_secondary
+        };
+        int[] result = new int[Math.max(1, count)];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = base[i % base.length];
+        }
+        return result;
+    }
+
     private void buildPieChart(
             PieChart chart,
             String[] labels,
@@ -1578,19 +1622,10 @@ public class FortschrittActivity extends IronxActivity {
 
     private List<ExerciseOption> collectExerciseOptions() {
         Map<String, ExerciseOption> options = new LinkedHashMap<>();
-        addCatalogExercises(
-                options,
-                WorkoutStorage.TYPE_PUSH
-        );
-        addCatalogExercises(
-                options,
-                WorkoutStorage.TYPE_PULL
-        );
-        addCatalogExercises(
-                options,
-                WorkoutStorage.TYPE_LEG
-        );
-        for (String type : WORKOUT_TYPES) {
+        for (String type : WorkoutTypeRepository.getActiveTypeIds(this)) {
+            addCatalogExercises(options, type);
+        }
+        for (String type : WorkoutTypeRepository.getAllTypeIds(this)) {
             for (WorkoutStorage.DetailedWorkout workout
                     : WorkoutStorage.getDetailedWorkouts(this, type)) {
                 addExerciseOption(options, workout.exercise, workout.workoutType);
@@ -1623,7 +1658,7 @@ public class FortschrittActivity extends IronxActivity {
             String requiredType,
             String requiredExercise) {
         List<WorkoutRecord> records = new ArrayList<>();
-        for (String type : WORKOUT_TYPES) {
+        for (String type : WorkoutTypeRepository.getAllTypeIds(this)) {
             for (WorkoutStorage.DetailedWorkout workout
                     : WorkoutStorage.getDetailedWorkouts(this, type)) {
                 String storedType = isKnownType(workout.workoutType)
@@ -1653,7 +1688,7 @@ public class FortschrittActivity extends IronxActivity {
 
     private Set<LocalDate> getAllActiveDays() {
         Set<LocalDate> result = new LinkedHashSet<>();
-        for (String type : WORKOUT_TYPES) {
+        for (String type : WorkoutTypeRepository.getAllTypeIds(this)) {
             for (WorkoutStorage.DetailedWorkout workout
                     : WorkoutStorage.getDetailedWorkouts(this, type)) {
                 LocalDate date = parseDate(workout.timestamp);
@@ -1741,9 +1776,7 @@ public class FortschrittActivity extends IronxActivity {
     }
 
     private boolean isKnownType(String type) {
-        return WorkoutStorage.TYPE_PUSH.equals(type)
-                || WorkoutStorage.TYPE_PULL.equals(type)
-                || WorkoutStorage.TYPE_LEG.equals(type);
+        return WorkoutTypeRepository.isKnownType(this, type);
     }
 
     private int getWeeklyGoal() {
@@ -2205,7 +2238,7 @@ public class FortschrittActivity extends IronxActivity {
 
     private int calculateCardioMinutes(LocalDate start, LocalDate end) {
         int minutes = 0;
-        for (String type : WORKOUT_TYPES) {
+        for (String type : WorkoutTypeRepository.getAllTypeIds(this)) {
             for (WorkoutStorage.CardioSession session
                     : WorkoutStorage.getCardioSessions(this, type)) {
                 LocalDate date = parseDate(session.timestamp);
@@ -2417,7 +2450,7 @@ public class FortschrittActivity extends IronxActivity {
         AVG_REPS
     }
 
-    private static final class ExerciseOption {
+    private final class ExerciseOption {
         final String exercise;
         final String workoutType;
 
@@ -2428,17 +2461,11 @@ public class FortschrittActivity extends IronxActivity {
 
         @Override
         public String toString() {
-            String typeLabel;
-            if (WorkoutStorage.TYPE_PUSH.equals(workoutType)) {
-                typeLabel = "Push";
-            } else if (WorkoutStorage.TYPE_PULL.equals(workoutType)) {
-                typeLabel = "Pull";
-            } else if (WorkoutStorage.TYPE_LEG.equals(workoutType)) {
-                typeLabel = "Leg";
-            } else {
-                typeLabel = "Sonstige";
-            }
-            return exercise + " · " + typeLabel;
+            return exercise + " · "
+                    + WorkoutTypeRepository.label(
+                            FortschrittActivity.this,
+                            workoutType
+                    );
         }
     }
 
@@ -2482,6 +2509,7 @@ public class FortschrittActivity extends IronxActivity {
 
     private static final class MuscleSummary {
         final Map<String, Double> muscleVolume = new LinkedHashMap<>();
+        final Map<String, Double> typeVolume = new LinkedHashMap<>();
         double totalVolume;
         double pushVolume;
         double pullVolume;

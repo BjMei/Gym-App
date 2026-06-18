@@ -53,7 +53,7 @@ public abstract class IronxActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (WorkoutStorage.consumeCorruptionNotice() && !isFinishing()) {
+        if (AppDataCorruptionTracker.consumeNotice() && !isFinishing()) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.storage_corruption_title)
                     .setMessage(R.string.storage_corruption_message)

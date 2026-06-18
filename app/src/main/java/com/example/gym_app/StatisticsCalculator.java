@@ -2,9 +2,12 @@ package com.example.gym_app;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 final class StatisticsCalculator {
@@ -94,6 +97,78 @@ final class StatisticsCalculator {
                 "%+.0f%%",
                 percentage
         );
+    }
+
+    static String isoWeekLabel(LocalDate date) {
+        WeekFields iso = WeekFields.ISO;
+        return String.format(
+                Locale.ROOT,
+                "KW%02d/%04d",
+                date.get(iso.weekOfWeekBasedYear()),
+                date.get(iso.weekBasedYear())
+        );
+    }
+
+    static List<SessionVolume> aggregateSessionVolumes(
+            List<VolumeEntry> entries
+    ) {
+        Map<String, SessionVolume> sessions = new LinkedHashMap<>();
+        for (VolumeEntry entry : entries) {
+            String key = sessionKey(entry);
+            SessionVolume session = sessions.get(key);
+            if (session == null) {
+                session = new SessionVolume(entry.date, entry.workoutType);
+                sessions.put(key, session);
+            }
+            session.totalVolume += Math.max(0d, entry.volume);
+            session.maxSetVolume = Math.max(
+                    session.maxSetVolume,
+                    Math.max(0d, entry.maxSetVolume)
+            );
+        }
+        return new ArrayList<>(sessions.values());
+    }
+
+    private static String sessionKey(VolumeEntry entry) {
+        String sessionId = entry.sessionId == null ? "" : entry.sessionId.trim();
+        if (!sessionId.isEmpty()) {
+            return "session|" + sessionId;
+        }
+        return "legacy|" + entry.date + "|" + entry.workoutType;
+    }
+
+    static final class VolumeEntry {
+        final String sessionId;
+        final String date;
+        final String workoutType;
+        final double volume;
+        final double maxSetVolume;
+
+        VolumeEntry(
+                String sessionId,
+                String date,
+                String workoutType,
+                double volume,
+                double maxSetVolume
+        ) {
+            this.sessionId = sessionId;
+            this.date = date;
+            this.workoutType = workoutType;
+            this.volume = volume;
+            this.maxSetVolume = maxSetVolume;
+        }
+    }
+
+    static final class SessionVolume {
+        final String date;
+        final String workoutType;
+        double totalVolume;
+        double maxSetVolume;
+
+        SessionVolume(String date, String workoutType) {
+            this.date = date;
+            this.workoutType = workoutType;
+        }
     }
 
     static final class PauseStats {

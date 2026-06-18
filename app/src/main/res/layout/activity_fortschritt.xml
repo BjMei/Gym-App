@@ -396,7 +396,7 @@
 
                 <TextView
                     style="@style/ChartSectionLabel"
-                    android:text="PUSH VS PULL" />
+                    android:text="VOLUMEN NACH TRAININGSART" />
 
                 <com.github.mikephil.charting.charts.PieChart
                     android:id="@+id/chartPushPull"

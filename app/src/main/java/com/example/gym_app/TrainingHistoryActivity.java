@@ -653,16 +653,7 @@ public class TrainingHistoryActivity extends IronxActivity {
     }
 
     private String getWorkoutTypeLabel(String workoutType) {
-        if (WorkoutStorage.TYPE_PUSH.equals(workoutType)) {
-            return "Push-Day";
-        }
-        if (WorkoutStorage.TYPE_PULL.equals(workoutType)) {
-            return "Pull-Day";
-        }
-        if (WorkoutStorage.TYPE_LEG.equals(workoutType)) {
-            return "Leg-Day";
-        }
-        return "";
+        return WorkoutTypeRepository.label(this, workoutType);
     }
 
     private int dpToPx(int dp) {

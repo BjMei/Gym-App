@@ -53,6 +53,7 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/tvWorkoutTypeBadge"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:background="@drawable/bg_home_chip"
@@ -87,6 +88,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tvWorkoutFocus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_home_chip"
@@ -102,6 +104,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tvWorkoutTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="11dp"
@@ -112,6 +115,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tvWorkoutDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"

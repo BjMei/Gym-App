@@ -12,7 +12,7 @@
     <string name="home_training_section">TRAINING</string>
     <string name="home_today">HEUTE</string>
     <string name="home_start_workout">WORKOUT STARTEN</string>
-    <string name="home_workout_types">Push · Pull · Legs</string>
+    <string name="home_workout_types">Push · Pull · Legs · Eigene</string>
     <string name="home_statistics">STATISTIK</string>
     <string name="home_statistics_subtitle">Kennzahlen und Auswertung</string>
     <string name="home_progress">FORTSCHRITT</string>
@@ -44,6 +44,8 @@
     <string name="settings_profile_goals">Profil &amp; Ziele</string>
     <string name="settings_saved">Einstellungen gespeichert</string>
     <string name="profile_goals_saved">Profil und Ziele gespeichert</string>
+    <string name="profile_validation_failed">Bitte prüfe die markierten Felder. Es wurde nichts gespeichert.</string>
+    <string name="profile_save_failed">Profil und Ziele konnten nicht gespeichert werden. Deine Eingaben bleiben erhalten.</string>
     <string name="back">Zurück</string>
     <string name="profile_section">PROFIL</string>
     <string name="goals_chip">ZIELE</string>
@@ -93,6 +95,8 @@
     <string name="profile_strength_goal_add">KRAFTZIEL SPEICHERN</string>
     <string name="profile_strength_goal_empty">Noch keine übungsbezogenen Kraftziele festgelegt.</string>
     <string name="profile_strength_goal_saved">Kraftziel gespeichert</string>
+    <string name="profile_strength_goal_exercise_required">Bitte zuerst eine Übung für das Kraftziel auswählen.</string>
+    <string name="profile_strength_goal_save_failed">Das Kraftziel konnte nicht gespeichert werden.</string>
     <string name="profile_strength_goal_history_label">GESPEICHERTE KRAFTZIELE</string>
     <string name="profile_strength_goal_delete_title">Kraftziel löschen?</string>
     <string name="profile_strength_goal_delete_message">Das Ziel für „%1$s“ wird entfernt.</string>
@@ -105,6 +109,7 @@
     <string name="profile_measurement_history_label">LETZTE MESSUNGEN</string>
     <string name="profile_measurement_empty">Noch keine Gewichtsmessungen gespeichert.</string>
     <string name="profile_measurement_saved">Gewichtsmessung gespeichert</string>
+    <string name="profile_measurement_save_failed">Die Gewichtsmessung konnte nicht gespeichert werden. Deine Eingabe bleibt erhalten.</string>
     <string name="profile_measurement_date_future">Das Messdatum darf nicht in der Zukunft liegen.</string>
     <string name="profile_measurement_delete_title">Messwert löschen?</string>
     <string name="profile_measurement_delete_message">Die Gewichtsmessung vom %1$s wird entfernt.</string>
@@ -115,6 +120,7 @@
     <string name="profile_body_fat_history_label">LETZTE KFA-MESSUNGEN</string>
     <string name="profile_body_fat_empty">Noch keine Körperfettmessungen gespeichert.</string>
     <string name="profile_body_fat_saved">Körperfettmessung gespeichert</string>
+    <string name="profile_body_fat_save_failed">Die Körperfettmessung konnte nicht gespeichert werden. Deine Eingabe bleibt erhalten.</string>
     <string name="profile_body_fat_delete_title">KFA-Messwert löschen?</string>
     <string name="profile_body_fat_delete_message">Die Körperfettmessung vom %1$s wird entfernt.</string>
     <string name="profile_volume_goal_label">WOCHENVOLUMEN-ZIEL</string>
@@ -131,10 +137,13 @@
     <string name="profile_recommendation_suitable">Dein Wochenziel liegt im empfohlenen Bereich.</string>
     <string name="profile_recommendation_above">Dein Wochenziel liegt darüber; plane zusätzliche Regeneration ein.</string>
     <string name="profile_required">Pflichtfeld</string>
+    <string name="profile_birth_date_future">Das Geburtsdatum darf nicht in der Zukunft liegen.</string>
     <string name="profile_invalid_number">Bitte eine gültige Zahl eingeben</string>
     <string name="profile_value_range">Erlaubter Bereich: %1$s bis %2$s</string>
     <string name="profile_preferred_days_too_few">Wähle mindestens so viele Trainingstage aus, wie dein Wochenziel vorsieht.</string>
     <string name="profile_target_date_past">Der Zieltermin muss in der Zukunft liegen.</string>
+    <string name="profile_current_weight_required">Für das Ziel „Abnehmen“ wird zuerst eine Gewichtsmessung benötigt.</string>
+    <string name="profile_delete_failed">Der Eintrag konnte nicht gelöscht werden. Es wurden keine Daten verändert.</string>
     <string name="progress_weight_trend">GEWICHTSVERLAUF · ZIELLINIE</string>
     <string name="progress_tab_body">Körper</string>
     <string name="progress_focus_muscle">Dein Fokus: Volumen, progressive Steigerung und Trainingsfrequenz.</string>
@@ -234,8 +243,25 @@
 
     <string name="training_section">TRAINING</string>
     <string name="workout_split_chip">SPLIT</string>
-    <string name="workout_choose_title">Wähle deinen\nWorkout-Split</string>
+    <string name="workout_choose_title">Wähle deinen\nWorkout</string>
     <string name="workout_your_training">DEIN TRAINING</string>
+    <string name="custom_workout_chip">EIGENER SPLIT</string>
+    <string name="custom_workout_add">EIGENES TRAINING ANLEGEN</string>
+    <string name="custom_workout_create_title">Trainingstag anlegen</string>
+    <string name="custom_workout_edit_title">Trainingstag bearbeiten</string>
+    <string name="custom_workout_dialog_subtitle">Name und Einordnung sind frei wählbar. Die Einordnung wird für Fortschritt und Balance verwendet.</string>
+    <string name="custom_workout_template">SCHNELLVORLAGE</string>
+    <string name="custom_workout_name">NAME</string>
+    <string name="custom_workout_name_hint">z. B. Oberkörper</string>
+    <string name="custom_workout_focus">EINORDNUNG</string>
+    <string name="custom_workout_description">BESCHREIBUNG</string>
+    <string name="custom_workout_description_hint">Optionaler Hinweis für deine Übersicht</string>
+    <string name="custom_workout_archive">TRAININGSTAG ARCHIVIEREN</string>
+    <string name="custom_workout_archive_title">Trainingstag archivieren?</string>
+    <string name="custom_workout_archive_message">„%1$s“ verschwindet aus der Auswahl. Gespeicherte Trainings und Statistiken bleiben erhalten.</string>
+    <string name="custom_workout_duplicate">Dieser Name wird bereits verwendet.</string>
+    <string name="custom_workout_required">Bitte gib einen Namen ein.</string>
+    <string name="custom_workout_save_failed">Der Trainingstag konnte nicht gespeichert werden.</string>
     <string name="workout_push_muscles">BRUST · SCHULTER · TRIZEPS</string>
     <string name="workout_push_description">Drückbewegungen und Oberkörperkraft</string>
     <string name="workout_pull_muscles">RÜCKEN · BIZEPS · CORE</string>
@@ -258,6 +284,11 @@
     <string name="training_last_workout">LETZTES TRAINING</string>
     <string name="training_weight">GEWICHT</string>
     <string name="training_reps">WDHL.</string>
+    <string name="training_set_count">SATZANZAHL</string>
+    <string name="training_set_count_value">%1$d von maximal %2$d Sätzen</string>
+    <string name="training_add_set">Satz hinzufügen</string>
+    <string name="training_remove_set">Letzten Satz entfernen</string>
+    <string name="training_set_remove_non_empty">Satz %1$d enthält Eingaben. Leere ihn zuerst, bevor du ihn entfernst.</string>
     <string name="training_save_workout">TRAINING SPEICHERN</string>
     <string name="training_second_exercise">2. Übung</string>
     <string name="training_cardio">CARDIO</string>
@@ -305,7 +336,6 @@
     <string name="training_summary_first_comparison">%1$s · erster Vergleichswert</string>
     <string name="training_summary_volume_change">%1$s · %2$s zum letzten %3$s</string>
     <string name="training_summary_best_set_value">%1$s · %2$s × %3$d</string>
-    <string name="dialog_security_chip">SICHERHEIT</string>
     <string name="dialog_exercise_chip">ÜBUNGSPROFIL</string>
     <string name="dialog_exercise_subtitle">Gerätepositionen und persönliche Werte hinterlegen</string>
     <string name="dialog_seat_positions">SITZ- UND GERÄTEPOSITIONEN</string>
@@ -317,7 +347,8 @@
     <string name="dialog_selection_chip">AUSWAHL</string>
     <string name="dialog_select_title">Eintrag auswählen</string>
     <string name="dialog_select_subtitle">Wähle den passenden Eintrag für dein Training</string>
-    <string name="delete_entry_title">Eintrag löschen?</string>
+    <string name="catalog_delete_title">Eintrag löschen?</string>
+    <string name="catalog_delete_message">„%1$s“ wird aus dem Katalog entfernt.</string>
     <string name="cancel">ABBRECHEN</string>
     <string name="delete">LÖSCHEN</string>
     <string name="dialog_save">SPEICHERN</string>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_surface"
+    android:orientation="vertical"
+    android:padding="22dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_home_chip"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.12"
+        android:paddingStart="10dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="4dp"
+        android:text="@string/custom_workout_chip"
+        android:textColor="@color/gold_dark"
+        android:textSize="9sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvCustomWorkoutDialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="sans-serif-black"
+        android:text="@string/custom_workout_create_title"
+        android:textColor="@color/text_primary"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="@string/custom_workout_dialog_subtitle"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp" />
+
+    <TextView
+        style="@style/SectionLabel"
+        android:layout_marginTop="18dp"
+        android:text="@string/custom_workout_template" />
+
+    <Spinner
+        android:id="@+id/spinnerCustomWorkoutTemplate"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/spinner_background"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp" />
+
+    <TextView
+        style="@style/SectionLabel"
+        android:layout_marginTop="14dp"
+        android:text="@string/custom_workout_name" />
+
+    <EditText
+        android:id="@+id/etCustomWorkoutName"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_training_input_compact"
+        android:hint="@string/custom_workout_name_hint"
+        android:inputType="textCapWords"
+        android:maxLength="40"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:singleLine="true"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_tertiary" />
+
+    <TextView
+        style="@style/SectionLabel"
+        android:layout_marginTop="14dp"
+        android:text="@string/custom_workout_focus" />
+
+    <Spinner
+        android:id="@+id/spinnerCustomWorkoutFocus"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/spinner_background"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp" />
+
+    <TextView
+        style="@style/SectionLabel"
+        android:layout_marginTop="14dp"
+        android:text="@string/custom_workout_description" />
+
+    <EditText
+        android:id="@+id/etCustomWorkoutDescription"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_training_input_compact"
+        android:gravity="top|start"
+        android:hint="@string/custom_workout_description_hint"
+        android:inputType="textCapSentences|textMultiLine"
+        android:maxLength="120"
+        android:padding="14dp"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_tertiary" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCustomWorkoutCancel"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:text="@string/cancel"
+            android:textColor="@color/text_primary"
+            app:backgroundTint="@color/card_background_light"
+            app:cornerRadius="13dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCustomWorkoutSave"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:text="@string/dialog_save"
+            android:textColor="@color/black"
+            app:backgroundTint="@color/training_gold_highlight"
+            app:cornerRadius="13dp" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCustomWorkoutArchive"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/custom_workout_archive"
+        android:textColor="@color/text_secondary"
+        android:visibility="gone"
+        app:backgroundTint="@color/primary_dark"
+        app:cornerRadius="12dp"
+        app:strokeColor="@color/divider"
+        app:strokeWidth="1dp" />
+</LinearLayout>

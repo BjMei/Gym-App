@@ -1,7 +1,7 @@
 package com.example.gym_app;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -35,16 +35,16 @@ import java.util.Locale;
 
 public class PushActivity extends IronxActivity {
 
+    public static final String EXTRA_WORKOUT_TYPE = "custom_workout_type";
+
     private Spinner spinnerExercise;
     private Spinner spinnerExerciseSecond;
     private LinearLayout btnToggleSecondExercise;
     private ImageView ivAccordionArrow;
     private ImageButton btnExerciseSettings;
     private ImageButton btnManageExercises;
-    private EditText[] etWeights;
-    private EditText[] etReps;
-    private EditText[] etSecondWeights;
-    private EditText[] etSecondReps;
+    private TrainingSetInputController primarySetInputs;
+    private TrainingSetInputController secondSetInputs;
     private MaterialButton btnSaveTraining;
     private ScrollView trainingScrollView;
     private Spinner spinnerCardio;
@@ -68,11 +68,11 @@ public class PushActivity extends IronxActivity {
     private boolean exitDialogVisible = false;
     private String trainingSessionId;
     private String trainingSessionStartedAt;
-    private long workoutStartedEpochMs;
+    private final ActiveDurationTracker activeDurationTracker =
+            new ActiveDurationTracker();
     private static final String STATE_SESSION_ID = "training_session_id";
     private static final String STATE_SESSION_STARTED_AT = "training_session_started_at";
-    private static final String STATE_WORKOUT_STARTED =
-            "training_workout_started";
+    private static final String STATE_ACTIVE_DURATION = "training_active_duration";
     private static final String STATE_TIMER_ELAPSED = "timer_elapsed";
     private static final String STATE_TIMER_RUNNING = "timer_running";
     private final Runnable timerRunnable = new Runnable() {
@@ -93,13 +93,21 @@ public class PushActivity extends IronxActivity {
     private ArrayAdapter<String> cardioAdapter;
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "ExerciseSettings";
-    private static final String WORKOUT_TYPE = WorkoutStorage.TYPE_PUSH;
-    private static final String CARDIO_TYPE = WORKOUT_TYPE + "_cardio";
+    private String workoutType = WorkoutStorage.TYPE_PUSH;
+    private String cardioType = WorkoutStorage.TYPE_PUSH + "_cardio";
+    private WorkoutTypeRepository.WorkoutType workoutDefinition;
+
+    public static Intent createCustomIntent(Context context, String workoutType) {
+        return new Intent(context, PushActivity.class)
+                .putExtra(EXTRA_WORKOUT_TYPE, workoutType);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        resolveWorkoutType();
         setContentView(R.layout.activity_push);
+        configureWorkoutPresentation();
         configureSystemBars();
         applyWindowInsets();
         restoreSessionState(savedInstanceState);
@@ -141,34 +149,51 @@ public class PushActivity extends IronxActivity {
         setupCardioSpinner();
         setupSpinnerPicker(spinnerCardio, cardioAdapter, getString(R.string.training_select_cardio));
 
-        // Arrays für die 4 Sätze initialisieren
-        etWeights = new EditText[]{
+        EditText[] initialWeights = new EditText[]{
             findViewById(R.id.etWeight1),
             findViewById(R.id.etWeight2),
             findViewById(R.id.etWeight3),
             findViewById(R.id.etWeight4)
         };
 
-        etReps = new EditText[]{
+        EditText[] initialReps = new EditText[]{
             findViewById(R.id.etReps1),
             findViewById(R.id.etReps2),
             findViewById(R.id.etReps3),
             findViewById(R.id.etReps4)
         };
 
-        etSecondWeights = new EditText[]{
+        EditText[] initialSecondWeights = new EditText[]{
             findViewById(R.id.etWeight1_2),
             findViewById(R.id.etWeight2_2),
             findViewById(R.id.etWeight3_2),
             findViewById(R.id.etWeight4_2)
         };
 
-        etSecondReps = new EditText[]{
+        EditText[] initialSecondReps = new EditText[]{
             findViewById(R.id.etReps1_2),
             findViewById(R.id.etReps2_2),
             findViewById(R.id.etReps3_2),
             findViewById(R.id.etReps4_2)
         };
+        LinearLayout primarySetContainer =
+                (LinearLayout) btnSaveTraining.getParent();
+        primarySetInputs = new TrainingSetInputController(
+                this,
+                primarySetContainer,
+                primarySetContainer.indexOfChild(btnSaveTraining),
+                initialWeights,
+                initialReps
+        );
+        secondSetInputs = new TrainingSetInputController(
+                this,
+                llSecondExerciseSection,
+                llSecondExerciseSection.getChildCount(),
+                initialSecondWeights,
+                initialSecondReps
+        );
+        primarySetInputs.restoreState(savedInstanceState, "primary_sets");
+        secondSetInputs.restoreState(savedInstanceState, "second_sets");
         configureWeightUnit();
 
         // Listen für Einträge initialisieren
@@ -207,8 +232,11 @@ public class PushActivity extends IronxActivity {
         View btnViewHistory = findViewById(R.id.btnViewHistory);
         btnViewHistory.setOnClickListener(v -> {
             Intent intent = new Intent(PushActivity.this, TrainingHistoryActivity.class);
-            intent.putExtra(TrainingHistoryActivity.EXTRA_WORKOUT_TYPE, WORKOUT_TYPE);
-            intent.putExtra(TrainingHistoryActivity.EXTRA_WORKOUT_TITLE, "PUSH DAY - Trainings");
+            intent.putExtra(TrainingHistoryActivity.EXTRA_WORKOUT_TYPE, workoutType);
+            intent.putExtra(
+                    TrainingHistoryActivity.EXTRA_WORKOUT_TITLE,
+                    workoutTitle() + " - Trainings"
+            );
             startActivity(intent);
         });
 
@@ -261,6 +289,43 @@ public class PushActivity extends IronxActivity {
         }
     }
 
+    private void resolveWorkoutType() {
+        String requested = getIntent().getStringExtra(EXTRA_WORKOUT_TYPE);
+        WorkoutTypeRepository.WorkoutType requestedDefinition =
+                WorkoutTypeRepository.find(this, requested);
+        if (requestedDefinition != null && !requestedDefinition.builtIn) {
+            workoutDefinition = requestedDefinition;
+            workoutType = requestedDefinition.id;
+        } else {
+            workoutDefinition = WorkoutTypeRepository.find(
+                    this,
+                    WorkoutStorage.TYPE_PUSH
+            );
+            workoutType = WorkoutStorage.TYPE_PUSH;
+        }
+        cardioType = workoutType + "_cardio";
+    }
+
+    private void configureWorkoutPresentation() {
+        if (workoutDefinition == null || workoutDefinition.builtIn) {
+            return;
+        }
+        TextView badge = findViewById(R.id.tvWorkoutTypeBadge);
+        TextView focus = findViewById(R.id.tvWorkoutFocus);
+        TextView title = findViewById(R.id.tvWorkoutTitle);
+        TextView description = findViewById(R.id.tvWorkoutDescription);
+        badge.setText(R.string.custom_workout_chip);
+        focus.setText(workoutDefinition.focusLabel);
+        title.setText(workoutDefinition.name.toUpperCase(Locale.GERMANY));
+        description.setText(workoutDefinition.description);
+    }
+
+    private String workoutTitle() {
+        return workoutDefinition == null
+                ? "PUSH DAY"
+                : workoutDefinition.name.toUpperCase(Locale.GERMANY);
+    }
+
     private void setupInfoButtons() {
         InfoDialogHelper.insertInfoRowAfter(
                 llLastWorkout,
@@ -271,7 +336,8 @@ public class PushActivity extends IronxActivity {
                 btnToggleSecondExercise,
                 "Zweite Übung",
                 "Klappe den Bereich auf, wenn du im selben Workout eine zweite Übung "
-                        + "speichern möchtest. Beide Übungen werden getrennt ausgewertet."
+                        + "speichern möchtest. Beide Übungen werden getrennt ausgewertet.",
+                17
         );
         InfoDialogHelper.insertInfoRowAfter(
                 etCardioMinutes,
@@ -318,7 +384,6 @@ public class PushActivity extends IronxActivity {
                     getString(R.string.training_timer_pause)
             );
             TrainingTimerAnimator.setRunning(timerCard, true);
-            timerHandler.post(timerRunnable);
         } else {
             btnTimerStartPause.setImageResource(R.drawable.ic_ironx_play);
             btnTimerStartPause.setContentDescription(
@@ -385,18 +450,18 @@ public class PushActivity extends IronxActivity {
     private void restoreSessionState(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             WorkoutStorage.TrainingSession session =
-                    WorkoutStorage.getOrCreateActiveTrainingSession(this, WORKOUT_TYPE);
+                    WorkoutStorage.getOrCreateActiveTrainingSession(this, workoutType);
             if (session == null) {
                 trainingSessionId = "";
                 trainingSessionStartedAt = "";
-                workoutStartedEpochMs = System.currentTimeMillis();
+                activeDurationTracker.restore(0L);
                 Toast.makeText(this, R.string.training_session_start_failed, Toast.LENGTH_LONG)
                         .show();
                 return;
             }
             trainingSessionId = session.sessionId;
             trainingSessionStartedAt = session.timestamp;
-            workoutStartedEpochMs = session.startedAtEpochMs;
+            activeDurationTracker.restore(session.durationMs);
             return;
         }
         trainingSessionId = savedInstanceState.getString(
@@ -407,10 +472,10 @@ public class PushActivity extends IronxActivity {
                 STATE_SESSION_STARTED_AT,
                 ""
         );
-        workoutStartedEpochMs = savedInstanceState.getLong(
-                STATE_WORKOUT_STARTED,
-                System.currentTimeMillis()
-        );
+        activeDurationTracker.restore(Math.max(
+                savedInstanceState.getLong(STATE_ACTIVE_DURATION, 0L),
+                WorkoutStorage.getTrainingSessionDuration(this, trainingSessionId)
+        ));
         elapsedWhenPausedMs = savedInstanceState.getLong(STATE_TIMER_ELAPSED, 0L);
         timerRunning = savedInstanceState.getBoolean(STATE_TIMER_RUNNING, false);
     }
@@ -420,7 +485,7 @@ public class PushActivity extends IronxActivity {
             return;
         }
         for (WorkoutStorage.DetailedWorkout stored :
-                WorkoutStorage.getAllDetailedWorkouts(this, WORKOUT_TYPE)) {
+                WorkoutStorage.getAllDetailedWorkouts(this, workoutType)) {
             if (!trainingSessionId.equals(stored.sessionId) || stored.sets == null) {
                 continue;
             }
@@ -433,7 +498,7 @@ public class PushActivity extends IronxActivity {
             addEntryToView(entry);
         }
         for (WorkoutStorage.CardioSession stored :
-                WorkoutStorage.getAllCardioSessions(this, WORKOUT_TYPE)) {
+                WorkoutStorage.getAllCardioSessions(this, workoutType)) {
             if (!trainingSessionId.equals(stored.sessionId)) {
                 continue;
             }
@@ -447,6 +512,18 @@ public class PushActivity extends IronxActivity {
         return timerRunning
                 ? SystemClock.elapsedRealtime() - timerBaseMs
                 : elapsedWhenPausedMs;
+    }
+
+    private long pauseAndPersistActiveDuration() {
+        long durationMs = activeDurationTracker.pause(SystemClock.elapsedRealtime());
+        if (trainingSessionId != null && !trainingSessionId.trim().isEmpty()) {
+            WorkoutStorage.updateActiveTrainingSessionDuration(
+                    this,
+                    trainingSessionId,
+                    durationMs
+            );
+        }
+        return durationMs;
     }
 
     private void toggleSecondExerciseSection() {
@@ -465,7 +542,7 @@ public class PushActivity extends IronxActivity {
     }
 
     private void loadLastWorkout(String exercise) {
-        WorkoutStorage.LastWorkout lastWorkout = WorkoutStorage.getLastWorkout(this, WORKOUT_TYPE, exercise);
+        WorkoutStorage.LastWorkout lastWorkout = WorkoutStorage.getLastWorkout(this, workoutType, exercise);
         if (lastWorkout != null && lastWorkout.sets != null && !lastWorkout.sets.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             sb.append(lastWorkout.timestamp);
@@ -487,7 +564,7 @@ public class PushActivity extends IronxActivity {
     }
 
     private void loadLastWorkoutSecond(String exercise) {
-        WorkoutStorage.LastWorkout lastWorkout = WorkoutStorage.getLastWorkout(this, WORKOUT_TYPE, exercise);
+        WorkoutStorage.LastWorkout lastWorkout = WorkoutStorage.getLastWorkout(this, workoutType, exercise);
         if (lastWorkout != null && lastWorkout.sets != null && !lastWorkout.sets.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             sb.append(lastWorkout.timestamp);
@@ -509,7 +586,7 @@ public class PushActivity extends IronxActivity {
     }
 
     private void setupExerciseSpinner() {
-        List<String> exercises = ExerciseCatalog.getExercises(this, WORKOUT_TYPE);
+        List<String> exercises = ExerciseCatalog.getExercises(this, workoutType);
         adapter = new ArrayAdapter<>(this, R.layout.spinner_item_white, exercises);
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
         spinnerExercise.setAdapter(adapter);
@@ -517,7 +594,7 @@ public class PushActivity extends IronxActivity {
     }
 
     private void refreshExerciseSpinner(String preferredExercise) {
-        List<String> exercises = ExerciseCatalog.getExercises(this, WORKOUT_TYPE);
+        List<String> exercises = ExerciseCatalog.getExercises(this, workoutType);
         adapter.clear();
         adapter.addAll(exercises);
         adapter.notifyDataSetChanged();
@@ -544,14 +621,14 @@ public class PushActivity extends IronxActivity {
     }
 
     private void setupCardioSpinner() {
-        List<String> cardioExercises = ExerciseCatalog.getExercises(this, CARDIO_TYPE);
+        List<String> cardioExercises = ExerciseCatalog.getExercises(this, cardioType);
         cardioAdapter = new ArrayAdapter<>(this, R.layout.spinner_item_white, cardioExercises);
         cardioAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
         spinnerCardio.setAdapter(cardioAdapter);
     }
 
     private void refreshCardioSpinner(String preferredExercise) {
-        List<String> cardioExercises = ExerciseCatalog.getExercises(this, CARDIO_TYPE);
+        List<String> cardioExercises = ExerciseCatalog.getExercises(this, cardioType);
         cardioAdapter.clear();
         cardioAdapter.addAll(cardioExercises);
         cardioAdapter.notifyDataSetChanged();
@@ -653,7 +730,7 @@ public class PushActivity extends IronxActivity {
     private void showManageExercisesDialog() {
         showManageListDialog(
                 "Übungen verwalten",
-                WORKOUT_TYPE,
+                workoutType,
                 () -> {
                     Object selected = spinnerExercise.getSelectedItem();
                     if (selected != null) {
@@ -668,9 +745,8 @@ public class PushActivity extends IronxActivity {
     private void showManageCardioDialog() {
         showManageListDialog(
                 "Cardio verwalten",
-                CARDIO_TYPE,
-                () -> {
-                }
+                cardioType,
+                null
         );
     }
 
@@ -718,7 +794,7 @@ public class PushActivity extends IronxActivity {
                 return;
             }
 
-            if (listKey.equals(WORKOUT_TYPE)) {
+            if (listKey.equals(workoutType)) {
                 refreshExerciseSpinner(newItem);
             } else {
                 refreshCardioSpinner(newItem);
@@ -790,17 +866,17 @@ public class PushActivity extends IronxActivity {
         btnDelete.setContentDescription(getString(R.string.delete));
         row.addView(btnDelete);
 
-        btnDelete.setOnClickListener(v -> showDeleteConfirmDialog(item, () -> {
+        btnDelete.setOnClickListener(v -> DeleteConfirmationDialog.show(this, item, () -> {
             if (ExerciseCatalog.removeExercise(this, listKey, item)) {
-                if (listKey.equals(WORKOUT_TYPE)) {
+                if (listKey.equals(workoutType)) {
                     sharedPreferences.edit()
-                            .remove(ExerciseCatalog.settingsKey(WORKOUT_TYPE, item))
+                            .remove(ExerciseCatalog.settingsKey(workoutType, item))
                             .apply();
                     getSharedPreferences("ExerciseMuscleMappings", MODE_PRIVATE)
                             .edit()
-                            .remove(WORKOUT_TYPE + "|" + item)
+                            .remove(workoutType + "|" + item)
                             .apply();
-                    new ProfileRepository(this).removeStrengthGoal(WORKOUT_TYPE, item);
+                    new ProfileRepository(this).removeStrengthGoal(workoutType, item);
                     refreshExerciseSpinner(null);
                 } else {
                     refreshCardioSpinner(null);
@@ -810,7 +886,7 @@ public class PushActivity extends IronxActivity {
                 }
 
                 parentDialog.dismiss();
-                if (listKey.equals(WORKOUT_TYPE)) {
+                if (listKey.equals(workoutType)) {
                     showManageExercisesDialog();
                 } else {
                     showManageCardioDialog();
@@ -819,33 +895,6 @@ public class PushActivity extends IronxActivity {
         }));
 
         return row;
-    }
-
-    private void showDeleteConfirmDialog(String itemName, Runnable onConfirm) {
-        Dialog confirmDialog = new Dialog(this);
-        confirmDialog.setContentView(R.layout.dialog_confirm_delete);
-
-        if (confirmDialog.getWindow() != null) {
-            confirmDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            android.view.WindowManager.LayoutParams params = confirmDialog.getWindow().getAttributes();
-            params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.88);
-            confirmDialog.getWindow().setAttributes(params);
-        }
-
-        TextView tvMessage = confirmDialog.findViewById(R.id.tvDeleteMessage);
-        Button btnCancel = confirmDialog.findViewById(R.id.btnDeleteCancel);
-        Button btnConfirm = confirmDialog.findViewById(R.id.btnDeleteConfirm);
-
-        tvMessage.setText("'" + itemName + "' wirklich löschen?");
-        btnCancel.setOnClickListener(v -> confirmDialog.dismiss());
-        btnConfirm.setOnClickListener(v -> {
-            if (onConfirm != null) {
-                onConfirm.run();
-            }
-            confirmDialog.dismiss();
-        });
-
-        confirmDialog.show();
     }
 
     private void showExerciseSettingsDialog() {
@@ -876,7 +925,7 @@ public class PushActivity extends IronxActivity {
         Button btnSaveSettings = dialog.findViewById(R.id.btnSaveSettings);
 
         // Gespeicherte Einstellungen laden
-        String settingsKey = ExerciseCatalog.settingsKey(WORKOUT_TYPE, selectedExercise);
+        String settingsKey = ExerciseCatalog.settingsKey(workoutType, selectedExercise);
         String savedPositions = sharedPreferences.getString(
                 settingsKey,
                 ""
@@ -912,14 +961,17 @@ public class PushActivity extends IronxActivity {
             return false;
         }
 
-        List<Set> primarySets = parseSetsFromInputs(etWeights, etReps, "Hauptübung");
+        List<Set> primarySets = parseSetsFromInputs(
+                primarySetInputs,
+                "Hauptübung"
+        );
         if (primarySets == null) {
             return false;
         }
 
         Object secondExerciseObj = spinnerExerciseSecond.getSelectedItem();
         String secondExercise = secondExerciseObj == null ? "" : secondExerciseObj.toString();
-        boolean secondHasInput = hasAnyInput(etSecondWeights, etSecondReps);
+        boolean secondHasInput = secondSetInputs.hasAnyInput();
         List<Set> secondSets = null;
 
         if (secondHasInput) {
@@ -932,7 +984,10 @@ public class PushActivity extends IronxActivity {
                 return false;
             }
 
-            secondSets = parseSetsFromInputs(etSecondWeights, etSecondReps, "2. Übung");
+            secondSets = parseSetsFromInputs(
+                    secondSetInputs,
+                    "2. Übung"
+            );
             if (secondSets == null) {
                 return false;
             }
@@ -951,7 +1006,7 @@ public class PushActivity extends IronxActivity {
         }
         boolean saved = WorkoutStorage.saveDetailedWorkouts(
                 this,
-                WORKOUT_TYPE,
+                workoutType,
                 trainingSessionId,
                 trainingSessionStartedAt,
                 exercisesToSave
@@ -973,13 +1028,20 @@ public class PushActivity extends IronxActivity {
         return true;
     }
 
-    private List<Set> parseSetsFromInputs(EditText[] weights, EditText[] reps, String label) {
+    private List<Set> parseSetsFromInputs(
+            TrainingSetInputController inputs,
+            String label
+    ) {
         List<Set> sets = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            String weightStr = weights[i].getText().toString().trim();
-            String repsStr = reps[i].getText().toString().trim();
+        for (int i = 0; i < inputs.getSetCount(); i++) {
+            EditText weightInput = inputs.getWeightInput(i);
+            EditText repsInput = inputs.getRepsInput(i);
+            String weightStr = weightInput.getText().toString().trim();
+            String repsStr = repsInput.getText().toString().trim();
 
             if (weightStr.isEmpty() || repsStr.isEmpty()) {
+                weightInput.setError(getString(R.string.profile_required));
+                repsInput.setError(getString(R.string.profile_required));
                 Toast.makeText(this, String.format("%s: Bitte Satz %d vollständig ausfüllen", label, i + 1), Toast.LENGTH_SHORT).show();
                 return null;
             }
@@ -988,23 +1050,18 @@ public class PushActivity extends IronxActivity {
                 double displayedWeight = Double.parseDouble(weightStr.replace(',', '.'));
                 double weight = AppSettings.toStoredKg(this, displayedWeight);
                 int repsValue = Integer.parseInt(repsStr);
+                if (!Double.isFinite(weight) || weight <= 0 || repsValue <= 0) {
+                    throw new NumberFormatException();
+                }
                 sets.add(new Set(weight, repsValue));
             } catch (NumberFormatException e) {
+                weightInput.setError(getString(R.string.profile_invalid_number));
+                repsInput.setError(getString(R.string.profile_invalid_number));
                 Toast.makeText(this, String.format("%s: Ungültige Eingabe in Satz %d", label, i + 1), Toast.LENGTH_SHORT).show();
                 return null;
             }
         }
         return sets;
-    }
-
-    private boolean hasAnyInput(EditText[] weights, EditText[] reps) {
-        for (int i = 0; i < 4; i++) {
-            if (!weights[i].getText().toString().trim().isEmpty()
-                    || !reps[i].getText().toString().trim().isEmpty()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private List<WorkoutStorage.WorkoutSet> toStorageSets(List<Set> sets) {
@@ -1018,13 +1075,8 @@ public class PushActivity extends IronxActivity {
     private void clearInputFields() {
         // Spinner auf erste Position zurücksetzen
         spinnerExercise.setSelection(0);
-        // Gewichts- und Wiederholungsfelder zurücksetzen
-        for (int i = 0; i < 4; i++) {
-            etWeights[i].setText("");
-            etReps[i].setText("");
-            etSecondWeights[i].setText("");
-            etSecondReps[i].setText("");
-        }
+        primarySetInputs.clearInputs();
+        secondSetInputs.clearInputs();
         spinnerExerciseSecond.setSelection(spinnerExercise.getSelectedItemPosition());
     }
 
@@ -1035,10 +1087,7 @@ public class PushActivity extends IronxActivity {
         exerciseContainer.setPadding(20, 20, 20, 20);
         exerciseContainer.setBackground(getResources().getDrawable(R.drawable.rounded_card, null));
         
-        // Elevation für Schatten-Effekt
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            exerciseContainer.setElevation(12f);
-        }
+        exerciseContainer.setElevation(12f);
 
         // Übungsname mit Nummer
         int exerciseNumber = workoutEntries.size();
@@ -1097,12 +1146,8 @@ public class PushActivity extends IronxActivity {
 
     private void configureWeightUnit() {
         String unit = AppSettings.getWeightUnit(this);
-        for (EditText weightInput : etWeights) {
-            weightInput.setHint(unit);
-        }
-        for (EditText weightInput : etSecondWeights) {
-            weightInput.setHint(unit);
-        }
+        primarySetInputs.setWeightUnit(unit);
+        secondSetInputs.setWeightUnit(unit);
     }
 
     private boolean saveCardioEntry() {
@@ -1131,7 +1176,7 @@ public class PushActivity extends IronxActivity {
 
             boolean saved = WorkoutStorage.saveCardioSession(
                     this,
-                    WORKOUT_TYPE,
+                    workoutType,
                     trainingSessionId,
                     trainingSessionStartedAt,
                     cardioExercise,
@@ -1165,10 +1210,7 @@ public class PushActivity extends IronxActivity {
         cardioContainer.setPadding(20, 20, 20, 20);
         cardioContainer.setBackground(getResources().getDrawable(R.drawable.rounded_card, null));
         
-        // Elevation für Schatten-Effekt
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            cardioContainer.setElevation(12f);
-        }
+        cardioContainer.setElevation(12f);
 
         // Cardio-Übungsname
         TextView cardioName = new TextView(this);
@@ -1227,18 +1269,20 @@ public class PushActivity extends IronxActivity {
         }
         exitDialogVisible = true;
         boolean resumeTimer = pauseTimerForExitDialog();
+        long activeDurationMs = pauseAndPersistActiveDuration();
         TrainingExitDialog.show(
                 this,
                 trainingSessionId,
-                WORKOUT_TYPE,
+                workoutType,
                 trainingSessionStartedAt,
-                workoutStartedEpochMs,
+                activeDurationMs,
                 hasUnsavedTrainingInput(),
                 () -> {
                     exitDialogVisible = false;
                     if (resumeTimer) {
                         resumeTimerAfterExitDialog();
                     }
+                    activeDurationTracker.start(SystemClock.elapsedRealtime());
                 },
                 () -> {
                     exitDialogVisible = false;
@@ -1280,15 +1324,17 @@ public class PushActivity extends IronxActivity {
     }
 
     private boolean hasUnsavedTrainingInput() {
-        return hasAnyInput(etWeights, etReps)
-                || hasAnyInput(etSecondWeights, etSecondReps)
+        return primarySetInputs.hasAnyInput()
+                || secondSetInputs.hasAnyInput()
                 || !etCardioMinutes.getText().toString().trim().isEmpty();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        activeDurationTracker.start(SystemClock.elapsedRealtime());
         if (timerRunning) {
+            timerBaseMs = SystemClock.elapsedRealtime() - elapsedWhenPausedMs;
             timerHandler.post(timerRunnable);
             TrainingTimerAnimator.setRunning(timerCard, true);
         }
@@ -1298,17 +1344,26 @@ public class PushActivity extends IronxActivity {
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(STATE_SESSION_ID, trainingSessionId);
         outState.putString(STATE_SESSION_STARTED_AT, trainingSessionStartedAt);
-        outState.putLong(STATE_WORKOUT_STARTED, workoutStartedEpochMs);
+        outState.putLong(
+                STATE_ACTIVE_DURATION,
+                activeDurationTracker.elapsed(SystemClock.elapsedRealtime())
+        );
         outState.putLong(STATE_TIMER_ELAPSED, getCurrentElapsedMs());
         outState.putBoolean(STATE_TIMER_RUNNING, timerRunning);
+        primarySetInputs.saveState(outState, "primary_sets");
+        secondSetInputs.saveState(outState, "second_sets");
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
+        if (timerRunning) {
+            elapsedWhenPausedMs = SystemClock.elapsedRealtime() - timerBaseMs;
+        }
+        pauseAndPersistActiveDuration();
         timerHandler.removeCallbacks(timerRunnable);
         TrainingTimerAnimator.suspend(timerCard);
+        super.onPause();
     }
 
     @Override

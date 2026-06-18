@@ -40,6 +40,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -60,13 +61,7 @@ public class StatistikActivity extends IronxActivity {
 
     private static final int[] RANGE_DAYS = {7, 30, 90, 180, 365, Integer.MAX_VALUE};
     private static final String[] RANGE_LABELS = {"7T", "30T", "90T", "6M", "12M", "Gesamt"};
-    private static final String[] TYPE_FILTER_LABELS = {"Alle Typen", "Push", "Pull", "Leg"};
-    private static final String[] TYPE_FILTER_VALUES = {
-            "",
-            WorkoutStorage.TYPE_PUSH,
-            WorkoutStorage.TYPE_PULL,
-            WorkoutStorage.TYPE_LEG
-    };
+    private final List<String> typeFilterValues = new ArrayList<>();
 
     private LinearLayout tabUebersicht, tabVolumen, tabStruktur, tabCardio, tabPR;
     private View secUebersicht, secVolumen, secStruktur, secCardio, secPR;
@@ -320,10 +315,19 @@ public class StatistikActivity extends IronxActivity {
     }
 
     private void setupFilters() {
+        List<String> typeLabels = new ArrayList<>();
+        typeLabels.add("Alle Typen");
+        typeFilterValues.clear();
+        typeFilterValues.add("");
+        for (WorkoutTypeRepository.WorkoutType type :
+                WorkoutTypeRepository.getAllTypes(this)) {
+            typeLabels.add(WorkoutTypeRepository.label(this, type.id));
+            typeFilterValues.add(type.id);
+        }
         ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(
                 this,
                 R.layout.spinner_item_stats,
-                TYPE_FILTER_LABELS
+                typeLabels
         );
         typeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_stats);
         spFilterType.setAdapter(typeAdapter);
@@ -370,13 +374,9 @@ public class StatistikActivity extends IronxActivity {
         updatingExerciseFilter = true;
         String selectedType = getSelectedTypeFilter();
         Map<String, ExerciseFilter> exercises = new LinkedHashMap<>();
-        String[] types = selectedType.isEmpty()
-                ? new String[]{
-                        WorkoutStorage.TYPE_PUSH,
-                        WorkoutStorage.TYPE_PULL,
-                        WorkoutStorage.TYPE_LEG
-                }
-                : new String[]{selectedType};
+        List<String> types = selectedType.isEmpty()
+                ? WorkoutTypeRepository.getAllTypeIds(this)
+                : Collections.singletonList(selectedType);
 
         for (String type : types) {
             for (WorkoutStorage.DetailedWorkout workout :
@@ -411,8 +411,8 @@ public class StatistikActivity extends IronxActivity {
         int position = spFilterType == null
                 ? 0
                 : spFilterType.getSelectedItemPosition();
-        return position >= 0 && position < TYPE_FILTER_VALUES.length
-                ? TYPE_FILTER_VALUES[position]
+        return position >= 0 && position < typeFilterValues.size()
+                ? typeFilterValues.get(position)
                 : "";
     }
 
@@ -451,13 +451,9 @@ public class StatistikActivity extends IronxActivity {
         List<WorkoutStorage.DetailedWorkout> result = new ArrayList<>();
         String selectedType = getSelectedTypeFilter();
         ExerciseFilter selectedExercise = getSelectedExerciseFilter();
-        String[] types = selectedType.isEmpty()
-                ? new String[]{
-                        WorkoutStorage.TYPE_PUSH,
-                        WorkoutStorage.TYPE_PULL,
-                        WorkoutStorage.TYPE_LEG
-                }
-                : new String[]{selectedType};
+        List<String> types = selectedType.isEmpty()
+                ? WorkoutTypeRepository.getAllTypeIds(this)
+                : Collections.singletonList(selectedType);
 
         for (String t : types) {
             for (WorkoutStorage.DetailedWorkout w : WorkoutStorage.getDetailedWorkouts(this, t)) {
@@ -485,13 +481,9 @@ public class StatistikActivity extends IronxActivity {
                 new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
         List<WorkoutStorage.CardioSession> result = new ArrayList<>();
         String selectedType = getSelectedTypeFilter();
-        String[] types = selectedType.isEmpty()
-                ? new String[]{
-                        WorkoutStorage.TYPE_PUSH,
-                        WorkoutStorage.TYPE_PULL,
-                        WorkoutStorage.TYPE_LEG
-                }
-                : new String[]{selectedType};
+        List<String> types = selectedType.isEmpty()
+                ? WorkoutTypeRepository.getAllTypeIds(this)
+                : Collections.singletonList(selectedType);
 
         for (String type : types) {
             for (WorkoutStorage.CardioSession session :
@@ -626,29 +618,11 @@ public class StatistikActivity extends IronxActivity {
     }
 
     private String getType(WorkoutStorage.DetailedWorkout w) {
-        if (WorkoutStorage.TYPE_PUSH.equals(w.workoutType)) {
-            return "Push";
-        }
-        if (WorkoutStorage.TYPE_PULL.equals(w.workoutType)) {
-            return "Pull";
-        }
-        if (WorkoutStorage.TYPE_LEG.equals(w.workoutType)) {
-            return "Leg";
-        }
-        return "Sonstige";
+        return workoutTypeLabel(w.workoutType);
     }
 
     private String workoutTypeLabel(String workoutType) {
-        if (WorkoutStorage.TYPE_PUSH.equals(workoutType)) {
-            return "Push";
-        }
-        if (WorkoutStorage.TYPE_PULL.equals(workoutType)) {
-            return "Pull";
-        }
-        if (WorkoutStorage.TYPE_LEG.equals(workoutType)) {
-            return "Leg";
-        }
-        return "Sonstige";
+        return WorkoutTypeRepository.label(this, workoutType);
     }
 
     private String exerciseLabel(WorkoutStorage.DetailedWorkout workout) {
@@ -677,17 +651,16 @@ public class StatistikActivity extends IronxActivity {
                 days == Integer.MAX_VALUE ? null : days
         );
 
-        SimpleDateFormat weekFmt = new SimpleDateFormat("'KW'ww/yyyy", Locale.getDefault());
         Map<String, Integer> weekCount = new HashMap<>();
-        SimpleDateFormat dayParse = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        DateTimeFormatter dayParse =
+                DateTimeFormatter.ofPattern("dd.MM.uuuu", Locale.GERMANY);
         for (String day : metrics.sessionDates.values()) {
             try {
-                Date d = dayParse.parse(day);
-                if (d != null) {
-                    String wk = weekFmt.format(d);
-                    weekCount.put(wk, weekCount.getOrDefault(wk, 0) + 1);
-                }
-            } catch (Exception ignored) {
+                String week = StatisticsCalculator.isoWeekLabel(
+                        LocalDate.parse(day, dayParse)
+                );
+                weekCount.put(week, weekCount.getOrDefault(week, 0) + 1);
+            } catch (RuntimeException ignored) {
             }
         }
         String bestWeek = "–";
@@ -931,34 +904,40 @@ public class StatistikActivity extends IronxActivity {
         double totalVol = 0;
         int totalSaetze = 0;
         Map<String, Double> volPerType = new LinkedHashMap<>();
-        volPerType.put("Push", 0.0);
-        volPerType.put("Pull", 0.0);
-        volPerType.put("Leg", 0.0);
+        for (WorkoutTypeRepository.WorkoutType type :
+                WorkoutTypeRepository.getAllTypes(this)) {
+            volPerType.put(WorkoutTypeRepository.label(this, type.id), 0.0);
+        }
         Map<String, Double> volPerExercise = new HashMap<>();
 
-        Map<String, double[]> dayVolMap = new HashMap<>();
+        List<StatisticsCalculator.VolumeEntry> sessionVolumeEntries =
+                new ArrayList<>();
 
         for (WorkoutStorage.DetailedWorkout w : all) {
             double vol = calcVolume(w.sets);
             totalVol += vol;
             totalSaetze += w.sets.size();
             String type = getType(w);
-            volPerType.put(type, volPerType.get(type) + vol);
+            volPerType.put(type, volPerType.getOrDefault(type, 0.0) + vol);
             String exerciseLabel = exerciseLabel(w);
             volPerExercise.put(
                     exerciseLabel,
                     volPerExercise.getOrDefault(exerciseLabel, 0.0) + vol
             );
 
-            String day = w.timestamp.split(" ")[0];
+            String day = datePart(w.timestamp);
             double maxSet = 0;
             for (WorkoutStorage.WorkoutSet s : w.sets) {
                 double sv = s.weight * s.reps;
                 if (sv > maxSet) maxSet = sv;
             }
-            if (!dayVolMap.containsKey(day)) dayVolMap.put(day, new double[]{0, 0});
-            dayVolMap.get(day)[0] += vol;
-            if (maxSet > dayVolMap.get(day)[1]) dayVolMap.get(day)[1] = maxSet;
+            sessionVolumeEntries.add(new StatisticsCalculator.VolumeEntry(
+                    w.sessionId,
+                    day,
+                    type,
+                    vol,
+                    maxSet
+            ));
         }
 
         int sessionCount = getSessionDates(all, Collections.emptyList()).size();
@@ -1011,20 +990,13 @@ public class StatistikActivity extends IronxActivity {
         double schwerstVol = 0;
         String schwerstTyp = "–";
         double schwerstEinzel = 0;
-        for (Map.Entry<String, double[]> e : dayVolMap.entrySet()) {
-            if (e.getValue()[0] > schwerstVol) {
-                schwerstVol = e.getValue()[0];
-                schwerstDatum = e.getKey();
-                schwerstEinzel = e.getValue()[1];
-                String td = e.getKey();
-                Map<String, Double> typeOnDay = new HashMap<>();
-                for (WorkoutStorage.DetailedWorkout w : all) {
-                    if (w.timestamp.startsWith(td)) {
-                        String t = getType(w);
-                        typeOnDay.put(t, typeOnDay.getOrDefault(t, 0.0) + calcVolume(w.sets));
-                    }
-                }
-                schwerstTyp = typeOnDay.entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("–");
+        for (StatisticsCalculator.SessionVolume session :
+                StatisticsCalculator.aggregateSessionVolumes(sessionVolumeEntries)) {
+            if (session.totalVolume > schwerstVol) {
+                schwerstVol = session.totalVolume;
+                schwerstDatum = session.date;
+                schwerstEinzel = session.maxSetVolume;
+                schwerstTyp = session.workoutType;
             }
         }
         tvSchwerstesDatum.setText(schwerstDatum);
@@ -1111,33 +1083,42 @@ public class StatistikActivity extends IronxActivity {
                 getCardioBetween(cutoff, new Date());
         Set<String> trainedDays = getActiveDays(all, cardio);
 
-        Map<String, Set<String>> typeSessions = new HashMap<>();
-        typeSessions.put("Push", new HashSet<>());
-        typeSessions.put("Pull", new HashSet<>());
-        typeSessions.put("Leg", new HashSet<>());
+        Map<String, Set<String>> typeSessions = new LinkedHashMap<>();
+        for (WorkoutTypeRepository.WorkoutType type :
+                WorkoutTypeRepository.getAllTypes(this)) {
+            typeSessions.put(
+                    WorkoutTypeRepository.label(this, type.id),
+                    new HashSet<>()
+            );
+        }
         for (WorkoutStorage.DetailedWorkout w : all) {
             String type = getType(w);
-            if (typeSessions.containsKey(type)) {
-                String date = datePart(w.timestamp);
-                typeSessions.get(type).add(sessionKey(
-                        w.sessionId,
-                        date,
-                        w.workoutType
-                ));
-            }
+            typeSessions.computeIfAbsent(type, ignored -> new HashSet<>())
+                    .add(sessionKey(
+                            w.sessionId,
+                            datePart(w.timestamp),
+                            w.workoutType
+                    ));
         }
-        float pushC = typeSessions.get("Push").size();
-        float pullC = typeSessions.get("Pull").size();
-        float legC = typeSessions.get("Leg").size();
+        for (WorkoutStorage.CardioSession session : cardio) {
+            String type = workoutTypeLabel(session.workoutType);
+            typeSessions.computeIfAbsent(type, ignored -> new HashSet<>())
+                    .add(sessionKey(
+                            session.sessionId,
+                            datePart(session.timestamp),
+                            session.workoutType
+                    ));
+        }
 
+        String[] typeLabels = typeSessions.keySet().toArray(new String[0]);
+        float[] typeCounts = new float[typeLabels.length];
+        for (int i = 0; i < typeLabels.length; i++) {
+            typeCounts[i] = typeSessions.get(typeLabels[i]).size();
+        }
         buildPieChart(chartPPLVerteilung,
-                new String[]{"Push", "Pull", "Leg"},
-                new float[]{pushC, pullC, legC},
-                new int[]{
-                        R.color.training_gold_highlight,
-                        R.color.training_gold,
-                        R.color.training_gold_pressed
-                });
+                typeLabels,
+                typeCounts,
+                workoutPalette(typeLabels.length));
 
         SimpleDateFormat dayParse = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         int[] weekdays = new int[7];
@@ -1264,17 +1245,24 @@ public class StatistikActivity extends IronxActivity {
         Map<String, double[]> prMap = new HashMap<>();
         Map<String, String> prDate = new HashMap<>();
 
-        Map<String, Double> dayVol = new HashMap<>();
-        Map<String, Map<String, Double>> dayTypeVolume = new HashMap<>();
+        List<StatisticsCalculator.VolumeEntry> sessionVolumeEntries =
+                new ArrayList<>();
 
         for (WorkoutStorage.DetailedWorkout w : all) {
-            String day = w.timestamp.split(" ")[0];
-            double dayV = calcVolume(w.sets);
-            dayVol.put(day, dayVol.getOrDefault(day, 0.0) + dayV);
+            String day = datePart(w.timestamp);
+            double workoutVolume = calcVolume(w.sets);
             String type = getType(w);
-            dayTypeVolume.putIfAbsent(day, new HashMap<>());
-            Map<String, Double> typeVolumes = dayTypeVolume.get(day);
-            typeVolumes.put(type, typeVolumes.getOrDefault(type, 0.0) + dayV);
+            double maxSetVolume = 0d;
+            for (WorkoutStorage.WorkoutSet set : w.sets) {
+                maxSetVolume = Math.max(maxSetVolume, set.weight * set.reps);
+            }
+            sessionVolumeEntries.add(new StatisticsCalculator.VolumeEntry(
+                    w.sessionId,
+                    day,
+                    type,
+                    workoutVolume,
+                    maxSetVolume
+            ));
 
             for (WorkoutStorage.WorkoutSet s : w.sets) {
                 String exerciseLabel = exerciseLabel(w);
@@ -1302,17 +1290,12 @@ public class StatistikActivity extends IronxActivity {
         String rekordDatum = "–";
         double rekordVol = 0;
         String rekordTyp = "–";
-        for (Map.Entry<String, Double> e : dayVol.entrySet()) {
-            if (e.getValue() > rekordVol) {
-                rekordVol = e.getValue();
-                rekordDatum = e.getKey();
-                rekordTyp = dayTypeVolume.getOrDefault(
-                        e.getKey(),
-                        Collections.emptyMap()
-                ).entrySet().stream()
-                        .max(Map.Entry.comparingByValue())
-                        .map(Map.Entry::getKey)
-                        .orElse("–");
+        for (StatisticsCalculator.SessionVolume session :
+                StatisticsCalculator.aggregateSessionVolumes(sessionVolumeEntries)) {
+            if (session.totalVolume > rekordVol) {
+                rekordVol = session.totalVolume;
+                rekordDatum = session.date;
+                rekordTyp = session.workoutType;
             }
         }
         tvVolRekordDatum.setText(rekordDatum);
@@ -1428,6 +1411,22 @@ public class StatistikActivity extends IronxActivity {
             chart.animateX(500);
         }
         chart.invalidate();
+    }
+
+    private int[] workoutPalette(int count) {
+        int[] base = {
+                R.color.training_gold_highlight,
+                R.color.training_gold,
+                R.color.training_gold_pressed,
+                R.color.gold_light,
+                R.color.gold_dark,
+                R.color.text_secondary
+        };
+        int[] result = new int[Math.max(1, count)];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = base[i % base.length];
+        }
+        return result;
     }
 
     private void buildPieChart(PieChart chart, String[] labels, float[] values, int[] colorRes) {
